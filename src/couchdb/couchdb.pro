@@ -1,7 +1,7 @@
 TARGET = QtCouchDB
 MODULE = couchdb
 
-QT += network
+QT = core network
 QT += qml ### TODO
 
 include(couchdb.pri)
