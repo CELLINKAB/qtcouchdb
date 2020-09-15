@@ -16,23 +16,23 @@ class COUCHDB_EXPORT CouchDBQuery : public QObject
     Q_OBJECT
 
 public:
-    explicit CouchDBQuery(CouchDBServer *server, QObject *parent = 0);
+    explicit CouchDBQuery(CouchDBServer *server, QObject *parent = nullptr);
     ~CouchDBQuery();
 
-    CouchDBServer* server() const;
-    QNetworkRequest* request() const;
+    CouchDBServer *server() const;
+    QNetworkRequest *request() const;
 
     QUrl url() const;
-    void setUrl(const QUrl& url);
+    void setUrl(const QUrl &url);
 
     CouchDBOperation operation() const;
-    void setOperation(const CouchDBOperation& operation);
+    void setOperation(CouchDBOperation operation);
 
     QString database() const;
-    void setDatabase(const QString& database);
+    void setDatabase(const QString &database);
 
-    QString documentID() const;
-    void setDocumentID(const QString& documentID);
+    QString documentId() const;
+    void setDocumentId(const QString &documentId);
 
     QByteArray body() const;
     void setBody(const QByteArray& body);

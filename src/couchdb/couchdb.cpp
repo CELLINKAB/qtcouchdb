@@ -332,7 +332,7 @@ void CouchDB::retrieveRevision(const QString &database, const QString &id)
     query->setUrl(QString("%1/%2/%3").arg(d->server->baseURL(), database, id));
     query->setOperation(COUCHDB_RETRIEVEREVISION);
     query->setDatabase(database);
-    query->setDocumentID(id);
+    query->setDocumentId(id);
 
     executeQuery(query);
 }
@@ -345,7 +345,7 @@ void CouchDB::retrieveDocument(const QString &database, const QString &id)
     query->setUrl(QString("%1/%2/%3").arg(d->server->baseURL(), database, id));
     query->setOperation(COUCHDB_RETRIEVEDOCUMENT);
     query->setDatabase(database);
-    query->setDocumentID(id);
+    query->setDocumentId(id);
 
     executeQuery(query);
 }
@@ -360,7 +360,7 @@ void CouchDB::updateDocument(const QString &database, const QString &id, QByteAr
     query->setUrl(QString("%1/%2/%3").arg(d->server->baseURL(), database, id));
     query->setOperation(COUCHDB_UPDATEDOCUMENT);
     query->setDatabase(database);
-    query->setDocumentID(id);
+    query->setDocumentId(id);
     query->request()->setRawHeader("Accept", "application/json");
     query->request()->setRawHeader("Content-Type", "application/json");
     query->request()->setRawHeader("Content-Length", postDataSize);
@@ -377,7 +377,7 @@ void CouchDB::deleteDocument(const QString &database, const QString &id, const Q
     query->setUrl(QString("%1/%2/%3?rev=%4").arg(d->server->baseURL(), database, id, revision));
     query->setOperation(COUCHDB_DELETEDOCUMENT);
     query->setDatabase(database);
-    query->setDocumentID(id);
+    query->setDocumentId(id);
 
     executeQuery(query);
 }
@@ -393,7 +393,7 @@ void CouchDB::uploadAttachment(const QString &database, const QString &id, const
     query->setUrl(QString("%1/%2/%3/%4?rev=%5").arg(d->server->baseURL(), database, id, attachmentName, revision));
     query->setOperation(COUCHDB_DELETEDOCUMENT);
     query->setDatabase(database);
-    query->setDocumentID(id);
+    query->setDocumentId(id);
     query->request()->setRawHeader("Content-Type", mimeType.toLatin1());
     query->request()->setRawHeader("Content-Length", postDataSize);
     query->setBody(attachment);
@@ -409,7 +409,7 @@ void CouchDB::deleteAttachment(const QString &database, const QString &id, const
     query->setUrl(QString("%1/%2/%3/%4?rev=%5").arg(d->server->baseURL(), database, id, attachmentName, revision));
     query->setOperation(COUCHDB_DELETEATTACHMENT);
     query->setDatabase(database);
-    query->setDocumentID(id);
+    query->setDocumentId(id);
 
     executeQuery(query);
 }

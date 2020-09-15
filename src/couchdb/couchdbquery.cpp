@@ -1,40 +1,29 @@
 #include "couchdbquery.h"
 
-#include <QNetworkRequest>
-#include <QTimer>
+#include <QtCore/qtimer.h>
+#include <QtNetwork/qnetworkrequest.h>
 
 class CouchDBQueryPrivate
 {
 public:
-    CouchDBQueryPrivate(CouchDBServer *s) :
-        request(0),
-        server(s),
-        timer(0)
-    {}
-
-    virtual ~CouchDBQueryPrivate()
-    {
-        if(request) delete request;
-        if(timer) delete timer;
-    }
-
-    CouchDBServer *server; //Query doesn't own server
-    QNetworkRequest *request;
-    CouchDBOperation operation;
+    CouchDBServer *server = nullptr; // not owned
+    QScopedPointer<QNetworkRequest> request;
+    CouchDBOperation operation = COUCHDB_CHECKINSTALLATION;
     QString database;
     QString documentID;
     QByteArray body;
-    QTimer *timer;
+    QTimer *timer = nullptr;
 };
 
 CouchDBQuery::CouchDBQuery(CouchDBServer *server, QObject *parent) :
     QObject(parent),
-    d_ptr(new CouchDBQueryPrivate(server))
+    d_ptr(new CouchDBQueryPrivate)
 {
     Q_D(CouchDBQuery);
-    d->request = new QNetworkRequest;
+    d->server = server;
+    d->request.reset(new QNetworkRequest);
     d->timer = new QTimer(this);
-    d->timer->setInterval(20000);
+    d->timer->setInterval(20000); // ### TODO
     d->timer->setSingleShot(true);
     connect(d->timer, SIGNAL(timeout()), SIGNAL(timeout()));
 }
@@ -49,10 +38,10 @@ CouchDBServer *CouchDBQuery::server() const
     return d->server;
 }
 
-QNetworkRequest* CouchDBQuery::request() const
+QNetworkRequest *CouchDBQuery::request() const
 {
     Q_D(const CouchDBQuery);
-    return d->request;
+    return d->request.data();
 }
 
 QUrl CouchDBQuery::url() const
@@ -73,7 +62,7 @@ CouchDBOperation CouchDBQuery::operation() const
     return d->operation;
 }
 
-void CouchDBQuery::setOperation(const CouchDBOperation &operation)
+void CouchDBQuery::setOperation(CouchDBOperation operation)
 {
     Q_D(CouchDBQuery);
     d->operation = operation;
@@ -91,16 +80,16 @@ void CouchDBQuery::setDatabase(const QString &database)
     d->database = database;
 }
 
-QString CouchDBQuery::documentID() const
+QString CouchDBQuery::documentId() const
 {
     Q_D(const CouchDBQuery);
     return d->documentID;
 }
 
-void CouchDBQuery::setDocumentID(const QString &documentID)
+void CouchDBQuery::setDocumentId(const QString &documentId)
 {
     Q_D(CouchDBQuery);
-    d->documentID = documentID;
+    d->documentID = documentId;
 }
 
 QByteArray CouchDBQuery::body() const
