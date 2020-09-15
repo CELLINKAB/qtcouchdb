@@ -1,0 +1,2 @@
+# qtcouchdb
+Qt CouchDB
