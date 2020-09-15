@@ -20,11 +20,9 @@ public:
     explicit CouchDB(QObject *parent = 0);
     ~CouchDB();
 
-    static void declareQML();
-
     CouchDBServer *server() const;
     void setServer(CouchDBServer *server);
-    void setServerConfiguration(const QString& url, const int& port, const QString& username = "", const QString& password = "");
+    void setServerConfiguration(const QString& url, const int& port, const QString& username = QString(), const QString& password = QString());
 
 signals:
     void installationChecked(const CouchDBResponse& response);

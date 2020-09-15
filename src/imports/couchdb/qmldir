@@ -1,0 +1,3 @@
+module CouchDB
+plugin couchdbplugin
+classname CouchDBPlugin

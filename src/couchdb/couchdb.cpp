@@ -5,9 +5,7 @@
 
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
-#include <QtQml>
 #include <QDebug>
-
 
 class CouchDBPrivate
 {
@@ -44,11 +42,6 @@ CouchDB::CouchDB(QObject *parent) :
 
 CouchDB::~CouchDB()
 {
-}
-
-void CouchDB::declareQML()
-{
-    qmlRegisterType<CouchDB>("TOP.CouchDB", 1, 0, "CouchDB");
 }
 
 CouchDBServer *CouchDB::server() const
