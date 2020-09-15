@@ -3,8 +3,10 @@
 
 #include <QObject>
 
+#include "couchdbglobal.h"
+
 class CouchDBServerPrivate;
-class CouchDBServer : public QObject
+class COUCHDB_EXPORT CouchDBServer : public QObject
 {
     Q_OBJECT
 public:

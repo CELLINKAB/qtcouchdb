@@ -1,11 +1,10 @@
-QT += network
-
-RESOURCES += \
-    $$PWD/net_huffduff_couchdb.qrc
+INCLUDEPATH += $$PWD
+DEPENDPATH += $$PWD
 
 HEADERS += \
-    $$PWD/couchdbenums.h \
     $$PWD/couchdb.h \
+    $$PWD/couchdbenums.h \
+    $$PWD/couchdbglobal.h \
     $$PWD/couchdbserver.h \
     $$PWD/couchdbresponse.h \
     $$PWD/couchdbquery.h \
@@ -17,7 +16,3 @@ SOURCES += \
     $$PWD/couchdbresponse.cpp \
     $$PWD/couchdbquery.cpp \
     $$PWD/couchdblistener.cpp
-
-OTHER_FILES += \
-    $$PWD/LICENSE \
-    $$PWD/README.md

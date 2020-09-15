@@ -4,9 +4,11 @@
 #include <QObject>
 #include <QNetworkReply>
 
+#include "couchdbglobal.h"
+
 class CouchDBServer;
 class CouchDBListenerPrivate;
-class CouchDBListener : public QObject
+class COUCHDB_EXPORT CouchDBListener : public QObject
 {
     Q_OBJECT
 public:

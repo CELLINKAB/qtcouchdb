@@ -4,11 +4,12 @@
 #include <QObject>
 
 #include "couchdbenums.h"
+#include "couchdbglobal.h"
 
 class QNetworkRequest;
 class CouchDBServer;
 class CouchDBQueryPrivate;
-class CouchDBQuery : public QObject
+class COUCHDB_EXPORT CouchDBQuery : public QObject
 {
     Q_OBJECT
 public:
