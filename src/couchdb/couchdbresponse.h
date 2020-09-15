@@ -1,16 +1,17 @@
 #ifndef COUCHDBRESPONSE_H
 #define COUCHDBRESPONSE_H
 
-#include <QObject>
-
-#include "couchdbenums.h"
-#include "couchdbglobal.h"
+#include <QtCouchDB/couchdbglobal.h>
+#include <QtCouchDB/couchdbenums.h>
+#include <QtCore/qobject.h>
 
 class CouchDBQuery;
 class CouchDBResponsePrivate;
+
 class COUCHDB_EXPORT CouchDBResponse : public QObject
 {
     Q_OBJECT
+
 public:
     explicit CouchDBResponse(QObject *parent = 0);
     virtual ~CouchDBResponse();

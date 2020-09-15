@@ -1,19 +1,16 @@
 #ifndef COUCHDB_H
 #define COUCHDB_H
 
-#include <QObject>
-#include <QNetworkReply>
+#include <QtCouchDB/couchdbglobal.h>
+#include <QtCouchDB/couchdbenums.h>
+#include <QtCouchDB/couchdbresponse.h>
+#include <QtCore/qobject.h>
 
-#include "couchdbenums.h"
-#include "couchdbglobal.h"
-#include "couchdbresponse.h"
-
-class QQmlEngine;
-class QJSEngine;
 class CouchDBListener;
 class CouchDBQuery;
 class CouchDBServer;
 class CouchDBPrivate;
+
 class COUCHDB_EXPORT CouchDB : public QObject
 {
     Q_OBJECT
@@ -83,7 +80,6 @@ protected:
 private:
     Q_DECLARE_PRIVATE(CouchDB)
     CouchDBPrivate * const d_ptr;
-
 };
 
 #endif // COUCHDB_H

@@ -1,14 +1,15 @@
 #ifndef COUCHDBSERVER_H
 #define COUCHDBSERVER_H
 
-#include <QObject>
-
-#include "couchdbglobal.h"
+#include <QtCouchDB/couchdbglobal.h>
+#include <QtCore/qobject.h>
 
 class CouchDBServerPrivate;
+
 class COUCHDB_EXPORT CouchDBServer : public QObject
 {
     Q_OBJECT
+
 public:
     CouchDBServer(QObject *parent = 0);
     virtual ~CouchDBServer();

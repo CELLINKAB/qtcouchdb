@@ -1,17 +1,19 @@
 #ifndef COUCHDBQUERY_H
 #define COUCHDBQUERY_H
 
-#include <QObject>
+#include <QtCouchDB/couchdbglobal.h>
+#include <QtCouchDB/couchdbenums.h>
+#include <QtCore/qobject.h>
 
-#include "couchdbenums.h"
-#include "couchdbglobal.h"
-
-class QNetworkRequest;
 class CouchDBServer;
 class CouchDBQueryPrivate;
+
+QT_FORWARD_DECLARE_CLASS(QNetworkRequest)
+
 class COUCHDB_EXPORT CouchDBQuery : public QObject
 {
     Q_OBJECT
+
 public:
     explicit CouchDBQuery(CouchDBServer *server, QObject *parent = 0);
     virtual ~CouchDBQuery();

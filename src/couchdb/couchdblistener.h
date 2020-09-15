@@ -1,20 +1,23 @@
 #ifndef COUCHDBLISTENER_H
 #define COUCHDBLISTENER_H
 
-#include <QObject>
-#include <QNetworkReply>
-
-#include "couchdbglobal.h"
+#include <QtCouchDB/couchdbglobal.h>
+#include <QtCore/qobject.h>
 
 class CouchDBServer;
 class CouchDBListenerPrivate;
+
+QT_FORWARD_DECLARE_CLASS(QNetworkReply)
+QT_FORWARD_DECLARE_CLASS(QNetworkCookieJar)
+
 class COUCHDB_EXPORT CouchDBListener : public QObject
 {
     Q_OBJECT
+
 public:
     CouchDBListener(CouchDBServer *server);
     virtual ~CouchDBListener();
-    
+
     CouchDBServer* server() const;
     
     QString database() const;
