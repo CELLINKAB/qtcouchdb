@@ -3,6 +3,7 @@
 
 #include <QtCouchDB/couchdbglobal.h>
 #include <QtCore/qobject.h>
+#include <QtCore/qscopedpointer.h>
 
 class CouchDBServer;
 class CouchDBListenerPrivate;
@@ -16,10 +17,10 @@ class COUCHDB_EXPORT CouchDBListener : public QObject
 
 public:
     CouchDBListener(CouchDBServer *server);
-    virtual ~CouchDBListener();
+    ~CouchDBListener();
 
     CouchDBServer* server() const;
-    
+
     QString database() const;
     void setDatabase(const QString& database);
     
@@ -44,7 +45,7 @@ private slots:
 
 private:
     Q_DECLARE_PRIVATE(CouchDBListener)
-    CouchDBListenerPrivate * const d_ptr;
+    QScopedPointer<CouchDBListenerPrivate> d_ptr;
 };
 
 #endif // COUCHDBLISTENER_H

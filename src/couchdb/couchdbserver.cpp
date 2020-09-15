@@ -25,7 +25,6 @@ CouchDBServer::CouchDBServer(QObject *parent) :
 
 CouchDBServer::~CouchDBServer()
 {
-    delete d_ptr;
 }
 
 QString CouchDBServer::url() const

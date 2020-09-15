@@ -3,6 +3,7 @@
 
 #include <QtCouchDB/couchdbglobal.h>
 #include <QtCore/qobject.h>
+#include <QtCore/qscopedpointer.h>
 
 class CouchDBServerPrivate;
 
@@ -12,7 +13,7 @@ class COUCHDB_EXPORT CouchDBServer : public QObject
 
 public:
     CouchDBServer(QObject *parent = 0);
-    virtual ~CouchDBServer();
+    ~CouchDBServer();
 
     QString url() const;
     void setUrl(const QString& url);
@@ -32,7 +33,7 @@ public:
 
 private:
     Q_DECLARE_PRIVATE(CouchDBServer)
-    CouchDBServerPrivate * const d_ptr;
+    QScopedPointer<CouchDBServerPrivate> d_ptr;
 };
 
 #endif // COUCHDBSERVER_H

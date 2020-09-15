@@ -41,7 +41,6 @@ CouchDBQuery::CouchDBQuery(CouchDBServer *server, QObject *parent) :
 
 CouchDBQuery::~CouchDBQuery()
 {
-    delete d_ptr;
 }
 
 CouchDBServer *CouchDBQuery::server() const

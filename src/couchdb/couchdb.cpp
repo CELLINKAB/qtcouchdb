@@ -44,7 +44,6 @@ CouchDB::CouchDB(QObject *parent) :
 
 CouchDB::~CouchDB()
 {
-    delete d_ptr;
 }
 
 void CouchDB::declareQML()

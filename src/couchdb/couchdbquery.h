@@ -4,6 +4,7 @@
 #include <QtCouchDB/couchdbglobal.h>
 #include <QtCouchDB/couchdbenums.h>
 #include <QtCore/qobject.h>
+#include <QtCore/qscopedpointer.h>
 
 class CouchDBServer;
 class CouchDBQueryPrivate;
@@ -16,7 +17,7 @@ class COUCHDB_EXPORT CouchDBQuery : public QObject
 
 public:
     explicit CouchDBQuery(CouchDBServer *server, QObject *parent = 0);
-    virtual ~CouchDBQuery();
+    ~CouchDBQuery();
 
     CouchDBServer* server() const;
     QNetworkRequest* request() const;
@@ -44,7 +45,7 @@ public slots:
 
 private:
     Q_DECLARE_PRIVATE(CouchDBQuery)
-    CouchDBQueryPrivate * const d_ptr;
+    QScopedPointer<CouchDBQueryPrivate> d_ptr;
 };
 
 #endif // COUCHDBQUERY_H

@@ -26,7 +26,6 @@ CouchDBResponse::CouchDBResponse(QObject *parent) :
 
 CouchDBResponse::~CouchDBResponse()
 {
-    delete d_ptr;
 }
 
 CouchDBQuery *CouchDBResponse::query() const

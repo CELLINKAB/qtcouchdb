@@ -67,7 +67,6 @@ CouchDBListener::CouchDBListener(CouchDBServer * server) :
 
 CouchDBListener::~CouchDBListener()
 {
-    delete d_ptr;
 }
 
 CouchDBServer *CouchDBListener::server() const

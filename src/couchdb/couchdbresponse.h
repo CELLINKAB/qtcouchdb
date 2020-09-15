@@ -4,6 +4,7 @@
 #include <QtCouchDB/couchdbglobal.h>
 #include <QtCouchDB/couchdbenums.h>
 #include <QtCore/qobject.h>
+#include <QtCore/qscopedpointer.h>
 
 class CouchDBQuery;
 class CouchDBResponsePrivate;
@@ -14,7 +15,7 @@ class COUCHDB_EXPORT CouchDBResponse : public QObject
 
 public:
     explicit CouchDBResponse(QObject *parent = 0);
-    virtual ~CouchDBResponse();
+    ~CouchDBResponse();
 
     CouchDBQuery* query() const;
     void setQuery(CouchDBQuery *query);
@@ -33,7 +34,7 @@ public:
 
 private:
     Q_DECLARE_PRIVATE(CouchDBResponse)
-    CouchDBResponsePrivate * const d_ptr;
+    QScopedPointer<CouchDBResponsePrivate> d_ptr;
 };
 
 #endif // COUCHDBRESPONSE_H

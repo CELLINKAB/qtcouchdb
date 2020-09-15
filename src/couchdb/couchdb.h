@@ -5,6 +5,7 @@
 #include <QtCouchDB/couchdbenums.h>
 #include <QtCouchDB/couchdbresponse.h>
 #include <QtCore/qobject.h>
+#include <QtCore/qscopedpointer.h>
 
 class CouchDBListener;
 class CouchDBQuery;
@@ -17,7 +18,7 @@ class COUCHDB_EXPORT CouchDB : public QObject
 
 public:
     explicit CouchDB(QObject *parent = 0);
-    virtual ~CouchDB();
+    ~CouchDB();
 
     static void declareQML();
 
@@ -79,7 +80,7 @@ protected:
 
 private:
     Q_DECLARE_PRIVATE(CouchDB)
-    CouchDBPrivate * const d_ptr;
+    QScopedPointer<CouchDBPrivate> d_ptr;
 };
 
 #endif // COUCHDB_H
