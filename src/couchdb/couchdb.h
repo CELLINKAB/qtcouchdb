@@ -22,7 +22,7 @@ public:
 
     CouchDBServer *server() const;
     void setServer(CouchDBServer *server);
-    void setServerConfiguration(const QString& url, const int& port, const QString& username = QString(), const QString& password = QString());
+    void setServerConfiguration(const QString& url, int port, const QString& username = QString(), const QString& password = QString());
 
 signals:
     void installationChecked(const CouchDBResponse& response);
@@ -61,9 +61,9 @@ public slots:
     Q_INVOKABLE void deleteAttachment(const QString& database, const QString& documentID, const QString &attachmentName, const QString &revision);
 
     Q_INVOKABLE void replicateDatabaseFrom(CouchDBServer *sourceServer, const QString& sourceDatabase, const QString& targetDatabase,
-                                           const bool& createTarget, const bool& continuous, const bool& cancel = false);
+                                           bool createTarget, bool continuous, bool cancel = false);
     Q_INVOKABLE void replicateDatabaseTo(CouchDBServer *targetServer, const QString& sourceDatabase, const QString& targetDatabase,
-                                         const bool& createTarget, const bool& continuous, const bool& cancel = false);
+                                         bool createTarget, bool continuous, bool cancel = false);
 
     Q_INVOKABLE CouchDBListener* createListener(const QString& database, const QString& documentID);
 
@@ -74,7 +74,7 @@ private slots:
 protected:
     void executeQuery(CouchDBQuery *query);
 
-    void replicateDatabase(const QString& source, const QString& target, const QString &database, const bool& createTarget, const bool& continuous, const bool& cancel = false);
+    void replicateDatabase(const QString& source, const QString& target, const QString &database, bool createTarget, bool continuous, bool cancel = false);
 
 private:
     Q_DECLARE_PRIVATE(CouchDB)

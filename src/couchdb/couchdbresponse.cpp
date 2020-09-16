@@ -41,7 +41,7 @@ CouchDBReplyStatus CouchDBResponse::status() const
     return d->status;
 }
 
-void CouchDBResponse::setStatus(const CouchDBReplyStatus &status)
+void CouchDBResponse::setStatus(CouchDBReplyStatus status)
 {
     Q_D(CouchDBResponse);
     d->status = status;

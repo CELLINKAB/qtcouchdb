@@ -53,7 +53,7 @@ void CouchDB::setServer(CouchDBServer *server)
     d->cleanServerOnQuit = false;
 }
 
-void CouchDB::setServerConfiguration(const QString &url, const int &port, const QString &username, const QString &password)
+void CouchDB::setServerConfiguration(const QString &url, int port, const QString &username, const QString &password)
 {
     Q_D(CouchDB);
     d->server->setUrl(url);
@@ -402,7 +402,7 @@ void CouchDB::deleteAttachment(const QString &database, const QString &id, const
 }
 
 void CouchDB::replicateDatabaseFrom(CouchDBServer *sourceServer, const QString& sourceDatabase, const QString& targetDatabase,
-                                    const bool& createTarget, const bool& continuous, const bool& cancel)
+                                    bool createTarget, bool continuous, bool cancel)
 {
     Q_D(CouchDB);
 
@@ -413,7 +413,7 @@ void CouchDB::replicateDatabaseFrom(CouchDBServer *sourceServer, const QString& 
 }
 
 void CouchDB::replicateDatabaseTo(CouchDBServer *targetServer, const QString& sourceDatabase, const QString& targetDatabase,
-                                    const bool& createTarget, const bool& continuous, const bool& cancel)
+                                    bool createTarget, bool continuous, bool cancel)
 {
     Q_D(CouchDB);
 
@@ -423,8 +423,8 @@ void CouchDB::replicateDatabaseTo(CouchDBServer *targetServer, const QString& so
     replicateDatabase(source, target, targetDatabase, createTarget, continuous, cancel);
 }
 
-void CouchDB::replicateDatabase(const QString &source, const QString &target, const QString& database, const bool &createTarget,
-                                const bool &continuous, const bool &cancel)
+void CouchDB::replicateDatabase(const QString &source, const QString &target, const QString& database, bool createTarget,
+                                bool continuous, bool cancel)
 {
     Q_D(CouchDB);
 

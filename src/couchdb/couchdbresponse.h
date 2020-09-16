@@ -21,7 +21,7 @@ public:
     void setQuery(CouchDBQuery *query);
 
     CouchDBReplyStatus status() const;
-    void setStatus(const CouchDBReplyStatus& status);
+    void setStatus(CouchDBReplyStatus status);
 
     QString revisionData() const;
     void setRevisionData(const QString& revision);

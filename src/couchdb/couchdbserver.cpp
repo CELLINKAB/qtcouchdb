@@ -45,7 +45,7 @@ int CouchDBServer::port() const
     return d->port;
 }
 
-void CouchDBServer::setPort(const int& port)
+void CouchDBServer::setPort(int port)
 {
     Q_D(CouchDBServer);
     if(d->port == port) return;
@@ -58,13 +58,13 @@ bool CouchDBServer::secureConnection() const
     return d->secureConnection;
 }
 
-void CouchDBServer::setSecureConnection(const bool &secureConnection)
+void CouchDBServer::setSecureConnection(bool secureConnection)
 {
     Q_D(CouchDBServer);
     d->secureConnection = secureConnection;
 }
 
-QString CouchDBServer::baseURL(const bool& withCredential) const
+QString CouchDBServer::baseURL(bool withCredential) const
 {
     Q_D(const CouchDBServer);
     QString url;

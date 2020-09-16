@@ -19,12 +19,12 @@ public:
     void setUrl(const QString& url);
 
     int  port() const;
-    void setPort(const int& port);
+    void setPort(int port);
 
     bool secureConnection() const;
-    void setSecureConnection(const bool& secureConnection);
+    void setSecureConnection(bool secureConnection);
 
-    QString baseURL(const bool& withCredential = true) const;
+    QString baseURL(bool withCredential = true) const;
 
     QByteArray credential() const;
     void setCredential(const QString& username, const QString& password);
