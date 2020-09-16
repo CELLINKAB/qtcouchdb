@@ -64,13 +64,8 @@ public slots:
 
     Q_INVOKABLE CouchDBListener *createListener(const QString &database, const QString &documentId);
 
-private slots:
-    void queryFinished();
-
 protected:
     void executeQuery(const CouchQuery &query);
-
-    void replicateDatabase(const QUrl &source, const QUrl &target, const QString &database, bool createTarget, bool continuous, bool cancel = false);
 
 private:
     Q_DECLARE_PRIVATE(CouchClient)

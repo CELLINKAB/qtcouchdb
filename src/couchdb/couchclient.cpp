@@ -15,6 +15,7 @@ CouchClient::CouchClient(QObject *parent) :
     d_ptr(new CouchClientPrivate)
 {
     Q_D(CouchClient);
+    d->q_ptr = this;
     d->networkManager.reset(new QNetworkAccessManager(this));
 }
 
@@ -99,20 +100,20 @@ void CouchClient::executeQuery(const CouchQuery &query)
         break;
     }
 
-    connect(reply, SIGNAL(finished()), this, SLOT(queryFinished()));
+    connect(reply, &QNetworkReply::finished, [=]() { d->queryFinished(); });
     d->currentQueries.insert(reply, query);
 }
 
-void CouchClient::queryFinished()
+void CouchClientPrivate::queryFinished()
 {
-    Q_D(CouchClient);
+    Q_Q(CouchClient);
 
-    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(q->sender());
     if (!reply)
         return;
 
     QByteArray data;
-    CouchQuery query = d->currentQueries.value(reply);
+    CouchQuery query = currentQueries.value(reply);
     bool hasError = false;
     if (reply->error() == QNetworkReply::NoError) {
         data = reply->readAll();
@@ -131,56 +132,56 @@ void CouchClient::queryFinished()
     default:
         if (!hasError)
             response.setStatus(!json["couchdb"].isUndefined() ? CouchResponse::Success : CouchResponse::Error);
-        emit installationChecked(response);
+        emit q->installationChecked(response);
         break;
     case CouchQuery::StartSession:
         if (hasError && reply->error() >= 201 && reply->error() <= 299)
             response.setStatus(CouchResponse::AuthError);
-        emit sessionStarted(response);
+        emit q->sessionStarted(response);
         break;
     case CouchQuery::EndSession:
-        emit sessionEnded(response);
+        emit q->sessionEnded(response);
         break;
     case CouchQuery::ListDatabases:
-        emit databasesListed(response);
+        emit q->databasesListed(response);
         break;
     case CouchQuery::CreateDatabase:
-        emit databaseCreated(response);
+        emit q->databaseCreated(response);
         break;
     case CouchQuery::DeleteDatabase:
-        emit databaseDeleted(response);
+        emit q->databaseDeleted(response);
         break;
     case CouchQuery::ListDocuments:
-        emit documentsListed(response);
+        emit q->documentsListed(response);
         break;
     case CouchQuery::RetrieveRevision: {
         QString revision = reply->rawHeader("ETag");
         revision.remove("\"");
         response.setRevision(revision);
-        emit revisionRetrieved(response);
+        emit q->revisionRetrieved(response);
         break;
     }
     case CouchQuery::RetrieveDocument:
-        emit documentRetrieved(response);
+        emit q->documentRetrieved(response);
         break;
     case CouchQuery::UpdateDocument:
-        emit documentUpdated(response);
+        emit q->documentUpdated(response);
         break;
     case CouchQuery::DeleteDocument:
-        emit documentDeleted(response);
+        emit q->documentDeleted(response);
         break;
     case CouchQuery::UploadAttachment:
-        emit attachmentUploaded(response);
+        emit q->attachmentUploaded(response);
         break;
     case CouchQuery::DeleteAttachment:
-        emit attachmentDeleted(response);
+        emit q->attachmentDeleted(response);
         break;
     case CouchQuery::ReplicateDatabase:
-        emit databaseReplicated(response);
+        emit q->databaseReplicated(response);
         break;
     }
 
-    d->currentQueries.remove(reply);
+    currentQueries.remove(reply);
     reply->deleteLater();
 }
 
@@ -351,7 +352,7 @@ void CouchClient::replicateDatabaseFrom(const QUrl &sourceServer, const QString 
     QUrl target = d->server;
     target.setPath(targetDatabase);
 
-    replicateDatabase(source, target, targetDatabase, createTarget, continuous, cancel);
+    d->replicateDatabase(source, target, targetDatabase, createTarget, continuous, cancel);
 }
 
 void CouchClient::replicateDatabaseTo(const QUrl &targetServer, const QString &sourceDatabase, const QString &targetDatabase,
@@ -365,13 +366,13 @@ void CouchClient::replicateDatabaseTo(const QUrl &targetServer, const QString &s
     QUrl target = targetServer;
     target.setPath(targetDatabase);
 
-    replicateDatabase(source, target, targetDatabase, createTarget, continuous, cancel);
+    d->replicateDatabase(source, target, targetDatabase, createTarget, continuous, cancel);
 }
 
-void CouchClient::replicateDatabase(const QUrl &source, const QUrl &target, const QString &database, bool createTarget,
-                                bool continuous, bool cancel)
+void CouchClientPrivate::replicateDatabase(const QUrl &source, const QUrl &target, const QString &database, bool createTarget,
+                                           bool continuous, bool cancel)
 {
-    Q_D(CouchClient);
+    Q_Q(CouchClient);
 
     if (!cancel)
         qCDebug(lcCouchDB) << "Starting replication from" << source << "to" << target;
@@ -386,7 +387,7 @@ void CouchClient::replicateDatabase(const QUrl &source, const QUrl &target, cons
     object.insert("cancel", cancel);
     QJsonDocument document(object);
 
-    QUrl url = d->server;
+    QUrl url = server;
     url.setPath("/_replicate");
 
     CouchQuery query(CouchQuery::ReplicateDatabase);
@@ -396,7 +397,7 @@ void CouchClient::replicateDatabase(const QUrl &source, const QUrl &target, cons
     query.setHeader("Content-Type", "application/json");
     query.setBody(document.toJson());
 
-    executeQuery(query);
+    q->executeQuery(query);
 }
 
 CouchDBListener *CouchClient::createListener(const QString &database, const QString &documentId)
