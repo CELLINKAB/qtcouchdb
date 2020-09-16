@@ -1,55 +1,72 @@
 #include "couchdbquery.h"
 
-#include <QtCore/qurl.h>
-#include <QtNetwork/qnetworkrequest.h>
-
-class CouchDBQueryPrivate
+class CouchDBQueryPrivate : public QSharedData
 {
 public:
-    QScopedPointer<QNetworkRequest> request;
-    CouchDBOperation operation = COUCHDB_CHECKINSTALLATION;
+    QUrl url;
+    CouchDBQuery::Operation operation = CouchDBQuery::Unknown;
     QString database;
     QString documentId;
     QByteArray body;
+    QHash<QByteArray, QByteArray> headers;
 };
 
-CouchDBQuery::CouchDBQuery(QObject *parent) :
-    QObject(parent),
+CouchDBQuery::CouchDBQuery(Operation operation) :
     d_ptr(new CouchDBQueryPrivate)
 {
     Q_D(CouchDBQuery);
-    d->request.reset(new QNetworkRequest);
+    d->operation = operation;
 }
 
 CouchDBQuery::~CouchDBQuery()
 {
 }
 
-QNetworkRequest *CouchDBQuery::request() const
+CouchDBQuery::CouchDBQuery(const CouchDBQuery &other)
+    : d_ptr(other.d_ptr)
+{
+}
+
+CouchDBQuery &CouchDBQuery::operator=(const CouchDBQuery &other)
+{
+    d_ptr = other.d_ptr;
+    return *this;
+}
+
+bool CouchDBQuery::operator==(const CouchDBQuery &other) const
 {
     Q_D(const CouchDBQuery);
-    return d->request.data();
+    return d_ptr == other.d_ptr || (d->operation == other.operation() &&
+                                    d->database == other.database() &&
+                                    d->documentId == other.documentId() &&
+                                    d->body == other.body() &&
+                                    d->headers == other.headers());
+}
+
+bool CouchDBQuery::operator!=(const CouchDBQuery &other) const
+{
+    return !(*this == other);
 }
 
 QUrl CouchDBQuery::url() const
 {
     Q_D(const CouchDBQuery);
-    return d->request->url();
+    return d->url;
 }
 
 void CouchDBQuery::setUrl(const QUrl &url)
 {
     Q_D(CouchDBQuery);
-    d->request->setUrl(url);
+    d->url = url;
 }
 
-CouchDBOperation CouchDBQuery::operation() const
+CouchDBQuery::Operation CouchDBQuery::operation() const
 {
     Q_D(const CouchDBQuery);
     return d->operation;
 }
 
-void CouchDBQuery::setOperation(CouchDBOperation operation)
+void CouchDBQuery::setOperation(Operation operation)
 {
     Q_D(CouchDBQuery);
     d->operation = operation;
@@ -89,4 +106,22 @@ void CouchDBQuery::setBody(const QByteArray &body)
 {
     Q_D(CouchDBQuery);
     d->body = body;
+}
+
+QHash<QByteArray, QByteArray> CouchDBQuery::headers() const
+{
+    Q_D(const CouchDBQuery);
+    return d->headers;
+}
+
+QByteArray CouchDBQuery::header(const QByteArray &header) const
+{
+    Q_D(const CouchDBQuery);
+    return d->headers.value(header);
+}
+
+void CouchDBQuery::setHeader(const QByteArray &header, const QByteArray &value)
+{
+    Q_D(CouchDBQuery);
+    d->headers.insert(header, value);
 }

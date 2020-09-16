@@ -5,13 +5,13 @@
 class CouchDBResponsePrivate : public QSharedData
 {
 public:
-    CouchDBQuery *query = nullptr; // not owned
+    CouchDBQuery query;
     CouchDBResponse::Status status = CouchDBResponse::Error;
     QString revision;
     QByteArray data;
 };
 
-CouchDBResponse::CouchDBResponse(CouchDBQuery *query) :
+CouchDBResponse::CouchDBResponse(const CouchDBQuery &query) :
     d_ptr(new CouchDBResponsePrivate)
 {
     Q_D(CouchDBResponse);
@@ -47,7 +47,7 @@ bool CouchDBResponse::operator!=(const CouchDBResponse &other) const
     return !(*this == other);
 }
 
-CouchDBQuery *CouchDBResponse::query() const
+CouchDBQuery CouchDBResponse::query() const
 {
     Q_D(const CouchDBResponse);
     return d->query;
@@ -95,7 +95,7 @@ QJsonDocument CouchDBResponse::toJson() const
     return QJsonDocument::fromJson(d->data);
 }
 
-CouchDBResponse CouchDBResponse::fromJson(const QJsonDocument &json, CouchDBQuery *query)
+CouchDBResponse CouchDBResponse::fromJson(const QJsonDocument &json, const CouchDBQuery &query)
 {
     CouchDBResponse response(query);
     response.setData(json.toJson());

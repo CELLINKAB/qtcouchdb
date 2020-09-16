@@ -31,66 +31,73 @@ void CouchDB::setServer(const QUrl &server)
     d->server = server;
 }
 
-void CouchDB::executeQuery(CouchDBQuery *query)
+void CouchDB::executeQuery(const CouchDBQuery &query)
 {
     Q_D(CouchDB);
+
+    QNetworkRequest request(query.url());
+    const auto headers = query.headers();
+    for (auto it = headers.cbegin(); it != headers.cend(); ++it)
+        request.setRawHeader(it.key(), it.value());
 
     QString username = d->server.userName();
     QString password = d->server.password();
     if (!username.isEmpty() && !password.isEmpty())
-        query->request()->setRawHeader("Authorization", CouchDBPrivate::basicAuth(username, password));
+        request.setRawHeader("Authorization", CouchDBPrivate::basicAuth(username, password));
 
-    qDebug() << "Invoked url:" << query->operation() << query->request()->url().toString();
+    qDebug() << "Invoke url:" << query.operation() << request.url().toString();
 
-    QNetworkReply *reply;
-    switch (query->operation()) {
-    case COUCHDB_CHECKINSTALLATION:
+    QNetworkReply *reply = nullptr;
+    switch (query.operation()) {
+    case CouchDBQuery::CheckInstallation:
+        reply = d->networkManager->get(request);
+        break;
+    case CouchDBQuery::StartSession:
+        reply = d->networkManager->post(request, query.body());
+        break;
+    case CouchDBQuery::EndSession:
+        reply = d->networkManager->deleteResource(request);
+        break;
+    case CouchDBQuery::ListDatabases:
+        reply = d->networkManager->get(request);
+        break;
+    case CouchDBQuery::CreateDatabase:
+        reply = d->networkManager->put(request, query.body());
+        break;
+    case CouchDBQuery::DeleteDatabase:
+        reply = d->networkManager->deleteResource(request);
+        break;
+    case CouchDBQuery::ListDocuments:
+        reply = d->networkManager->get(request);
+        break;
+    case CouchDBQuery::RetrieveRevision:
+        reply = d->networkManager->head(request);
+        break;
+    case CouchDBQuery::RetrieveDocument:
+        reply = d->networkManager->get(request);
+        break;
+    case CouchDBQuery::UpdateDocument:
+        reply = d->networkManager->put(request, query.body());
+        break;
+    case CouchDBQuery::DeleteDocument:
+        reply = d->networkManager->deleteResource(request);
+        break;
+    case CouchDBQuery::UploadAttachment:
+        reply = d->networkManager->put(request, query.body());
+        break;
+    case CouchDBQuery::DeleteAttachment:
+        reply = d->networkManager->deleteResource(request);
+        break;
+    case CouchDBQuery::ReplicateDatabase:
+        reply = d->networkManager->post(request, query.body());
+        break;
     default:
-        reply = d->networkManager->get(*query->request());
-        break;
-    case COUCHDB_STARTSESSION:
-        reply = d->networkManager->post(*query->request(), query->body());
-        break;
-    case COUCHDB_ENDSESSION:
-        reply = d->networkManager->deleteResource(*query->request());
-        break;
-    case COUCHDB_LISTDATABASES:
-        reply = d->networkManager->get(*query->request());
-        break;
-    case COUCHDB_CREATEDATABASE:
-        reply = d->networkManager->put(*query->request(), query->body());
-        break;
-    case COUCHDB_DELETEDATABASE:
-        reply = d->networkManager->deleteResource(*query->request());
-        break;
-    case COUCHDB_LISTDOCUMENTS:
-        reply = d->networkManager->get(*query->request());
-        break;
-    case COUCHDB_RETRIEVEREVISION:
-        reply = d->networkManager->head(*query->request());
-        break;
-    case COUCHDB_RETRIEVEDOCUMENT:
-        reply = d->networkManager->get(*query->request());
-        break;
-    case COUCHDB_UPDATEDOCUMENT:
-        reply = d->networkManager->put(*query->request(), query->body());
-        break;
-    case COUCHDB_DELETEDOCUMENT:
-        reply = d->networkManager->deleteResource(*query->request());
-        break;
-    case COUCHDB_UPLOADATTACHMENT:
-        reply = d->networkManager->put(*query->request(), query->body());
-        break;
-    case COUCHDB_DELETEATTACHMENT:
-        reply = d->networkManager->deleteResource(*query->request());
-        break;
-    case COUCHDB_REPLICATEDATABASE:
-        reply = d->networkManager->post(*query->request(), query->body());
+        Q_UNREACHABLE();
         break;
     }
 
     connect(reply, SIGNAL(finished()), this, SLOT(queryFinished()));
-    d->currentQueries[reply] = query;
+    d->currentQueries.insert(reply, query);
 }
 
 void CouchDB::queryFinished()
@@ -102,7 +109,7 @@ void CouchDB::queryFinished()
         return;
 
     QByteArray data;
-    CouchDBQuery *query = d->currentQueries[reply];
+    CouchDBQuery query = d->currentQueries.value(reply);
     bool hasError = false;
     if (reply->error() == QNetworkReply::NoError) {
         data = reply->readAll();
@@ -111,78 +118,75 @@ void CouchDB::queryFinished()
         hasError = true;
     }
 
-
     QJsonDocument json = QJsonDocument::fromJson(data);
     CouchDBResponse response = CouchDBResponse::fromJson(json, query);
-    response.setStatus(hasError || (query->operation() != COUCHDB_CHECKINSTALLATION && query->operation() != COUCHDB_RETRIEVEDOCUMENT &&
+    response.setStatus(hasError || (query.operation() != CouchDBQuery::CheckInstallation && query.operation() != CouchDBQuery::RetrieveDocument &&
             !json["ok"].toBool()) ? CouchDBResponse::Error : CouchDBResponse::Success);
 
-    switch (query->operation()) {
-    case COUCHDB_CHECKINSTALLATION:
+    switch (query.operation()) {
+    case CouchDBQuery::CheckInstallation:
     default:
         if (!hasError)
             response.setStatus(!json["couchdb"].isUndefined() ? CouchDBResponse::Success : CouchDBResponse::Error);
         emit installationChecked(response);
         break;
-    case COUCHDB_STARTSESSION:
+    case CouchDBQuery::StartSession:
         if (hasError && reply->error() >= 201 && reply->error() <= 299)
             response.setStatus(CouchDBResponse::AuthError);
         emit sessionStarted(response);
         break;
-    case COUCHDB_ENDSESSION:
+    case CouchDBQuery::EndSession:
         emit sessionEnded(response);
         break;
-    case COUCHDB_LISTDATABASES:
+    case CouchDBQuery::ListDatabases:
         emit databasesListed(response);
         break;
-    case COUCHDB_CREATEDATABASE:
+    case CouchDBQuery::CreateDatabase:
         emit databaseCreated(response);
         break;
-    case COUCHDB_DELETEDATABASE:
+    case CouchDBQuery::DeleteDatabase:
         emit databaseDeleted(response);
         break;
-    case COUCHDB_LISTDOCUMENTS:
+    case CouchDBQuery::ListDocuments:
         emit documentsListed(response);
         break;
-    case COUCHDB_RETRIEVEREVISION: {
+    case CouchDBQuery::RetrieveRevision: {
         QString revision = reply->rawHeader("ETag");
         revision.remove("\"");
         response.setRevision(revision);
         emit revisionRetrieved(response);
         break;
     }
-    case COUCHDB_RETRIEVEDOCUMENT:
+    case CouchDBQuery::RetrieveDocument:
         emit documentRetrieved(response);
         break;
-    case COUCHDB_UPDATEDOCUMENT:
+    case CouchDBQuery::UpdateDocument:
         emit documentUpdated(response);
         break;
-    case COUCHDB_DELETEDOCUMENT:
+    case CouchDBQuery::DeleteDocument:
         emit documentDeleted(response);
         break;
-    case COUCHDB_UPLOADATTACHMENT:
+    case CouchDBQuery::UploadAttachment:
         emit attachmentUploaded(response);
         break;
-    case COUCHDB_DELETEATTACHMENT:
+    case CouchDBQuery::DeleteAttachment:
         emit attachmentDeleted(response);
         break;
-    case COUCHDB_REPLICATEDATABASE:
+    case CouchDBQuery::ReplicateDatabase:
         emit databaseReplicated(response);
         break;
     }
 
     d->currentQueries.remove(reply);
     reply->deleteLater();
-    delete query;
 }
 
 void CouchDB::checkInstallation()
 {
     Q_D(CouchDB);
 
-    CouchDBQuery *query = new CouchDBQuery(this);
-    query->setUrl(d->server);
-    query->setOperation(COUCHDB_CHECKINSTALLATION);
+    CouchDBQuery query(CouchDBQuery::CheckInstallation);
+    query.setUrl(d->server);
 
     executeQuery(query);
 }
@@ -191,16 +195,11 @@ void CouchDB::startSession(const QString &username, const QString &password)
 {
     Q_D(CouchDB);
 
-    QUrlQuery postData;
-    postData.addQueryItem("name", username);
-    postData.addQueryItem("password", password);
-
-    CouchDBQuery *query = new CouchDBQuery(this);
-    query->setUrl(d->queryUrl({"_session"}));
-    query->setOperation(COUCHDB_STARTSESSION);
-    query->request()->setRawHeader("Accept", "application/json");
-    query->request()->setRawHeader("Content-Type", "application/x-www-form-urlencoded");
-    query->setBody(postData.toString(QUrl::FullyEncoded).toUtf8());
+    CouchDBQuery query(CouchDBQuery::StartSession);
+    query.setUrl(d->queryUrl({"_session"}));
+    query.setBody(QUrlQuery({{"name", username}, {"password", password}}).toString(QUrl::FullyEncoded).toUtf8());
+    query.setHeader("Accept", "application/json");
+    query.setHeader("Content-Type", "application/x-www-form-urlencoded");
 
     executeQuery(query);
 }
@@ -209,9 +208,8 @@ void CouchDB::endSession()
 {
     Q_D(CouchDB);
 
-    CouchDBQuery *query = new CouchDBQuery(this);
-    query->setUrl(d->queryUrl({"_session"}));
-    query->setOperation(COUCHDB_ENDSESSION);
+    CouchDBQuery query(CouchDBQuery::EndSession);
+    query.setUrl(d->queryUrl({"_session"}));
 
     executeQuery(query);
 }
@@ -220,9 +218,8 @@ void CouchDB::listDatabases()
 {
     Q_D(CouchDB);
 
-    CouchDBQuery *query = new CouchDBQuery(this);
-    query->setUrl(d->queryUrl({"_all_dbs"}));
-    query->setOperation(COUCHDB_LISTDATABASES);
+    CouchDBQuery query(CouchDBQuery::ListDatabases);
+    query.setUrl(d->queryUrl({"_all_dbs"}));
 
     executeQuery(query);
 }
@@ -231,10 +228,9 @@ void CouchDB::createDatabase(const QString &database)
 {
     Q_D(CouchDB);
 
-    CouchDBQuery *query = new CouchDBQuery(this);
-    query->setUrl(d->queryUrl({database}));
-    query->setOperation(COUCHDB_CREATEDATABASE);
-    query->setDatabase(database);
+    CouchDBQuery query(CouchDBQuery::CreateDatabase);
+    query.setUrl(d->queryUrl({database}));
+    query.setDatabase(database);
 
     executeQuery(query);
 }
@@ -243,10 +239,9 @@ void CouchDB::deleteDatabase(const QString &database)
 {
     Q_D(CouchDB);
 
-    CouchDBQuery *query = new CouchDBQuery(this);
-    query->setUrl(d->queryUrl({database}));
-    query->setOperation(COUCHDB_DELETEDATABASE);
-    query->setDatabase(database);
+    CouchDBQuery query(CouchDBQuery::DeleteDatabase);
+    query.setUrl(d->queryUrl({database}));
+    query.setDatabase(database);
 
     executeQuery(query);
 }
@@ -255,10 +250,9 @@ void CouchDB::listDocuments(const QString &database)
 {
     Q_D(CouchDB);
 
-    CouchDBQuery *query = new CouchDBQuery(this);
-    query->setUrl(d->queryUrl({database, "_all_docs"}));
-    query->setOperation(COUCHDB_LISTDOCUMENTS);
-    query->setDatabase(database);
+    CouchDBQuery query(CouchDBQuery::ListDocuments);
+    query.setUrl(d->queryUrl({database, "_all_docs"}));
+    query.setDatabase(database);
 
     executeQuery(query);
 }
@@ -267,11 +261,10 @@ void CouchDB::retrieveRevision(const QString &database, const QString &id)
 {
     Q_D(CouchDB);
 
-    CouchDBQuery *query = new CouchDBQuery(this);
-    query->setUrl(d->queryUrl({database, id}));
-    query->setOperation(COUCHDB_RETRIEVEREVISION);
-    query->setDatabase(database);
-    query->setDocumentId(id);
+    CouchDBQuery query(CouchDBQuery::RetrieveRevision);
+    query.setUrl(d->queryUrl({database, id}));
+    query.setDatabase(database);
+    query.setDocumentId(id);
 
     executeQuery(query);
 }
@@ -280,30 +273,26 @@ void CouchDB::retrieveDocument(const QString &database, const QString &id)
 {
     Q_D(CouchDB);
 
-    CouchDBQuery *query = new CouchDBQuery(this);
-    query->setUrl(d->queryUrl({database, id}));
-    query->setOperation(COUCHDB_RETRIEVEDOCUMENT);
-    query->setDatabase(database);
-    query->setDocumentId(id);
+    CouchDBQuery query(CouchDBQuery::RetrieveDocument);
+    query.setUrl(d->queryUrl({database, id}));
+    query.setDatabase(database);
+    query.setDocumentId(id);
 
     executeQuery(query);
 }
 
-void CouchDB::updateDocument(const QString &database, const QString &id, QByteArray document)
+void CouchDB::updateDocument(const QString &database, const QString &id, const QByteArray &document)
 {
     Q_D(CouchDB);
 
-    QByteArray postDataSize = QByteArray::number(document.size());
-
-    CouchDBQuery *query = new CouchDBQuery(this);
-    query->setUrl(d->queryUrl({database, id}));
-    query->setOperation(COUCHDB_UPDATEDOCUMENT);
-    query->setDatabase(database);
-    query->setDocumentId(id);
-    query->request()->setRawHeader("Accept", "application/json");
-    query->request()->setRawHeader("Content-Type", "application/json");
-    query->request()->setRawHeader("Content-Length", postDataSize);
-    query->setBody(document);
+    CouchDBQuery query(CouchDBQuery::UpdateDocument);
+    query.setUrl(d->queryUrl({database, id}));
+    query.setDatabase(database);
+    query.setDocumentId(id);
+    query.setHeader("Accept", "application/json");
+    query.setHeader("Content-Type", "application/json");
+    query.setHeader("Content-Length", QByteArray::number(document.size()));
+    query.setBody(document);
 
     executeQuery(query);
 }
@@ -312,30 +301,26 @@ void CouchDB::deleteDocument(const QString &database, const QString &id, const Q
 {
     Q_D(CouchDB);
 
-    CouchDBQuery *query = new CouchDBQuery(this);
-    query->setUrl(d->queryUrl({database, id}, revision));
-    query->setOperation(COUCHDB_DELETEDOCUMENT);
-    query->setDatabase(database);
-    query->setDocumentId(id);
+    CouchDBQuery query(CouchDBQuery::DeleteDocument);
+    query.setUrl(d->queryUrl({database, id}, revision));
+    query.setDatabase(database);
+    query.setDocumentId(id);
 
     executeQuery(query);
 }
 
 void CouchDB::uploadAttachment(const QString &database, const QString &id, const QString &attachmentName,
-                               QByteArray attachment, QString mimeType, const QString &revision)
+                               const QByteArray &attachment, const QString &mimeType, const QString &revision)
 {
     Q_D(CouchDB);
 
-    QByteArray postDataSize = QByteArray::number(attachment.size());
-
-    CouchDBQuery *query = new CouchDBQuery(this);
-    query->setUrl(d->queryUrl({database, id, attachmentName}, revision));
-    query->setOperation(COUCHDB_DELETEDOCUMENT);
-    query->setDatabase(database);
-    query->setDocumentId(id);
-    query->request()->setRawHeader("Content-Type", mimeType.toLatin1());
-    query->request()->setRawHeader("Content-Length", postDataSize);
-    query->setBody(attachment);
+    CouchDBQuery query(CouchDBQuery::DeleteDocument);
+    query.setUrl(d->queryUrl({database, id, attachmentName}, revision));
+    query.setDatabase(database);
+    query.setDocumentId(id);
+    query.setHeader("Content-Type", mimeType.toLatin1());
+    query.setHeader("Content-Length", QByteArray::number(attachment.size()));
+    query.setBody(attachment);
 
     executeQuery(query);
 }
@@ -344,11 +329,10 @@ void CouchDB::deleteAttachment(const QString &database, const QString &id, const
 {
     Q_D(CouchDB);
 
-    CouchDBQuery *query = new CouchDBQuery(this);
-    query->setUrl(d->queryUrl({database, id, attachmentName}, revision));
-    query->setOperation(COUCHDB_DELETEATTACHMENT);
-    query->setDatabase(database);
-    query->setDocumentId(id);
+    CouchDBQuery query(CouchDBQuery::DeleteAttachment);
+    query.setUrl(d->queryUrl({database, id, attachmentName}, revision));
+    query.setDatabase(database);
+    query.setDocumentId(id);
 
     executeQuery(query);
 }
@@ -368,7 +352,7 @@ void CouchDB::replicateDatabaseFrom(const QUrl &sourceServer, const QString &sou
 }
 
 void CouchDB::replicateDatabaseTo(const QUrl &targetServer, const QString &sourceDatabase, const QString &targetDatabase,
-                                    bool createTarget, bool continuous, bool cancel)
+                                  bool createTarget, bool continuous, bool cancel)
 {
     Q_D(CouchDB);
 
@@ -400,15 +384,14 @@ void CouchDB::replicateDatabase(const QUrl &source, const QUrl &target, const QS
     QJsonDocument document(object);
 
     QUrl url = d->server;
-    url.setPath("_replicate");
+    url.setPath("/_replicate");
 
-    CouchDBQuery *query = new CouchDBQuery(this);
-    query->setUrl(url);
-    query->setOperation(COUCHDB_REPLICATEDATABASE);
-    query->setDatabase(database);
-    query->request()->setRawHeader("Accept", "application/json");
-    query->request()->setRawHeader("Content-Type", "application/json");
-    query->setBody(document.toJson());
+    CouchDBQuery query(CouchDBQuery::ReplicateDatabase);
+    query.setUrl(url);
+    query.setDatabase(database);
+    query.setHeader("Accept", "application/json");
+    query.setHeader("Content-Type", "application/json");
+    query.setBody(document.toJson());
 
     executeQuery(query);
 }

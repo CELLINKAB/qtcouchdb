@@ -2,7 +2,6 @@
 #define COUCHDB_H
 
 #include <QtCouchDB/couchdbglobal.h>
-#include <QtCouchDB/couchdbenums.h>
 #include <QtCouchDB/couchdbresponse.h>
 #include <QtCore/qobject.h>
 #include <QtCore/qscopedpointer.h>
@@ -51,11 +50,11 @@ public slots:
     Q_INVOKABLE void listDocuments(const QString &database);
     Q_INVOKABLE void retrieveRevision(const QString &database, const QString &documentId);
     Q_INVOKABLE void retrieveDocument(const QString &database, const QString &documentId);
-    Q_INVOKABLE void updateDocument(const QString &database, const QString &documentId, QByteArray document);
+    Q_INVOKABLE void updateDocument(const QString &database, const QString &documentId, const QByteArray &document);
     Q_INVOKABLE void deleteDocument(const QString &database, const QString &documentId, const QString &revision);
 
-    Q_INVOKABLE void uploadAttachment(const QString &database, const QString &documentId, const QString &attachmentName, QByteArray attachment,
-                                      QString mimeType, const QString &revision);
+    Q_INVOKABLE void uploadAttachment(const QString &database, const QString &documentId, const QString &attachmentName, const QByteArray &attachment,
+                                      const QString &mimeType, const QString &revision);
     Q_INVOKABLE void deleteAttachment(const QString &database, const QString &documentId, const QString &attachmentName, const QString &revision);
 
     Q_INVOKABLE void replicateDatabaseFrom(const QUrl &sourceServer, const QString &sourceDatabase, const QString &targetDatabase,
@@ -69,7 +68,7 @@ private slots:
     void queryFinished();
 
 protected:
-    void executeQuery(CouchDBQuery *query);
+    void executeQuery(const CouchDBQuery &query);
 
     void replicateDatabase(const QUrl &source, const QUrl &target, const QString &database, bool createTarget, bool continuous, bool cancel = false);
 

@@ -27,7 +27,7 @@ public:
 
     QUrl server;
     QScopedPointer<QNetworkAccessManager> networkManager;
-    QHash<QNetworkReply*, CouchDBQuery *> currentQueries;
+    QHash<QNetworkReply *, CouchDBQuery> currentQueries;
 };
 
 #endif // COUCHDB_P_H

@@ -4,7 +4,6 @@ DEPENDPATH += $$PWD
 HEADERS += \
     $$PWD/couchdb.h \
     $$PWD/couchdb_p.h \
-    $$PWD/couchdbenums.h \
     $$PWD/couchdbglobal.h \
     $$PWD/couchdbresponse.h \
     $$PWD/couchdbquery.h \
