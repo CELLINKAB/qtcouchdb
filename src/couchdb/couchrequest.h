@@ -1,7 +1,7 @@
 #ifndef COUCHREQUEST_H
 #define COUCHREQUEST_H
 
-#include <QtCouchDB/couchdbglobal.h>
+#include <QtCouchDB/couchglobal.h>
 #include <QtCore/qbytearray.h>
 #include <QtCore/qhash.h>
 #include <QtCore/qobjectdefs.h>

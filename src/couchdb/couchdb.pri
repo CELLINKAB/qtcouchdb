@@ -5,7 +5,7 @@ HEADERS += \
     $$PWD/couch.h \
     $$PWD/couchclient.h \
     $$PWD/couchclient_p.h \
-    $$PWD/couchdbglobal.h \
+    $$PWD/couchglobal.h \
     $$PWD/couchrequest.h \
     $$PWD/couchresponse.h \
     $$PWD/couchurl_p.h

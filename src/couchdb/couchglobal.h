@@ -1,5 +1,5 @@
-#ifndef COUCHDBGLOBAL_H
-#define COUCHDBGLOBAL_H
+#ifndef COUCHGLOBAL_H
+#define COUCHGLOBAL_H
 
 #include <QtCore/qglobal.h>
 
@@ -15,4 +15,4 @@
 #  endif
 #endif
 
-#endif // COUCHDBGLOBAL_H
+#endif // COUCHGLOBAL_H

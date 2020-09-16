@@ -1,7 +1,7 @@
 #ifndef COUCHRESPONSE_H
 #define COUCHRESPONSE_H
 
-#include <QtCouchDB/couchdbglobal.h>
+#include <QtCouchDB/couchglobal.h>
 #include <QtCouchDB/couchrequest.h>
 #include <QtCore/qobjectdefs.h>
 #include <QtCore/qshareddata.h>

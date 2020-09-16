@@ -1,7 +1,7 @@
 #ifndef COUCHDBLISTENER_H
 #define COUCHDBLISTENER_H
 
-#include <QtCouchDB/couchdbglobal.h>
+#include <QtCouchDB/couchglobal.h>
 #include <QtCore/qobject.h>
 #include <QtCore/qscopedpointer.h>
 

@@ -1,7 +1,7 @@
 #ifndef COUCH_H
 #define COUCH_H
 
-#include <QtCouchDB/couchdbglobal.h>
+#include <QtCouchDB/couchglobal.h>
 #include <QtCouchDB/couchrequest.h>
 #include <QtCore/qobject.h>
 
