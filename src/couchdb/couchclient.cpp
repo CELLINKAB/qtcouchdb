@@ -4,9 +4,11 @@
 #include "couchresponse.h"
 #include "couchdblistener.h"
 
-#include <QNetworkAccessManager>
-#include <QNetworkRequest>
-#include <QDebug>
+#include <QtCore/qloggingcategory.h>
+#include <QtNetwork/qnetworkaccessmanager.h>
+#include <QtNetwork/qnetworkrequest.h>
+
+Q_LOGGING_CATEGORY(lcCouchDB, "qtcouchdb")
 
 CouchClient::CouchClient(QObject *parent) :
     QObject(parent),
@@ -46,7 +48,7 @@ void CouchClient::executeQuery(const CouchQuery &query)
     if (!username.isEmpty() && !password.isEmpty())
         request.setRawHeader("Authorization", CouchClientPrivate::basicAuth(username, password));
 
-    qDebug() << "Invoke url:" << query.operation() << request.url().toString();
+    qCDebug(lcCouchDB) << "Invoke url:" << query.operation() << request.url().toString();
 
     QNetworkReply *reply = nullptr;
     switch (query.operation()) {
@@ -372,9 +374,9 @@ void CouchClient::replicateDatabase(const QUrl &source, const QUrl &target, cons
     Q_D(CouchClient);
 
     if (!cancel)
-        qDebug() << "Starting replication from" << source << "to" << target;
+        qCDebug(lcCouchDB) << "Starting replication from" << source << "to" << target;
     else
-        qDebug() << "Cancelling replication from" << source << "to" << target;
+        qCDebug(lcCouchDB) << "Cancelling replication from" << source << "to" << target;
 
     QJsonObject object;
     object.insert("source", source.toString());
@@ -408,7 +410,7 @@ CouchDBListener *CouchClient::createListener(const QString &database, const QStr
     listener->setDocumentId(documentId);
     listener->launch();
 
-    qDebug() << "Created listener for database:" << database << ", document:" << documentId;
+    qCDebug(lcCouchDB) << "Created listener for database:" << database << ", document:" << documentId;
 
     return listener;
 }
