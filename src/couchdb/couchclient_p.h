@@ -1,14 +1,14 @@
-#ifndef COUCHDB_P_H
-#define COUCHDB_P_H
+#ifndef COUCHCLIENT_P_H
+#define COUCHCLIENT_P_H
 
 #include <QtCore/qbytearray.h>
 #include <QtCore/qhash.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qurl.h>
 
-class CouchDBQuery;
+class CouchQuery;
 
-class CouchDBPrivate
+class CouchClientPrivate
 {
 public:
     static QByteArray basicAuth(const QString &username, const QString &password)
@@ -27,7 +27,7 @@ public:
 
     QUrl server;
     QScopedPointer<QNetworkAccessManager> networkManager;
-    QHash<QNetworkReply *, CouchDBQuery> currentQueries;
+    QHash<QNetworkReply *, CouchQuery> currentQueries;
 };
 
-#endif // COUCHDB_P_H
+#endif // COUCHCLIENT_P_H

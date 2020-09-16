@@ -1,4 +1,4 @@
-#include <QtCouchDB/couchdb.h>
+#include <QtCouchDB/couchclient.h>
 #include <QtQml/qqmlextensionplugin.h>
 #include <QtQml/qqml.h>
 
@@ -13,7 +13,7 @@ public:
 
 void CouchDBPlugin::registerTypes(const char *uri)
 {
-    qmlRegisterType<CouchDB>(uri, 1, 0, "CouchDB");
+    qmlRegisterType<CouchClient>(uri, 1, 0, "CouchClient");
 }
 
 #include "couchdbplugin.moc"

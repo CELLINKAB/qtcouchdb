@@ -1,5 +1,5 @@
-#ifndef COUCHDBQUERY_H
-#define COUCHDBQUERY_H
+#ifndef COUCHQUERY_H
+#define COUCHQUERY_H
 
 #include <QtCouchDB/couchdbglobal.h>
 #include <QtCore/qbytearray.h>
@@ -8,11 +8,11 @@
 #include <QtCore/qshareddata.h>
 #include <QtCore/qurl.h>
 
-class CouchDBQueryPrivate;
+class CouchQueryPrivate;
 
 QT_FORWARD_DECLARE_CLASS(QUrl)
 
-class COUCHDB_EXPORT CouchDBQuery
+class COUCHDB_EXPORT CouchQuery
 {
     Q_GADGET
     Q_PROPERTY(Operation operation READ operation)
@@ -41,14 +41,14 @@ public:
     };
     Q_ENUM(Operation)
 
-    CouchDBQuery(Operation operation = Unknown);
-    ~CouchDBQuery();
+    CouchQuery(Operation operation = Unknown);
+    ~CouchQuery();
 
-    CouchDBQuery(const CouchDBQuery &other);
-    CouchDBQuery &operator=(const CouchDBQuery &other);
+    CouchQuery(const CouchQuery &other);
+    CouchQuery &operator=(const CouchQuery &other);
 
-    bool operator==(const CouchDBQuery &other) const;
-    bool operator!=(const CouchDBQuery &other) const;
+    bool operator==(const CouchQuery &other) const;
+    bool operator!=(const CouchQuery &other) const;
 
     QUrl url() const;
     void setUrl(const QUrl &url);
@@ -70,8 +70,8 @@ public:
     void setHeader(const QByteArray &header, const QByteArray &value);
 
 private:
-    Q_DECLARE_PRIVATE(CouchDBQuery)
-    QExplicitlySharedDataPointer<CouchDBQueryPrivate> d_ptr;
+    Q_DECLARE_PRIVATE(CouchQuery)
+    QExplicitlySharedDataPointer<CouchQueryPrivate> d_ptr;
 };
 
-#endif // COUCHDBQUERY_H
+#endif // COUCHQUERY_H

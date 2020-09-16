@@ -1,6 +1,6 @@
 #include "couchdblistener.h"
-#include "couchdb.h"
-#include "couchdb_p.h"
+#include "couchclient.h"
+#include "couchclient_p.h"
 
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
@@ -146,7 +146,7 @@ void CouchDBListener::start()
     QString username = d->server.userName();
     QString password = d->server.password();
     if (!username.isEmpty() && !password.isEmpty())
-        request.setRawHeader("Authorization", CouchDBPrivate::basicAuth(username, password));
+        request.setRawHeader("Authorization", CouchClientPrivate::basicAuth(username, password));
 
     d->reply = d->networkManager->get(request);
     connect(d->reply, SIGNAL(readyRead()), this, SLOT(readChanges()));

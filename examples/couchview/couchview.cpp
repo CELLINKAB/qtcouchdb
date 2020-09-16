@@ -4,35 +4,35 @@ int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
 
-    CouchDB db;
-    db.setServer(QUrl("http://admin:password@localhost:5984"));
+    CouchClient client;
+    client.setServer(QUrl("http://admin:password@localhost:5984"));
 
     // \0/
-    QObject::connect(&db, &CouchDB::installationChecked, [&](const CouchDBResponse &response) {
+    QObject::connect(&client, &CouchClient::installationChecked, [&](const CouchResponse &response) {
         qDebug() << "-> installationChecked" << response.toJson();
-        QObject::connect(&db, &CouchDB::sessionStarted, [&](const CouchDBResponse &response) {
+        QObject::connect(&client, &CouchClient::sessionStarted, [&](const CouchResponse &response) {
             qDebug() << "-> sessionStarted" << response.toJson();
-            QObject::connect(&db, &CouchDB::databaseCreated, [&](const CouchDBResponse &response) {
+            QObject::connect(&client, &CouchClient::databaseCreated, [&](const CouchResponse &response) {
                 qDebug() << "-> databaseCreated" << response.toJson();
-                QObject::connect(&db, &CouchDB::databasesListed, [&](const CouchDBResponse &response) {
+                QObject::connect(&client, &CouchClient::databasesListed, [&](const CouchResponse &response) {
                     qDebug() << "-> databasesListed" << response.toJson();
-                    QObject::connect(&db, &CouchDB::databaseDeleted, [&](const CouchDBResponse &response) {
+                    QObject::connect(&client, &CouchClient::databaseDeleted, [&](const CouchResponse &response) {
                         qDebug() << "-> databaseDeleted" << response.toJson();
-                        QObject::connect(&db, &CouchDB::sessionEnded, [&](const CouchDBResponse &response) {
+                        QObject::connect(&client, &CouchClient::sessionEnded, [&](const CouchResponse &response) {
                             qDebug() << "-> sessionEnded" << response.toJson();
                             app.quit();
                         });
-                        db.endSession();
+                        client.endSession();
                     });
-                    db.deleteDatabase("qtcouchdb");
+                    client.deleteDatabase("qtcouchdb");
                 });
-                db.listDatabases();
+                client.listDatabases();
             });
-            db.createDatabase("qtcouchdb");
+            client.createDatabase("qtcouchdb");
         });
-        db.startSession("admin", "password");
+        client.startSession("admin", "password");
     });
-    db.checkInstallation();
+    client.checkInstallation();
 
 //    void documentsListed(const CouchDBResponse &response);
 //    void revisionRetrieved(const CouchDBResponse &response);

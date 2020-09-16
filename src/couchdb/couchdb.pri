@@ -2,15 +2,15 @@ INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
 HEADERS += \
-    $$PWD/couchdb.h \
-    $$PWD/couchdb_p.h \
+    $$PWD/couchclient.h \
+    $$PWD/couchclient_p.h \
     $$PWD/couchdbglobal.h \
-    $$PWD/couchdbresponse.h \
-    $$PWD/couchdbquery.h \
-    $$PWD/couchdblistener.h
+    $$PWD/couchdblistener.h \
+    $$PWD/couchquery.h \
+    $$PWD/couchresponse.h
 
 SOURCES += \
-    $$PWD/couchdb.cpp \
-    $$PWD/couchdbresponse.cpp \
-    $$PWD/couchdbquery.cpp \
-    $$PWD/couchdblistener.cpp
+    $$PWD/couchclient.cpp \
+    $$PWD/couchdblistener.cpp \
+    $$PWD/couchquery.cpp \
+    $$PWD/couchresponse.cpp

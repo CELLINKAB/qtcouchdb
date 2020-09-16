@@ -1,41 +1,41 @@
-#ifndef COUCHDB_H
-#define COUCHDB_H
+#ifndef COUCHCLIENT_H
+#define COUCHCLIENT_H
 
 #include <QtCouchDB/couchdbglobal.h>
-#include <QtCouchDB/couchdbresponse.h>
 #include <QtCore/qobject.h>
 #include <QtCore/qscopedpointer.h>
 
+class CouchClientPrivate;
 class CouchDBListener;
-class CouchDBQuery;
-class CouchDBPrivate;
+class CouchQuery;
+class CouchResponse;
 
-class COUCHDB_EXPORT CouchDB : public QObject
+class COUCHDB_EXPORT CouchClient : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit CouchDB(QObject *parent = nullptr);
-    ~CouchDB();
+    explicit CouchClient(QObject *parent = nullptr);
+    ~CouchClient();
 
     QUrl server() const;
     void setServer(const QUrl &server);
 
 signals:
-    void installationChecked(const CouchDBResponse &response);
-    void sessionStarted(const CouchDBResponse &response);
-    void sessionEnded(const CouchDBResponse &response);
-    void databasesListed(const CouchDBResponse &response);
-    void databaseCreated(const CouchDBResponse &response);
-    void databaseDeleted(const CouchDBResponse &response);
-    void documentsListed(const CouchDBResponse &response);
-    void revisionRetrieved(const CouchDBResponse &response);
-    void documentRetrieved(const CouchDBResponse &response);
-    void documentUpdated(const CouchDBResponse &response);
-    void documentDeleted(const CouchDBResponse &response);
-    void attachmentUploaded(const CouchDBResponse &response);
-    void attachmentDeleted(const CouchDBResponse &response);
-    void databaseReplicated(const CouchDBResponse &response);
+    void installationChecked(const CouchResponse &response);
+    void sessionStarted(const CouchResponse &response);
+    void sessionEnded(const CouchResponse &response);
+    void databasesListed(const CouchResponse &response);
+    void databaseCreated(const CouchResponse &response);
+    void databaseDeleted(const CouchResponse &response);
+    void documentsListed(const CouchResponse &response);
+    void revisionRetrieved(const CouchResponse &response);
+    void documentRetrieved(const CouchResponse &response);
+    void documentUpdated(const CouchResponse &response);
+    void documentDeleted(const CouchResponse &response);
+    void attachmentUploaded(const CouchResponse &response);
+    void attachmentDeleted(const CouchResponse &response);
+    void databaseReplicated(const CouchResponse &response);
 
 public slots:
     Q_INVOKABLE void checkInstallation();
@@ -68,13 +68,13 @@ private slots:
     void queryFinished();
 
 protected:
-    void executeQuery(const CouchDBQuery &query);
+    void executeQuery(const CouchQuery &query);
 
     void replicateDatabase(const QUrl &source, const QUrl &target, const QString &database, bool createTarget, bool continuous, bool cancel = false);
 
 private:
-    Q_DECLARE_PRIVATE(CouchDB)
-    QScopedPointer<CouchDBPrivate> d_ptr;
+    Q_DECLARE_PRIVATE(CouchClient)
+    QScopedPointer<CouchClientPrivate> d_ptr;
 };
 
-#endif // COUCHDB_H
+#endif // COUCHCLIENT_H
