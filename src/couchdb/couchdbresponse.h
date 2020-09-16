@@ -2,39 +2,51 @@
 #define COUCHDBRESPONSE_H
 
 #include <QtCouchDB/couchdbglobal.h>
-#include <QtCouchDB/couchdbenums.h>
-#include <QtCore/qobject.h>
-#include <QtCore/qscopedpointer.h>
+#include <QtCore/qobjectdefs.h>
+#include <QtCore/qshareddata.h>
 
 class CouchDBQuery;
 class CouchDBResponsePrivate;
 
-class COUCHDB_EXPORT CouchDBResponse : public QObject
+QT_FORWARD_DECLARE_CLASS(QJsonDocument)
+
+class COUCHDB_EXPORT CouchDBResponse
 {
-    Q_OBJECT
+    Q_GADGET
+    Q_PROPERTY(Status status READ status)
+    Q_PROPERTY(QString revision READ revision)
+    Q_PROPERTY(QByteArray data READ data)
 
 public:
-    explicit CouchDBResponse(QObject *parent = nullptr);
+    CouchDBResponse(CouchDBQuery *query = nullptr);
     ~CouchDBResponse();
 
+    CouchDBResponse(const CouchDBResponse &other);
+    CouchDBResponse &operator=(const CouchDBResponse &other);
+
+    bool operator==(const CouchDBResponse &other) const;
+    bool operator!=(const CouchDBResponse &other) const;
+
     CouchDBQuery *query() const;
-    void setQuery(CouchDBQuery *query);
 
-    CouchDBReplyStatus status() const;
-    void setStatus(CouchDBReplyStatus status);
+    enum Status { Success, Error, AuthError, Timeout };
+    Q_ENUM(Status)
 
-    QString revisionData() const;
-    void setRevisionData(const QString &revision);
+    Status status() const;
+    void setStatus(Status status);
+
+    QString revision() const;
+    void setRevision(const QString &revision);
 
     QByteArray data() const;
     void setData(const QByteArray &data);
 
-    QJsonDocument document() const;
-    QJsonObject documentObj() const;
+    QJsonDocument toJson() const;
+    static CouchDBResponse fromJson(const QJsonDocument &json, CouchDBQuery *query = nullptr);
 
 private:
     Q_DECLARE_PRIVATE(CouchDBResponse)
-    QScopedPointer<CouchDBResponsePrivate> d_ptr;
+    QExplicitlySharedDataPointer<CouchDBResponsePrivate> d_ptr;
 };
 
 #endif // COUCHDBRESPONSE_H

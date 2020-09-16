@@ -9,17 +9,17 @@ int main(int argc, char *argv[])
 
     // \0/
     QObject::connect(&db, &CouchDB::installationChecked, [&](const CouchDBResponse &response) {
-        qDebug() << "-> installationChecked" << response.document();
+        qDebug() << "-> installationChecked" << response.toJson();
         QObject::connect(&db, &CouchDB::sessionStarted, [&](const CouchDBResponse &response) {
-            qDebug() << "-> sessionStarted" << response.document();
+            qDebug() << "-> sessionStarted" << response.toJson();
             QObject::connect(&db, &CouchDB::databaseCreated, [&](const CouchDBResponse &response) {
-                qDebug() << "-> databaseCreated" << response.document();
+                qDebug() << "-> databaseCreated" << response.toJson();
                 QObject::connect(&db, &CouchDB::databasesListed, [&](const CouchDBResponse &response) {
-                    qDebug() << "-> databasesListed" << response.document();
+                    qDebug() << "-> databasesListed" << response.toJson();
                     QObject::connect(&db, &CouchDB::databaseDeleted, [&](const CouchDBResponse &response) {
-                        qDebug() << "-> databaseDeleted" << response.document();
+                        qDebug() << "-> databaseDeleted" << response.toJson();
                         QObject::connect(&db, &CouchDB::sessionEnded, [&](const CouchDBResponse &response) {
-                            qDebug() << "-> sessionEnded" << response.document();
+                            qDebug() << "-> sessionEnded" << response.toJson();
                             app.quit();
                         });
                         db.endSession();

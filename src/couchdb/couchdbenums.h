@@ -1,14 +1,6 @@
 #ifndef COUCHDBENUMS_H
 #define COUCHDBENUMS_H
 
-enum CouchDBReplyStatus
-{
-    COUCHDB_SUCCESS,
-    COUCHDB_ERROR,
-    COUCHDB_AUTHERROR,
-    COUCHDB_TIMEOUT
-};
-
 enum CouchDBOperation
 {
     COUCHDB_CHECKINSTALLATION,

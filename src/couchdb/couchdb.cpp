@@ -116,22 +116,22 @@ void CouchDB::queryFinished()
         hasError = true;
     }
 
-    CouchDBResponse response;
-    response.setQuery(query);
-    response.setData(data);
+
+    QJsonDocument json = QJsonDocument::fromJson(data);
+    CouchDBResponse response = CouchDBResponse::fromJson(json, query);
     response.setStatus(hasError || (query->operation() != COUCHDB_CHECKINSTALLATION && query->operation() != COUCHDB_RETRIEVEDOCUMENT &&
-            !response.documentObj().value("ok").toBool()) ? COUCHDB_ERROR : COUCHDB_SUCCESS);
+            !json["ok"].toBool()) ? CouchDBResponse::Error : CouchDBResponse::Success);
 
     switch (query->operation()) {
     case COUCHDB_CHECKINSTALLATION:
     default:
         if (!hasError)
-            response.setStatus(response.documentObj().contains("couchdb") ? COUCHDB_SUCCESS : COUCHDB_ERROR);
+            response.setStatus(!json["couchdb"].isUndefined() ? CouchDBResponse::Success : CouchDBResponse::Error);
         emit installationChecked(response);
         break;
     case COUCHDB_STARTSESSION:
         if (hasError && reply->error() >= 201 && reply->error() <= 299)
-            response.setStatus(COUCHDB_AUTHERROR);
+            response.setStatus(CouchDBResponse::AuthError);
         emit sessionStarted(response);
         break;
     case COUCHDB_ENDSESSION:
@@ -152,7 +152,7 @@ void CouchDB::queryFinished()
     case COUCHDB_RETRIEVEREVISION: {
         QString revision = reply->rawHeader("ETag");
         revision.remove("\"");
-        response.setRevisionData(revision);
+        response.setRevision(revision);
         emit revisionRetrieved(response);
         break;
     }
