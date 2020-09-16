@@ -1,6 +1,5 @@
 #include "couchdbquery.h"
 
-#include <QtCore/qtimer.h>
 #include <QtCore/qurl.h>
 #include <QtNetwork/qnetworkrequest.h>
 
@@ -12,7 +11,6 @@ public:
     QString database;
     QString documentId;
     QByteArray body;
-    QTimer *timer = nullptr;
 };
 
 CouchDBQuery::CouchDBQuery(QObject *parent) :
@@ -21,10 +19,6 @@ CouchDBQuery::CouchDBQuery(QObject *parent) :
 {
     Q_D(CouchDBQuery);
     d->request.reset(new QNetworkRequest);
-    d->timer = new QTimer(this);
-    d->timer->setInterval(20000); // ### TODO
-    d->timer->setSingleShot(true);
-    connect(d->timer, SIGNAL(timeout()), SIGNAL(timeout()));
 }
 
 CouchDBQuery::~CouchDBQuery()
@@ -95,10 +89,4 @@ void CouchDBQuery::setBody(const QByteArray &body)
 {
     Q_D(CouchDBQuery);
     d->body = body;
-}
-
-void CouchDBQuery::startTimeoutTimer()
-{
-    Q_D(CouchDBQuery);
-    d->timer->start();
 }

@@ -36,12 +36,6 @@ public:
     QByteArray body() const;
     void setBody(const QByteArray &body);
 
-signals:
-    void timeout();
-
-public slots:
-    void startTimeoutTimer();
-
 private:
     Q_DECLARE_PRIVATE(CouchDBQuery)
     QScopedPointer<CouchDBQueryPrivate> d_ptr;

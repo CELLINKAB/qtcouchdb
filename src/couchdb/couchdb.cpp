@@ -89,11 +89,6 @@ void CouchDB::executeQuery(CouchDBQuery *query)
         break;
     }
 
-    if (query->operation() != COUCHDB_REPLICATEDATABASE) {
-        connect(query, SIGNAL(timeout()), SLOT(queryTimeout()));
-        query->startTimeoutTimer();
-    }
-
     connect(reply, SIGNAL(finished()), this, SLOT(queryFinished()));
     d->currentQueries[reply] = query;
 }
@@ -179,17 +174,6 @@ void CouchDB::queryFinished()
     d->currentQueries.remove(reply);
     reply->deleteLater();
     delete query;
-}
-
-void CouchDB::queryTimeout()
-{
-    CouchDBQuery *query = qobject_cast<CouchDBQuery*>(sender());
-    if (!query)
-        return;
-
-    qWarning() << query->url() << "timed out. Retrying...";
-
-    executeQuery(query);
 }
 
 void CouchDB::checkInstallation()

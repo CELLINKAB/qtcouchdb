@@ -67,7 +67,6 @@ public slots:
 
 private slots:
     void queryFinished();
-    void queryTimeout();
 
 protected:
     void executeQuery(CouchDBQuery *query);
