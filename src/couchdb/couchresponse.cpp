@@ -5,28 +5,28 @@
 class CouchResponsePrivate
 {
 public:
-    CouchRequest query;
+    CouchRequest request;
     CouchResponse::Status status = CouchResponse::Error;
     QString revision;
     QByteArray data;
 };
 
-CouchResponse::CouchResponse(const CouchRequest &query, QObject *parent) :
+CouchResponse::CouchResponse(const CouchRequest &request, QObject *parent) :
     QObject(parent),
     d_ptr(new CouchResponsePrivate)
 {
     Q_D(CouchResponse);
-    d->query = query;
+    d->request = request;
 }
 
 CouchResponse::~CouchResponse()
 {
 }
 
-CouchRequest CouchResponse::query() const
+CouchRequest CouchResponse::request() const
 {
     Q_D(const CouchResponse);
-    return d->query;
+    return d->request;
 }
 
 CouchResponse::Status CouchResponse::status() const

@@ -4,11 +4,8 @@
 #include <QtCouchDB/couchclient.h>
 
 #include <QtCore/qbytearray.h>
-#include <QtCore/qhash.h>
-#include <QtCore/qscopedpointer.h>
+#include <QtCore/qstring.h>
 #include <QtCore/qurl.h>
-
-class CouchRequest;
 
 class CouchClientPrivate
 {
@@ -20,14 +17,12 @@ public:
         return "Basic " + QByteArray(username.toUtf8() + ":" + password.toUtf8()).toBase64();
     }
 
-    void queryFinished();
+    void queryFinished(QNetworkReply *reply);
     void replicateDatabase(const QUrl &source, const QUrl &target, const QString &database, bool createTarget, bool continuous, bool cancel = false);
 
-    CouchClient *q_ptr = nullptr;
-
     QUrl serverUrl;
-    QScopedPointer<QNetworkAccessManager> networkManager;
-    QHash<QNetworkReply *, CouchRequest> currentQueries;
+    CouchClient *q_ptr = nullptr;
+    QNetworkAccessManager *networkManager = nullptr;
 };
 
 #endif // COUCHCLIENT_P_H

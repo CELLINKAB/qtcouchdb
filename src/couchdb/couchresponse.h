@@ -18,10 +18,10 @@ class COUCHDB_EXPORT CouchResponse : public QObject
     Q_PROPERTY(QByteArray data READ data)
 
 public:
-    CouchResponse(const CouchRequest &query = CouchRequest(), QObject *parent = nullptr);
+    CouchResponse(const CouchRequest &request = CouchRequest(), QObject *parent = nullptr);
     ~CouchResponse();
 
-    CouchRequest query() const;
+    CouchRequest request() const;
 
     enum Status { Success, Error, AuthError, Timeout };
     Q_ENUM(Status)
@@ -36,6 +36,9 @@ public:
     void setData(const QByteArray &data);
 
     QJsonDocument toJson() const;
+
+signals:
+    void received();
 
 private:
     Q_DECLARE_PRIVATE(CouchResponse)
