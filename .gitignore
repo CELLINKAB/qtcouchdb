@@ -10,6 +10,8 @@
 *.dylib
 
 # Qt-es
+*.version
+*.version.in
 object_script.*.Release
 object_script.*.Debug
 *_plugin_import.cpp
@@ -26,18 +28,17 @@ qrc_*.cpp
 ui_*.h
 *.qmlc
 *.jsc
+c++.pch
 Makefile*
 *build-*
-
-# Qt unit tests
+/include
+/lib
+/mkspecs
+/qml
 target_wrapper.*
 
 # QtCreator
 *.autosave
-
-# QtCreator Qml
 *.qmlproject.user
 *.qmlproject.user.*
-
-# QtCreator CMake
 CMakeLists.txt.user*
