@@ -7,7 +7,6 @@
 class CouchDBQueryPrivate
 {
 public:
-    QUrl server;
     QScopedPointer<QNetworkRequest> request;
     CouchDBOperation operation = COUCHDB_CHECKINSTALLATION;
     QString database;
@@ -16,12 +15,11 @@ public:
     QTimer *timer = nullptr;
 };
 
-CouchDBQuery::CouchDBQuery(const QUrl &server, QObject *parent) :
+CouchDBQuery::CouchDBQuery(QObject *parent) :
     QObject(parent),
     d_ptr(new CouchDBQueryPrivate)
 {
     Q_D(CouchDBQuery);
-    d->server = server;
     d->request.reset(new QNetworkRequest);
     d->timer = new QTimer(this);
     d->timer->setInterval(20000); // ### TODO
@@ -31,12 +29,6 @@ CouchDBQuery::CouchDBQuery(const QUrl &server, QObject *parent) :
 
 CouchDBQuery::~CouchDBQuery()
 {
-}
-
-QUrl CouchDBQuery::server() const
-{
-    Q_D(const CouchDBQuery);
-    return d->server;
 }
 
 QNetworkRequest *CouchDBQuery::request() const

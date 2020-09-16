@@ -16,10 +16,9 @@ class COUCHDB_EXPORT CouchDBQuery : public QObject
     Q_OBJECT
 
 public:
-    explicit CouchDBQuery(const QUrl &server, QObject *parent = nullptr);
+    explicit CouchDBQuery(QObject *parent = nullptr);
     ~CouchDBQuery();
 
-    QUrl server() const;
     QNetworkRequest *request() const;
 
     QUrl url() const;

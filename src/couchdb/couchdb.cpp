@@ -198,7 +198,7 @@ void CouchDB::checkInstallation()
 {
     Q_D(CouchDB);
 
-    CouchDBQuery *query = new CouchDBQuery(d->server, this);
+    CouchDBQuery *query = new CouchDBQuery(this);
     query->setUrl(d->server);
     query->setOperation(COUCHDB_CHECKINSTALLATION);
 
@@ -213,7 +213,7 @@ void CouchDB::startSession(const QString &username, const QString &password)
     postData.addQueryItem("name", username);
     postData.addQueryItem("password", password);
 
-    CouchDBQuery *query = new CouchDBQuery(d->server, this);
+    CouchDBQuery *query = new CouchDBQuery(this);
     query->setUrl(d->queryUrl({"_session"}));
     query->setOperation(COUCHDB_STARTSESSION);
     query->request()->setRawHeader("Accept", "application/json");
@@ -227,7 +227,7 @@ void CouchDB::endSession()
 {
     Q_D(CouchDB);
 
-    CouchDBQuery *query = new CouchDBQuery(d->server, this);
+    CouchDBQuery *query = new CouchDBQuery(this);
     query->setUrl(d->queryUrl({"_session"}));
     query->setOperation(COUCHDB_ENDSESSION);
 
@@ -238,7 +238,7 @@ void CouchDB::listDatabases()
 {
     Q_D(CouchDB);
 
-    CouchDBQuery *query = new CouchDBQuery(d->server, this);
+    CouchDBQuery *query = new CouchDBQuery(this);
     query->setUrl(d->queryUrl({"_all_dbs"}));
     query->setOperation(COUCHDB_LISTDATABASES);
 
@@ -249,7 +249,7 @@ void CouchDB::createDatabase(const QString &database)
 {
     Q_D(CouchDB);
 
-    CouchDBQuery *query = new CouchDBQuery(d->server, this);
+    CouchDBQuery *query = new CouchDBQuery(this);
     query->setUrl(d->queryUrl({database}));
     query->setOperation(COUCHDB_CREATEDATABASE);
     query->setDatabase(database);
@@ -261,7 +261,7 @@ void CouchDB::deleteDatabase(const QString &database)
 {
     Q_D(CouchDB);
 
-    CouchDBQuery *query = new CouchDBQuery(d->server, this);
+    CouchDBQuery *query = new CouchDBQuery(this);
     query->setUrl(d->queryUrl({database}));
     query->setOperation(COUCHDB_DELETEDATABASE);
     query->setDatabase(database);
@@ -273,7 +273,7 @@ void CouchDB::listDocuments(const QString& database)
 {
     Q_D(CouchDB);
 
-    CouchDBQuery *query = new CouchDBQuery(d->server, this);
+    CouchDBQuery *query = new CouchDBQuery(this);
     query->setUrl(d->queryUrl({database, "_all_docs"}));
     query->setOperation(COUCHDB_LISTDOCUMENTS);
     query->setDatabase(database);
@@ -285,7 +285,7 @@ void CouchDB::retrieveRevision(const QString &database, const QString &id)
 {
     Q_D(CouchDB);
 
-    CouchDBQuery *query = new CouchDBQuery(d->server, this);
+    CouchDBQuery *query = new CouchDBQuery(this);
     query->setUrl(d->queryUrl({database, id}));
     query->setOperation(COUCHDB_RETRIEVEREVISION);
     query->setDatabase(database);
@@ -298,7 +298,7 @@ void CouchDB::retrieveDocument(const QString &database, const QString &id)
 {
     Q_D(CouchDB);
 
-    CouchDBQuery *query = new CouchDBQuery(d->server, this);
+    CouchDBQuery *query = new CouchDBQuery(this);
     query->setUrl(d->queryUrl({database, id}));
     query->setOperation(COUCHDB_RETRIEVEDOCUMENT);
     query->setDatabase(database);
@@ -313,7 +313,7 @@ void CouchDB::updateDocument(const QString &database, const QString &id, QByteAr
 
     QByteArray postDataSize = QByteArray::number(document.size());
 
-    CouchDBQuery *query = new CouchDBQuery(d->server, this);
+    CouchDBQuery *query = new CouchDBQuery(this);
     query->setUrl(d->queryUrl({database, id}));
     query->setOperation(COUCHDB_UPDATEDOCUMENT);
     query->setDatabase(database);
@@ -330,7 +330,7 @@ void CouchDB::deleteDocument(const QString &database, const QString &id, const Q
 {
     Q_D(CouchDB);
 
-    CouchDBQuery *query = new CouchDBQuery(d->server, this);
+    CouchDBQuery *query = new CouchDBQuery(this);
     query->setUrl(d->queryUrl({database, id}, revision));
     query->setOperation(COUCHDB_DELETEDOCUMENT);
     query->setDatabase(database);
@@ -346,7 +346,7 @@ void CouchDB::uploadAttachment(const QString &database, const QString &id, const
 
     QByteArray postDataSize = QByteArray::number(attachment.size());
 
-    CouchDBQuery *query = new CouchDBQuery(d->server, this);
+    CouchDBQuery *query = new CouchDBQuery(this);
     query->setUrl(d->queryUrl({database, id, attachmentName}, revision));
     query->setOperation(COUCHDB_DELETEDOCUMENT);
     query->setDatabase(database);
@@ -362,7 +362,7 @@ void CouchDB::deleteAttachment(const QString &database, const QString &id, const
 {
     Q_D(CouchDB);
 
-    CouchDBQuery *query = new CouchDBQuery(d->server, this);
+    CouchDBQuery *query = new CouchDBQuery(this);
     query->setUrl(d->queryUrl({database, id, attachmentName}, revision));
     query->setOperation(COUCHDB_DELETEATTACHMENT);
     query->setDatabase(database);
@@ -418,7 +418,7 @@ void CouchDB::replicateDatabase(const QUrl &source, const QUrl &target, const QS
     QUrl url = d->server;
     url.setPath("_replicate");
 
-    CouchDBQuery *query = new CouchDBQuery(d->server, this);
+    CouchDBQuery *query = new CouchDBQuery(this);
     query->setUrl(url);
     query->setOperation(COUCHDB_REPLICATEDATABASE);
     query->setDatabase(database);
