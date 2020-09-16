@@ -144,7 +144,9 @@ void CouchClientPrivate::queryFinished()
     }
 
     QJsonDocument json = QJsonDocument::fromJson(data);
-    CouchResponse response = CouchResponse::fromJson(json, query);
+    CouchResponse response(query);
+    response.setData(json.toJson());
+    response.setRevision(json.object().value("revision").toString());
     response.setStatus(hasError || (query.operation() != CouchRequest::CheckInstallation && query.operation() != CouchRequest::RetrieveDocument &&
             !json["ok"].toBool()) ? CouchResponse::Error : CouchResponse::Success);
 

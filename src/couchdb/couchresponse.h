@@ -3,29 +3,23 @@
 
 #include <QtCouchDB/couchglobal.h>
 #include <QtCouchDB/couchrequest.h>
-#include <QtCore/qobjectdefs.h>
-#include <QtCore/qshareddata.h>
+#include <QtCore/qobject.h>
+#include <QtCore/qscopedpointer.h>
 
 class CouchResponsePrivate;
 
 QT_FORWARD_DECLARE_CLASS(QJsonDocument)
 
-class COUCHDB_EXPORT CouchResponse
+class COUCHDB_EXPORT CouchResponse : public QObject
 {
-    Q_GADGET
+    Q_OBJECT
     Q_PROPERTY(Status status READ status)
     Q_PROPERTY(QString revision READ revision)
     Q_PROPERTY(QByteArray data READ data)
 
 public:
-    CouchResponse(const CouchRequest &query = CouchRequest());
+    CouchResponse(const CouchRequest &query = CouchRequest(), QObject *parent = nullptr);
     ~CouchResponse();
-
-    CouchResponse(const CouchResponse &other);
-    CouchResponse &operator=(const CouchResponse &other);
-
-    bool operator==(const CouchResponse &other) const;
-    bool operator!=(const CouchResponse &other) const;
 
     CouchRequest query() const;
 
@@ -42,11 +36,10 @@ public:
     void setData(const QByteArray &data);
 
     QJsonDocument toJson() const;
-    static CouchResponse fromJson(const QJsonDocument &json, const CouchRequest &query = CouchRequest());
 
 private:
     Q_DECLARE_PRIVATE(CouchResponse)
-    QExplicitlySharedDataPointer<CouchResponsePrivate> d_ptr;
+    QScopedPointer<CouchResponsePrivate> d_ptr;
 };
 
 #endif // COUCHRESPONSE_H

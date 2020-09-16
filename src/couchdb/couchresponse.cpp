@@ -2,7 +2,7 @@
 
 #include <QtCore/qjsondocument.h>
 
-class CouchResponsePrivate : public QSharedData
+class CouchResponsePrivate
 {
 public:
     CouchRequest query;
@@ -11,7 +11,8 @@ public:
     QByteArray data;
 };
 
-CouchResponse::CouchResponse(const CouchRequest &query) :
+CouchResponse::CouchResponse(const CouchRequest &query, QObject *parent) :
+    QObject(parent),
     d_ptr(new CouchResponsePrivate)
 {
     Q_D(CouchResponse);
@@ -20,31 +21,6 @@ CouchResponse::CouchResponse(const CouchRequest &query) :
 
 CouchResponse::~CouchResponse()
 {
-}
-
-CouchResponse::CouchResponse(const CouchResponse &other)
-    : d_ptr(other.d_ptr)
-{
-}
-
-CouchResponse &CouchResponse::operator=(const CouchResponse &other)
-{
-    d_ptr = other.d_ptr;
-    return *this;
-}
-
-bool CouchResponse::operator==(const CouchResponse &other) const
-{
-    Q_D(const CouchResponse);
-    return d_ptr == other.d_ptr || (d->query == other.query() &&
-                                    d->status == other.status() &&
-                                    d->revision == other.revision() &&
-                                    d->data == other.data());
-}
-
-bool CouchResponse::operator!=(const CouchResponse &other) const
-{
-    return !(*this == other);
 }
 
 CouchRequest CouchResponse::query() const
@@ -93,12 +69,4 @@ QJsonDocument CouchResponse::toJson() const
 {
     Q_D(const CouchResponse);
     return QJsonDocument::fromJson(d->data);
-}
-
-CouchResponse CouchResponse::fromJson(const QJsonDocument &json, const CouchRequest &query)
-{
-    CouchResponse response(query);
-    response.setData(json.toJson());
-    response.setRevision(json.object().value("revision").toString());
-    return response;
 }
