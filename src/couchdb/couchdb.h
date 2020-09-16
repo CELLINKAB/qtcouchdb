@@ -17,7 +17,7 @@ class COUCHDB_EXPORT CouchDB : public QObject
     Q_OBJECT
 
 public:
-    explicit CouchDB(QObject *parent = 0);
+    explicit CouchDB(QObject *parent = nullptr);
     ~CouchDB();
 
     CouchDBServer *server() const;

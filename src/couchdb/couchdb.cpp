@@ -11,9 +11,9 @@ class CouchDBPrivate
 {
 public:
     CouchDBPrivate() :
-        server(0),
+        server(nullptr),
         cleanServerOnQuit(true),
-        networkManager(0)
+        networkManager(nullptr)
     {}
     
     virtual ~CouchDBPrivate()
@@ -462,7 +462,7 @@ CouchDBListener* CouchDB::createListener(const QString &database, const QString 
 
     CouchDBListener *listener = new CouchDBListener(d->server);
     listener->setCookieJar(d->networkManager->cookieJar());
-    d->networkManager->cookieJar()->setParent(0);
+    d->networkManager->cookieJar()->setParent(nullptr);
     listener->setDatabase(database);
     listener->setDocumentID(documentID);
     listener->launch();

@@ -7,7 +7,7 @@ class CouchDBResponsePrivate
 {
 public:
     CouchDBResponsePrivate() :
-        query(0),
+        query(nullptr),
         status(COUCHDB_ERROR)
     {}
 

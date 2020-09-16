@@ -18,9 +18,9 @@ class CouchDBListenerPrivate
 public:
     CouchDBListenerPrivate(CouchDBServer *s) :
         server(s),
-        networkManager(0),
-        reply(0),
-        retryTimer(0)
+        networkManager(nullptr),
+        reply(nullptr),
+        retryTimer(nullptr)
     {}
 
     virtual ~CouchDBListenerPrivate()

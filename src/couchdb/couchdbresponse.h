@@ -14,7 +14,7 @@ class COUCHDB_EXPORT CouchDBResponse : public QObject
     Q_OBJECT
 
 public:
-    explicit CouchDBResponse(QObject *parent = 0);
+    explicit CouchDBResponse(QObject *parent = nullptr);
     ~CouchDBResponse();
 
     CouchDBQuery* query() const;

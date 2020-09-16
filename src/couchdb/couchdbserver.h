@@ -12,7 +12,7 @@ class COUCHDB_EXPORT CouchDBServer : public QObject
     Q_OBJECT
 
 public:
-    CouchDBServer(QObject *parent = 0);
+    CouchDBServer(QObject *parent = nullptr);
     ~CouchDBServer();
 
     QString url() const;
