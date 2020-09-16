@@ -6,13 +6,8 @@
 class CouchDBResponsePrivate
 {
 public:
-    CouchDBResponsePrivate() :
-        query(nullptr),
-        status(COUCHDB_ERROR)
-    {}
-
-    CouchDBQuery *query; //Response do not own query
-    CouchDBReplyStatus status;
+    CouchDBQuery *query = nullptr; // not ownded
+    CouchDBReplyStatus status = COUCHDB_ERROR;
     QString revisionData;
     QByteArray data;
     QJsonDocument document;

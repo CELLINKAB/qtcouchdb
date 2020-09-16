@@ -17,10 +17,7 @@ class CouchDBListenerPrivate
 {
 public:
     CouchDBListenerPrivate(CouchDBServer *s) :
-        server(s),
-        networkManager(nullptr),
-        reply(nullptr),
-        retryTimer(nullptr)
+        server(s)
     {}
 
     virtual ~CouchDBListenerPrivate()
@@ -34,12 +31,12 @@ public:
         if(networkManager) delete networkManager;
     }
 
-    CouchDBServer *server;
-    QNetworkAccessManager *networkManager;
+    CouchDBServer *server = nullptr;
+    QNetworkAccessManager *networkManager = nullptr;
     QString database;
     QString documentID;
-    QNetworkReply *reply;
-    QTimer* retryTimer;
+    QNetworkReply *reply = nullptr;
+    QTimer* retryTimer = nullptr;
     QMap<QString,QString> parameters;
     QMap<QString,QString> revisionsMap;
 };

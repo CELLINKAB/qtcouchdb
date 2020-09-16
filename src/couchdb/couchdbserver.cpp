@@ -3,15 +3,9 @@
 class CouchDBServerPrivate
 {
 public:
-    CouchDBServerPrivate() :
-        url("localhost"),
-        port(5984),
-        secureConnection(false)
-    {}
-
-    QString url;
-    int  port;
-    bool secureConnection;
+    QString url = "localhost";
+    int  port = 5984;
+    bool secureConnection = false;
     QString username;
     QString password;
     QByteArray credential;

@@ -10,12 +10,6 @@
 class CouchDBPrivate
 {
 public:
-    CouchDBPrivate() :
-        server(nullptr),
-        cleanServerOnQuit(true),
-        networkManager(nullptr)
-    {}
-    
     virtual ~CouchDBPrivate()
     {
         if(server && cleanServerOnQuit) delete server;
@@ -23,10 +17,10 @@ public:
         if(networkManager) delete networkManager;
     }
     
-    CouchDBServer *server;
-    bool cleanServerOnQuit;
+    CouchDBServer *server = nullptr;
+    bool cleanServerOnQuit = true;
 
-    QNetworkAccessManager *networkManager;
+    QNetworkAccessManager *networkManager = nullptr;
     QHash<QNetworkReply*, CouchDBQuery*> currentQueries;
 };
 
