@@ -9,7 +9,6 @@
 
 class CouchDBListener;
 class CouchDBQuery;
-class CouchDBServer;
 class CouchDBPrivate;
 
 class COUCHDB_EXPORT CouchDB : public QObject
@@ -20,9 +19,8 @@ public:
     explicit CouchDB(QObject *parent = nullptr);
     ~CouchDB();
 
-    CouchDBServer *server() const;
-    void setServer(CouchDBServer *server);
-    void setServerConfiguration(const QString& url, int port, const QString& username = QString(), const QString& password = QString());
+    QUrl server() const;
+    void setServer(const QUrl &server);
 
 signals:
     void installationChecked(const CouchDBResponse& response);
@@ -60,9 +58,9 @@ public slots:
                                       QString mimeType, const QString &revision);
     Q_INVOKABLE void deleteAttachment(const QString& database, const QString& documentID, const QString &attachmentName, const QString &revision);
 
-    Q_INVOKABLE void replicateDatabaseFrom(CouchDBServer *sourceServer, const QString& sourceDatabase, const QString& targetDatabase,
+    Q_INVOKABLE void replicateDatabaseFrom(const QUrl &sourceServer, const QString& sourceDatabase, const QString& targetDatabase,
                                            bool createTarget, bool continuous, bool cancel = false);
-    Q_INVOKABLE void replicateDatabaseTo(CouchDBServer *targetServer, const QString& sourceDatabase, const QString& targetDatabase,
+    Q_INVOKABLE void replicateDatabaseTo(const QUrl &targetServer, const QString& sourceDatabase, const QString& targetDatabase,
                                          bool createTarget, bool continuous, bool cancel = false);
 
     Q_INVOKABLE CouchDBListener* createListener(const QString& database, const QString& documentID);
@@ -74,7 +72,7 @@ private slots:
 protected:
     void executeQuery(CouchDBQuery *query);
 
-    void replicateDatabase(const QString& source, const QString& target, const QString &database, bool createTarget, bool continuous, bool cancel = false);
+    void replicateDatabase(const QUrl& source, const QUrl& target, const QString &database, bool createTarget, bool continuous, bool cancel = false);
 
 private:
     Q_DECLARE_PRIVATE(CouchDB)

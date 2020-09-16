@@ -1,5 +1,5 @@
 #include "couchdb.h"
-#include "couchdbserver.h"
+#include "couchdb_p.h"
 #include "couchdbquery.h"
 #include "couchdblistener.h"
 
@@ -7,68 +7,38 @@
 #include <QNetworkRequest>
 #include <QDebug>
 
-class CouchDBPrivate
-{
-public:
-    virtual ~CouchDBPrivate()
-    {
-        if(server && cleanServerOnQuit) delete server;
-        
-        if(networkManager) delete networkManager;
-    }
-    
-    CouchDBServer *server = nullptr;
-    bool cleanServerOnQuit = true;
-
-    QNetworkAccessManager *networkManager = nullptr;
-    QHash<QNetworkReply*, CouchDBQuery*> currentQueries;
-};
-
 CouchDB::CouchDB(QObject *parent) :
     QObject(parent),
     d_ptr(new CouchDBPrivate)
 {
     Q_D(CouchDB);
-
-    d->server = new CouchDBServer(this);
-    d->networkManager = new QNetworkAccessManager(this);
+    d->networkManager.reset(new QNetworkAccessManager(this));
 }
 
 CouchDB::~CouchDB()
 {
 }
 
-CouchDBServer *CouchDB::server() const
+QUrl CouchDB::server() const
 {
     Q_D(const CouchDB);
     return d->server;
 }
 
-void CouchDB::setServer(CouchDBServer *server)
+void CouchDB::setServer(const QUrl &server)
 {
     Q_D(CouchDB);
-    if(d->server && d->cleanServerOnQuit) delete d->server;
-
     d->server = server;
-    d->cleanServerOnQuit = false;
-}
-
-void CouchDB::setServerConfiguration(const QString &url, int port, const QString &username, const QString &password)
-{
-    Q_D(CouchDB);
-    d->server->setUrl(url);
-    d->server->setPort(port);
-    if(!username.isEmpty() && !password.isEmpty()) d->server->setCredential(username, password);
 }
 
 void CouchDB::executeQuery(CouchDBQuery *query)
 {
     Q_D(CouchDB);
 
-    if(query->server()->hasCredential() && query->operation() != COUCHDB_STARTSESSION)
-    {
-        query->request()->setRawHeader("Authorization", "Basic " + query->server()->credential());
-    }
+    QString username = d->server.userName();
+    QString password = d->server.password();
+    if (!username.isEmpty() && !password.isEmpty())
+        query->request()->setRawHeader("Authorization", CouchDBPrivate::basicAuth(username, password));
 
     qDebug() << "Invoked url:" << query->operation() << query->request()->url().toString();
 
@@ -229,7 +199,7 @@ void CouchDB::checkInstallation()
     Q_D(CouchDB);
 
     CouchDBQuery *query = new CouchDBQuery(d->server, this);
-    query->setUrl(QString("%1").arg(d->server->baseURL()));
+    query->setUrl(d->server);
     query->setOperation(COUCHDB_CHECKINSTALLATION);
 
     executeQuery(query);
@@ -244,7 +214,7 @@ void CouchDB::startSession(const QString &username, const QString &password)
     postData.addQueryItem("password", password);
 
     CouchDBQuery *query = new CouchDBQuery(d->server, this);
-    query->setUrl(QString("%1/_session").arg(d->server->baseURL()));
+    query->setUrl(d->queryUrl({"_session"}));
     query->setOperation(COUCHDB_STARTSESSION);
     query->request()->setRawHeader("Accept", "application/json");
     query->request()->setRawHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -258,7 +228,7 @@ void CouchDB::endSession()
     Q_D(CouchDB);
 
     CouchDBQuery *query = new CouchDBQuery(d->server, this);
-    query->setUrl(QString("%1/_session").arg(d->server->baseURL()));
+    query->setUrl(d->queryUrl({"_session"}));
     query->setOperation(COUCHDB_ENDSESSION);
 
     executeQuery(query);
@@ -269,7 +239,7 @@ void CouchDB::listDatabases()
     Q_D(CouchDB);
 
     CouchDBQuery *query = new CouchDBQuery(d->server, this);
-    query->setUrl(QString("%1/_all_dbs").arg(d->server->baseURL()));
+    query->setUrl(d->queryUrl({"_all_dbs"}));
     query->setOperation(COUCHDB_LISTDATABASES);
 
     executeQuery(query);
@@ -280,7 +250,7 @@ void CouchDB::createDatabase(const QString &database)
     Q_D(CouchDB);
 
     CouchDBQuery *query = new CouchDBQuery(d->server, this);
-    query->setUrl(QString("%1/%2").arg(d->server->baseURL(), database));
+    query->setUrl(d->queryUrl({database}));
     query->setOperation(COUCHDB_CREATEDATABASE);
     query->setDatabase(database);
 
@@ -292,7 +262,7 @@ void CouchDB::deleteDatabase(const QString &database)
     Q_D(CouchDB);
 
     CouchDBQuery *query = new CouchDBQuery(d->server, this);
-    query->setUrl(QString("%1/%2").arg(d->server->baseURL(), database));
+    query->setUrl(d->queryUrl({database}));
     query->setOperation(COUCHDB_DELETEDATABASE);
     query->setDatabase(database);
 
@@ -304,7 +274,7 @@ void CouchDB::listDocuments(const QString& database)
     Q_D(CouchDB);
 
     CouchDBQuery *query = new CouchDBQuery(d->server, this);
-    query->setUrl(QString("%1/%2/_all_docs").arg(d->server->baseURL(), database));
+    query->setUrl(d->queryUrl({database, "_all_docs"}));
     query->setOperation(COUCHDB_LISTDOCUMENTS);
     query->setDatabase(database);
 
@@ -316,7 +286,7 @@ void CouchDB::retrieveRevision(const QString &database, const QString &id)
     Q_D(CouchDB);
 
     CouchDBQuery *query = new CouchDBQuery(d->server, this);
-    query->setUrl(QString("%1/%2/%3").arg(d->server->baseURL(), database, id));
+    query->setUrl(d->queryUrl({database, id}));
     query->setOperation(COUCHDB_RETRIEVEREVISION);
     query->setDatabase(database);
     query->setDocumentId(id);
@@ -329,7 +299,7 @@ void CouchDB::retrieveDocument(const QString &database, const QString &id)
     Q_D(CouchDB);
 
     CouchDBQuery *query = new CouchDBQuery(d->server, this);
-    query->setUrl(QString("%1/%2/%3").arg(d->server->baseURL(), database, id));
+    query->setUrl(d->queryUrl({database, id}));
     query->setOperation(COUCHDB_RETRIEVEDOCUMENT);
     query->setDatabase(database);
     query->setDocumentId(id);
@@ -344,7 +314,7 @@ void CouchDB::updateDocument(const QString &database, const QString &id, QByteAr
     QByteArray postDataSize = QByteArray::number(document.size());
 
     CouchDBQuery *query = new CouchDBQuery(d->server, this);
-    query->setUrl(QString("%1/%2/%3").arg(d->server->baseURL(), database, id));
+    query->setUrl(d->queryUrl({database, id}));
     query->setOperation(COUCHDB_UPDATEDOCUMENT);
     query->setDatabase(database);
     query->setDocumentId(id);
@@ -361,7 +331,7 @@ void CouchDB::deleteDocument(const QString &database, const QString &id, const Q
     Q_D(CouchDB);
 
     CouchDBQuery *query = new CouchDBQuery(d->server, this);
-    query->setUrl(QString("%1/%2/%3?rev=%4").arg(d->server->baseURL(), database, id, revision));
+    query->setUrl(d->queryUrl({database, id}, revision));
     query->setOperation(COUCHDB_DELETEDOCUMENT);
     query->setDatabase(database);
     query->setDocumentId(id);
@@ -377,7 +347,7 @@ void CouchDB::uploadAttachment(const QString &database, const QString &id, const
     QByteArray postDataSize = QByteArray::number(attachment.size());
 
     CouchDBQuery *query = new CouchDBQuery(d->server, this);
-    query->setUrl(QString("%1/%2/%3/%4?rev=%5").arg(d->server->baseURL(), database, id, attachmentName, revision));
+    query->setUrl(d->queryUrl({database, id, attachmentName}, revision));
     query->setOperation(COUCHDB_DELETEDOCUMENT);
     query->setDatabase(database);
     query->setDocumentId(id);
@@ -393,7 +363,7 @@ void CouchDB::deleteAttachment(const QString &database, const QString &id, const
     Q_D(CouchDB);
 
     CouchDBQuery *query = new CouchDBQuery(d->server, this);
-    query->setUrl(QString("%1/%2/%3/%4?rev=%5").arg(d->server->baseURL(), database, id, attachmentName, revision));
+    query->setUrl(d->queryUrl({database, id, attachmentName}, revision));
     query->setOperation(COUCHDB_DELETEATTACHMENT);
     query->setDatabase(database);
     query->setDocumentId(id);
@@ -401,29 +371,35 @@ void CouchDB::deleteAttachment(const QString &database, const QString &id, const
     executeQuery(query);
 }
 
-void CouchDB::replicateDatabaseFrom(CouchDBServer *sourceServer, const QString& sourceDatabase, const QString& targetDatabase,
+void CouchDB::replicateDatabaseFrom(const QUrl &sourceServer, const QString& sourceDatabase, const QString& targetDatabase,
                                     bool createTarget, bool continuous, bool cancel)
 {
     Q_D(CouchDB);
 
-    QString source = QString("%1/%2").arg(sourceServer->baseURL(true), sourceDatabase);
-    QString target = d->server->url().contains("localhost") ? targetDatabase : QString("%1/%2").arg(d->server->baseURL(true), targetDatabase);
+    QUrl source = sourceServer;
+    source.setPath(sourceDatabase);
+
+    QUrl target = d->server;
+    target.setPath(targetDatabase);
 
     replicateDatabase(source, target, targetDatabase, createTarget, continuous, cancel);
 }
 
-void CouchDB::replicateDatabaseTo(CouchDBServer *targetServer, const QString& sourceDatabase, const QString& targetDatabase,
+void CouchDB::replicateDatabaseTo(const QUrl &targetServer, const QString& sourceDatabase, const QString& targetDatabase,
                                     bool createTarget, bool continuous, bool cancel)
 {
     Q_D(CouchDB);
 
-    QString source = d->server->url().contains("localhost") ? sourceDatabase : QString("%1/%2").arg(d->server->baseURL(true), sourceDatabase);
-    QString target = QString("%1/%2").arg(targetServer->baseURL(true), targetDatabase);
+    QUrl source = d->server;
+    source.setPath(sourceDatabase);
+
+    QUrl target = targetServer;
+    target.setPath(targetDatabase);
 
     replicateDatabase(source, target, targetDatabase, createTarget, continuous, cancel);
 }
 
-void CouchDB::replicateDatabase(const QString &source, const QString &target, const QString& database, bool createTarget,
+void CouchDB::replicateDatabase(const QUrl &source, const QUrl &target, const QString& database, bool createTarget,
                                 bool continuous, bool cancel)
 {
     Q_D(CouchDB);
@@ -432,15 +408,18 @@ void CouchDB::replicateDatabase(const QString &source, const QString &target, co
     else qDebug() << "Cancelling replication from" << source << "to" << target;
 
     QJsonObject object;
-    object.insert("source", source);
-    object.insert("target", target);
+    object.insert("source", source.toString());
+    object.insert("target", target.toString());
     object.insert("create_target", createTarget);
     object.insert("continuous", continuous);
     object.insert("cancel", cancel);
     QJsonDocument document(object);
 
+    QUrl url = d->server;
+    url.setPath("_replicate");
+
     CouchDBQuery *query = new CouchDBQuery(d->server, this);
-    query->setUrl(QString("%1/_replicate").arg(d->server->baseURL(true)));
+    query->setUrl(url);
     query->setOperation(COUCHDB_REPLICATEDATABASE);
     query->setDatabase(database);
     query->request()->setRawHeader("Accept", "application/json");

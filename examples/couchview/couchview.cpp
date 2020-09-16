@@ -5,7 +5,7 @@ int main(int argc, char *argv[])
     QCoreApplication app(argc, argv);
 
     CouchDB db;
-    db.setServerConfiguration("localhost", 5984, "admin", "password");
+    db.setServer(QUrl("http://admin:password@localhost:5984"));
 
     // \0/
     QObject::connect(&db, &CouchDB::installationChecked, [&](const CouchDBResponse& response) {

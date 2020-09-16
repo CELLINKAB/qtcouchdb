@@ -1,6 +1,6 @@
 #include "couchdblistener.h"
 #include "couchdb.h"
-#include "couchdbserver.h"
+#include "couchdb_p.h"
 
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
@@ -12,14 +12,9 @@
 #include <QTimer>
 #include <QDebug>
 
-
 class CouchDBListenerPrivate
 {
 public:
-    CouchDBListenerPrivate(CouchDBServer *s) :
-        server(s)
-    {}
-
     virtual ~CouchDBListenerPrivate()
     {
         if(retryTimer) retryTimer->stop();
@@ -31,7 +26,7 @@ public:
         if(networkManager) delete networkManager;
     }
 
-    CouchDBServer *server = nullptr;
+    QUrl server;
     QNetworkAccessManager *networkManager = nullptr;
     QString database;
     QString documentID;
@@ -41,13 +36,12 @@ public:
     QMap<QString,QString> revisionsMap;
 };
 
-
-CouchDBListener::CouchDBListener(CouchDBServer * server) :
-    QObject(server),
-    d_ptr(new CouchDBListenerPrivate(server))
+CouchDBListener::CouchDBListener(const QUrl &server, QObject *parent) :
+    QObject(parent),
+    d_ptr(new CouchDBListenerPrivate)
 {
     Q_D(CouchDBListener);
-
+    d->server = server;
     d->networkManager = new QNetworkAccessManager(this);
     connect(d->networkManager, SIGNAL(finished(QNetworkReply*)),  this, SLOT(listenFinished(QNetworkReply*)));
 
@@ -66,7 +60,7 @@ CouchDBListener::~CouchDBListener()
 {
 }
 
-CouchDBServer *CouchDBListener::server() const
+QUrl CouchDBListener::server() const
 {
     Q_D(const CouchDBListener);
     return d->server;
@@ -137,15 +131,17 @@ void CouchDBListener::start()
         urlQuery.addQueryItem(i.key(), i.value());
     }
 
-    qDebug() << d->server->secureConnection() << d->server->baseURL();
-    QUrl url = QUrl(QString("%1/%2/_changes").arg(d->server->baseURL(), d->database));
+    QUrl url = d->server;
+    url.setPath(QStringLiteral("%1/_changes").arg(d->database));
     url.setQuery(urlQuery);
 
     qDebug() << url;
 
-    QNetworkRequest request;
-    request.setUrl(url);
-    if(d->server->hasCredential()) request.setRawHeader("Authorization", "Basic " + d->server->credential());
+    QNetworkRequest request(url);
+    QString username = d->server.userName();
+    QString password = d->server.password();
+    if (!username.isEmpty() && !password.isEmpty())
+        request.setRawHeader("Authorization", CouchDBPrivate::basicAuth(username, password));
 
     d->reply = d->networkManager->get(request);
     connect(d->reply, SIGNAL(readyRead()), this, SLOT(readChanges()));

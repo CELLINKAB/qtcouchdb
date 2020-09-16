@@ -1,12 +1,13 @@
 #include "couchdbquery.h"
 
 #include <QtCore/qtimer.h>
+#include <QtCore/qurl.h>
 #include <QtNetwork/qnetworkrequest.h>
 
 class CouchDBQueryPrivate
 {
 public:
-    CouchDBServer *server = nullptr; // not owned
+    QUrl server;
     QScopedPointer<QNetworkRequest> request;
     CouchDBOperation operation = COUCHDB_CHECKINSTALLATION;
     QString database;
@@ -15,7 +16,7 @@ public:
     QTimer *timer = nullptr;
 };
 
-CouchDBQuery::CouchDBQuery(CouchDBServer *server, QObject *parent) :
+CouchDBQuery::CouchDBQuery(const QUrl &server, QObject *parent) :
     QObject(parent),
     d_ptr(new CouchDBQueryPrivate)
 {
@@ -32,7 +33,7 @@ CouchDBQuery::~CouchDBQuery()
 {
 }
 
-CouchDBServer *CouchDBQuery::server() const
+QUrl CouchDBQuery::server() const
 {
     Q_D(const CouchDBQuery);
     return d->server;

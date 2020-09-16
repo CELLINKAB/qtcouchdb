@@ -5,9 +5,9 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qscopedpointer.h>
 
-class CouchDBServer;
 class CouchDBListenerPrivate;
 
+QT_FORWARD_DECLARE_CLASS(QUrl)
 QT_FORWARD_DECLARE_CLASS(QNetworkReply)
 QT_FORWARD_DECLARE_CLASS(QNetworkCookieJar)
 
@@ -16,10 +16,10 @@ class COUCHDB_EXPORT CouchDBListener : public QObject
     Q_OBJECT
 
 public:
-    CouchDBListener(CouchDBServer *server);
+    CouchDBListener(const QUrl &server, QObject *parent = nullptr);
     ~CouchDBListener();
 
-    CouchDBServer* server() const;
+    QUrl server() const;
 
     QString database() const;
     void setDatabase(const QString& database);

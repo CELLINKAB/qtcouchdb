@@ -6,20 +6,20 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qscopedpointer.h>
 
-class CouchDBServer;
 class CouchDBQueryPrivate;
 
 QT_FORWARD_DECLARE_CLASS(QNetworkRequest)
+QT_FORWARD_DECLARE_CLASS(QUrl)
 
 class COUCHDB_EXPORT CouchDBQuery : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit CouchDBQuery(CouchDBServer *server, QObject *parent = nullptr);
+    explicit CouchDBQuery(const QUrl &server, QObject *parent = nullptr);
     ~CouchDBQuery();
 
-    CouchDBServer *server() const;
+    QUrl server() const;
     QNetworkRequest *request() const;
 
     QUrl url() const;
