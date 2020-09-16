@@ -20,15 +20,6 @@ public:
         return "Basic " + QByteArray(username.toUtf8() + ":" + password.toUtf8()).toBase64();
     }
 
-    QUrl queryUrl(const QStringList& path, const QString &revision = QString()) const
-    {
-        QUrl u = url;
-        u.setPath("/" + path.join("/"));
-        if (!revision.isNull())
-            u.setQuery(QString("rev=%1").arg(revision));
-        return u;
-    }
-
     void queryFinished();
     void replicateDatabase(const QUrl &source, const QUrl &target, const QString &database, bool createTarget, bool continuous, bool cancel = false);
 

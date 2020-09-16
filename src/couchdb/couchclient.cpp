@@ -10,6 +10,15 @@
 
 Q_LOGGING_CATEGORY(lcCouchDB, "qtcouchdb")
 
+static QUrl resolveUrl(const QUrl &baseUrl, const QString& path, const QString &revision = QString())
+{
+    QUrl url = baseUrl;
+    url.setPath(baseUrl.path() + "/" + path);
+    if (!revision.isNull())
+        url.setQuery(QString("rev=%1").arg(revision));
+    return url;
+}
+
 CouchClient::CouchClient(QObject *parent) : CouchClient(QUrl(), parent)
 {
 }
@@ -38,6 +47,22 @@ void CouchClient::setUrl(const QUrl &url)
 {
     Q_D(CouchClient);
     d->url = url;
+}
+
+QUrl CouchClient::databaseUrl(const QString &databaseName) const
+{
+    Q_D(const CouchClient);
+    return resolveUrl(d->url, databaseName);
+}
+
+QUrl CouchClient::documentUrl(const QString &databaseName, const QString &documentId, const QString &revision) const
+{
+    return resolveUrl(databaseUrl(databaseName), documentId, revision);
+}
+
+QUrl CouchClient::attachmentUrl(const QString &databaseName, const QString &documentId, const QString &attachmentName, const QString &revision) const
+{
+    return resolveUrl(documentUrl(databaseName, documentId), attachmentName, revision);
 }
 
 void CouchClient::executeQuery(const CouchQuery &query)
@@ -205,7 +230,7 @@ void CouchClient::startSession(const QString &username, const QString &password)
     Q_D(CouchClient);
 
     CouchQuery query(CouchQuery::StartSession);
-    query.setUrl(d->queryUrl({"_session"}));
+    query.setUrl(resolveUrl(d->url, "_session"));
     query.setBody(QUrlQuery({{"name", username}, {"password", password}}).toString(QUrl::FullyEncoded).toUtf8());
     query.setHeader("Accept", "application/json");
     query.setHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -215,30 +240,24 @@ void CouchClient::startSession(const QString &username, const QString &password)
 
 void CouchClient::endSession()
 {
-    Q_D(CouchClient);
-
     CouchQuery query(CouchQuery::EndSession);
-    query.setUrl(d->queryUrl({"_session"}));
+    query.setUrl(resolveUrl(url(), "_session"));
 
     executeQuery(query);
 }
 
 void CouchClient::listDatabases()
 {
-    Q_D(CouchClient);
-
     CouchQuery query(CouchQuery::ListDatabases);
-    query.setUrl(d->queryUrl({"_all_dbs"}));
+    query.setUrl(resolveUrl(url(), "_all_dbs"));
 
     executeQuery(query);
 }
 
 void CouchClient::createDatabase(const QString &database)
 {
-    Q_D(CouchClient);
-
     CouchQuery query(CouchQuery::CreateDatabase);
-    query.setUrl(d->queryUrl({database}));
+    query.setUrl(databaseUrl(database));
     query.setDatabase(database);
 
     executeQuery(query);
@@ -246,10 +265,8 @@ void CouchClient::createDatabase(const QString &database)
 
 void CouchClient::deleteDatabase(const QString &database)
 {
-    Q_D(CouchClient);
-
     CouchQuery query(CouchQuery::DeleteDatabase);
-    query.setUrl(d->queryUrl({database}));
+    query.setUrl(databaseUrl(database));
     query.setDatabase(database);
 
     executeQuery(query);
@@ -257,76 +274,64 @@ void CouchClient::deleteDatabase(const QString &database)
 
 void CouchClient::listDocuments(const QString &database)
 {
-    Q_D(CouchClient);
-
     CouchQuery query(CouchQuery::ListDocuments);
-    query.setUrl(d->queryUrl({database, "_all_docs"}));
+    query.setUrl(resolveUrl(databaseUrl(database), "_all_docs"));
     query.setDatabase(database);
 
     executeQuery(query);
 }
 
-void CouchClient::retrieveRevision(const QString &database, const QString &id)
+void CouchClient::retrieveRevision(const QString &database, const QString &documentId)
 {
-    Q_D(CouchClient);
-
     CouchQuery query(CouchQuery::RetrieveRevision);
-    query.setUrl(d->queryUrl({database, id}));
+    query.setUrl(documentUrl(database, documentId));
     query.setDatabase(database);
-    query.setDocumentId(id);
+    query.setDocumentId(documentId);
 
     executeQuery(query);
 }
 
-void CouchClient::retrieveDocument(const QString &database, const QString &id)
+void CouchClient::retrieveDocument(const QString &database, const QString &documentId)
 {
-    Q_D(CouchClient);
-
     CouchQuery query(CouchQuery::RetrieveDocument);
-    query.setUrl(d->queryUrl({database, id}));
+    query.setUrl(documentUrl(database, documentId));
     query.setDatabase(database);
-    query.setDocumentId(id);
+    query.setDocumentId(documentId);
 
     executeQuery(query);
 }
 
-void CouchClient::updateDocument(const QString &database, const QString &id, const QByteArray &document)
+void CouchClient::updateDocument(const QString &database, const QString &documentId, const QByteArray &content)
 {
-    Q_D(CouchClient);
-
     CouchQuery query(CouchQuery::UpdateDocument);
-    query.setUrl(d->queryUrl({database, id}));
+    query.setUrl(documentUrl(database, documentId));
     query.setDatabase(database);
-    query.setDocumentId(id);
+    query.setDocumentId(documentId);
     query.setHeader("Accept", "application/json");
     query.setHeader("Content-Type", "application/json");
-    query.setHeader("Content-Length", QByteArray::number(document.size()));
-    query.setBody(document);
+    query.setHeader("Content-Length", QByteArray::number(content.size()));
+    query.setBody(content);
 
     executeQuery(query);
 }
 
-void CouchClient::deleteDocument(const QString &database, const QString &id, const QString &revision)
+void CouchClient::deleteDocument(const QString &database, const QString &documentId, const QString &revision)
 {
-    Q_D(CouchClient);
-
     CouchQuery query(CouchQuery::DeleteDocument);
-    query.setUrl(d->queryUrl({database, id}, revision));
+    query.setUrl(documentUrl(database, documentId, revision));
     query.setDatabase(database);
-    query.setDocumentId(id);
+    query.setDocumentId(documentId);
 
     executeQuery(query);
 }
 
-void CouchClient::uploadAttachment(const QString &database, const QString &id, const QString &attachmentName,
-                               const QByteArray &attachment, const QString &mimeType, const QString &revision)
+void CouchClient::uploadAttachment(const QString &database, const QString &documentId, const QString &attachmentName,
+                                   const QByteArray &attachment, const QString &mimeType, const QString &revision)
 {
-    Q_D(CouchClient);
-
     CouchQuery query(CouchQuery::DeleteDocument);
-    query.setUrl(d->queryUrl({database, id, attachmentName}, revision));
+    query.setUrl(attachmentUrl(database, documentId, attachmentName, revision));
     query.setDatabase(database);
-    query.setDocumentId(id);
+    query.setDocumentId(documentId);
     query.setHeader("Content-Type", mimeType.toLatin1());
     query.setHeader("Content-Length", QByteArray::number(attachment.size()));
     query.setBody(attachment);
@@ -334,42 +339,34 @@ void CouchClient::uploadAttachment(const QString &database, const QString &id, c
     executeQuery(query);
 }
 
-void CouchClient::deleteAttachment(const QString &database, const QString &id, const QString &attachmentName, const QString &revision)
+void CouchClient::deleteAttachment(const QString &database, const QString &documentId, const QString &attachmentName, const QString &revision)
 {
-    Q_D(CouchClient);
-
     CouchQuery query(CouchQuery::DeleteAttachment);
-    query.setUrl(d->queryUrl({database, id, attachmentName}, revision));
+    query.setUrl(attachmentUrl(database, documentId, attachmentName, revision));
     query.setDatabase(database);
-    query.setDocumentId(id);
+    query.setDocumentId(documentId);
 
     executeQuery(query);
 }
 
 void CouchClient::replicateDatabaseFrom(const QUrl &sourceServer, const QString &sourceDatabase, const QString &targetDatabase,
-                                    bool createTarget, bool continuous, bool cancel)
+                                        bool createTarget, bool continuous, bool cancel)
 {
     Q_D(CouchClient);
 
-    QUrl source = sourceServer;
-    source.setPath(sourceDatabase);
-
-    QUrl target = d->url;
-    target.setPath(targetDatabase);
+    QUrl source = resolveUrl(sourceServer, sourceDatabase);
+    QUrl target = resolveUrl(url(), targetDatabase);
 
     d->replicateDatabase(source, target, targetDatabase, createTarget, continuous, cancel);
 }
 
 void CouchClient::replicateDatabaseTo(const QUrl &targetServer, const QString &sourceDatabase, const QString &targetDatabase,
-                                  bool createTarget, bool continuous, bool cancel)
+                                      bool createTarget, bool continuous, bool cancel)
 {
     Q_D(CouchClient);
 
-    QUrl source = d->url;
-    source.setPath("/" + sourceDatabase);
-
-    QUrl target = targetServer;
-    target.setPath("/" + targetDatabase);
+    QUrl source = resolveUrl(url(), sourceDatabase);
+    QUrl target = resolveUrl(targetServer, targetDatabase);
 
     d->replicateDatabase(source, target, targetDatabase, createTarget, continuous, cancel);
 }
@@ -393,7 +390,7 @@ void CouchClientPrivate::replicateDatabase(const QUrl &source, const QUrl &targe
     QJsonDocument document(object);
 
     CouchQuery query(CouchQuery::ReplicateDatabase);
-    query.setUrl(queryUrl({"_replicate"}));
+    query.setUrl(resolveUrl(url, "_replicate"));
     query.setDatabase(database);
     query.setHeader("Accept", "application/json");
     query.setHeader("Content-Type", "application/json");

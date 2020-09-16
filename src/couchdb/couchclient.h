@@ -13,6 +13,7 @@ class CouchResponse;
 class COUCHDB_EXPORT CouchClient : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QUrl url READ url WRITE setUrl)
 
 public:
     explicit CouchClient(QObject *parent = nullptr);
@@ -21,6 +22,10 @@ public:
 
     QUrl url() const;
     void setUrl(const QUrl &url);
+
+    Q_INVOKABLE QUrl databaseUrl(const QString &databaseName) const;
+    Q_INVOKABLE QUrl documentUrl(const QString &databaseName, const QString &documentId, const QString &revision = QString()) const;
+    Q_INVOKABLE QUrl attachmentUrl(const QString &databaseName, const QString &documentId, const QString &attachmentName, const QString &revision = QString()) const;
 
 signals:
     void installationChecked(const CouchResponse &response);
