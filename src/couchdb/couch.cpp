@@ -5,123 +5,123 @@ Couch::Couch(QObject *parent) : QObject(parent)
 {
 }
 
-CouchQuery Couch::checkInstallation(const QUrl &serverUrl)
+CouchRequest Couch::checkInstallation(const QUrl &serverUrl)
 {
-    CouchQuery query(CouchQuery::CheckInstallation);
-    query.setUrl(serverUrl);
-    return query;
+    CouchRequest request(CouchRequest::CheckInstallation);
+    request.setUrl(serverUrl);
+    return request;
 }
 
-CouchQuery Couch::startSession(const QUrl &serverUrl)
+CouchRequest Couch::startSession(const QUrl &serverUrl)
 {
-    CouchQuery query(CouchQuery::StartSession);
-    query.setUrl(CouchUrl::resolve(serverUrl, "_session"));
-    query.setBody(QUrlQuery({{"name", serverUrl.userName()}, {"password", serverUrl.password()}}).toString(QUrl::FullyEncoded).toUtf8());
-    query.setHeader("Accept", "application/json");
-    query.setHeader("Content-Type", "application/x-www-form-urlencoded");
-    return query;
+    CouchRequest request(CouchRequest::StartSession);
+    request.setUrl(CouchUrl::resolve(serverUrl, "_session"));
+    request.setBody(QUrlQuery({{"name", serverUrl.userName()}, {"password", serverUrl.password()}}).toString(QUrl::FullyEncoded).toUtf8());
+    request.setHeader("Accept", "application/json");
+    request.setHeader("Content-Type", "application/x-www-form-urlencoded");
+    return request;
 }
 
-CouchQuery Couch::endSession(const QUrl &serverUrl)
+CouchRequest Couch::endSession(const QUrl &serverUrl)
 {
-    CouchQuery query(CouchQuery::EndSession);
-    query.setUrl(CouchUrl::resolve(serverUrl, "_session"));
-    return query;
+    CouchRequest request(CouchRequest::EndSession);
+    request.setUrl(CouchUrl::resolve(serverUrl, "_session"));
+    return request;
 }
 
-CouchQuery Couch::listDatabases(const QUrl &serverUrl)
+CouchRequest Couch::listDatabases(const QUrl &serverUrl)
 {
-    CouchQuery query(CouchQuery::ListDatabases);
-    query.setUrl(CouchUrl::resolve(serverUrl, "_all_dbs"));
-    return query;
+    CouchRequest request(CouchRequest::ListDatabases);
+    request.setUrl(CouchUrl::resolve(serverUrl, "_all_dbs"));
+    return request;
 }
 
-CouchQuery Couch::createDatabase(const QUrl &databaseUrl)
+CouchRequest Couch::createDatabase(const QUrl &databaseUrl)
 {
-    CouchQuery query(CouchQuery::CreateDatabase);
-    query.setUrl(databaseUrl);
-    query.setDatabase(CouchUrl::database(databaseUrl));
-    return query;
+    CouchRequest request(CouchRequest::CreateDatabase);
+    request.setUrl(databaseUrl);
+    request.setDatabase(CouchUrl::database(databaseUrl));
+    return request;
 }
 
-CouchQuery Couch::deleteDatabase(const QUrl &databaseUrl)
+CouchRequest Couch::deleteDatabase(const QUrl &databaseUrl)
 {
-    CouchQuery query(CouchQuery::DeleteDatabase);
-    query.setUrl(databaseUrl);
-    query.setDatabase(CouchUrl::database(databaseUrl));
-    return query;
+    CouchRequest request(CouchRequest::DeleteDatabase);
+    request.setUrl(databaseUrl);
+    request.setDatabase(CouchUrl::database(databaseUrl));
+    return request;
 }
 
-CouchQuery Couch::listDocuments(const QUrl &databaseUrl)
+CouchRequest Couch::listDocuments(const QUrl &databaseUrl)
 {
-    CouchQuery query(CouchQuery::ListDocuments);
-    query.setUrl(CouchUrl::resolve(databaseUrl, "_all_docs"));
-    query.setDatabase(CouchUrl::database(databaseUrl));
-    return query;
+    CouchRequest request(CouchRequest::ListDocuments);
+    request.setUrl(CouchUrl::resolve(databaseUrl, "_all_docs"));
+    request.setDatabase(CouchUrl::database(databaseUrl));
+    return request;
 }
 
-CouchQuery Couch::retrieveRevision(const QUrl &documentUrl)
+CouchRequest Couch::retrieveRevision(const QUrl &documentUrl)
 {
-    CouchQuery query(CouchQuery::RetrieveRevision);
-    query.setUrl(documentUrl);
-    query.setDatabase(CouchUrl::database(documentUrl));
-    query.setDocumentId(CouchUrl::documentId(documentUrl));
-    return query;
+    CouchRequest request(CouchRequest::RetrieveRevision);
+    request.setUrl(documentUrl);
+    request.setDatabase(CouchUrl::database(documentUrl));
+    request.setDocumentId(CouchUrl::documentId(documentUrl));
+    return request;
 }
 
-CouchQuery Couch::retrieveDocument(const QUrl &documentUrl)
+CouchRequest Couch::retrieveDocument(const QUrl &documentUrl)
 {
-    CouchQuery query(CouchQuery::RetrieveDocument);
-    query.setUrl(documentUrl);
-    query.setDatabase(CouchUrl::database(documentUrl));
-    query.setDocumentId(CouchUrl::documentId(documentUrl));
-    return query;
+    CouchRequest request(CouchRequest::RetrieveDocument);
+    request.setUrl(documentUrl);
+    request.setDatabase(CouchUrl::database(documentUrl));
+    request.setDocumentId(CouchUrl::documentId(documentUrl));
+    return request;
 }
 
-CouchQuery Couch::updateDocument(const QUrl &documentUrl, const QByteArray &content)
+CouchRequest Couch::updateDocument(const QUrl &documentUrl, const QByteArray &content)
 {
-    CouchQuery query(CouchQuery::UpdateDocument);
-    query.setUrl(documentUrl);
-    query.setDatabase(CouchUrl::database(documentUrl));
-    query.setDocumentId(CouchUrl::documentId(documentUrl));
-    query.setHeader("Accept", "application/json");
-    query.setHeader("Content-Type", "application/json");
-    query.setHeader("Content-Length", QByteArray::number(content.size()));
-    query.setBody(content);
-    return query;
+    CouchRequest request(CouchRequest::UpdateDocument);
+    request.setUrl(documentUrl);
+    request.setDatabase(CouchUrl::database(documentUrl));
+    request.setDocumentId(CouchUrl::documentId(documentUrl));
+    request.setHeader("Accept", "application/json");
+    request.setHeader("Content-Type", "application/json");
+    request.setHeader("Content-Length", QByteArray::number(content.size()));
+    request.setBody(content);
+    return request;
 }
 
-CouchQuery Couch::deleteDocument(const QUrl &documentUrl)
+CouchRequest Couch::deleteDocument(const QUrl &documentUrl)
 {
-    CouchQuery query(CouchQuery::DeleteDocument);
-    query.setUrl(documentUrl);
-    query.setDatabase(CouchUrl::database(documentUrl));
-    query.setDocumentId(CouchUrl::documentId(documentUrl));
-    return query;
+    CouchRequest request(CouchRequest::DeleteDocument);
+    request.setUrl(documentUrl);
+    request.setDatabase(CouchUrl::database(documentUrl));
+    request.setDocumentId(CouchUrl::documentId(documentUrl));
+    return request;
 }
 
-CouchQuery Couch::uploadAttachment(const QUrl &attachmentUrl, const QByteArray &content, const QString &mimeType)
+CouchRequest Couch::uploadAttachment(const QUrl &attachmentUrl, const QByteArray &content, const QString &mimeType)
 {
-    CouchQuery query(CouchQuery::DeleteDocument);
-    query.setUrl(attachmentUrl);
-    query.setDatabase(CouchUrl::database(attachmentUrl));
-    query.setDocumentId(CouchUrl::documentId(attachmentUrl));
-    query.setHeader("Content-Type", mimeType.toLatin1());
-    query.setHeader("Content-Length", QByteArray::number(content.size()));
-    query.setBody(content);
-    return query;
+    CouchRequest request(CouchRequest::DeleteDocument);
+    request.setUrl(attachmentUrl);
+    request.setDatabase(CouchUrl::database(attachmentUrl));
+    request.setDocumentId(CouchUrl::documentId(attachmentUrl));
+    request.setHeader("Content-Type", mimeType.toLatin1());
+    request.setHeader("Content-Length", QByteArray::number(content.size()));
+    request.setBody(content);
+    return request;
 }
 
-CouchQuery Couch::deleteAttachment(const QUrl &attachmentUrl)
+CouchRequest Couch::deleteAttachment(const QUrl &attachmentUrl)
 {
-    CouchQuery query(CouchQuery::DeleteAttachment);
-    query.setUrl(attachmentUrl);
-    query.setDatabase(CouchUrl::database(attachmentUrl));
-    query.setDocumentId(CouchUrl::documentId(attachmentUrl));
-    return query;
+    CouchRequest request(CouchRequest::DeleteAttachment);
+    request.setUrl(attachmentUrl);
+    request.setDatabase(CouchUrl::database(attachmentUrl));
+    request.setDocumentId(CouchUrl::documentId(attachmentUrl));
+    return request;
 }
 
-CouchQuery Couch::replicateDatabase(const QUrl &sourceUrl, const QUrl &targetUrl,
+CouchRequest Couch::replicateDatabase(const QUrl &sourceUrl, const QUrl &targetUrl,
                                     bool create, bool continuous, bool cancel)
 {
     QJsonObject json;
@@ -131,12 +131,11 @@ CouchQuery Couch::replicateDatabase(const QUrl &sourceUrl, const QUrl &targetUrl
     json.insert("continuous", continuous);
     json.insert("cancel", cancel);
 
-    CouchQuery query(CouchQuery::ReplicateDatabase);
-    query.setUrl(CouchUrl::resolve(sourceUrl, "/_replicate"));
-    query.setDatabase(CouchUrl::database(sourceUrl));
-    query.setHeader("Accept", "application/json");
-    query.setHeader("Content-Type", "application/json");
-    query.setBody(QJsonDocument(json).toJson());
-
-    return query;
+    CouchRequest request(CouchRequest::ReplicateDatabase);
+    request.setUrl(CouchUrl::resolve(sourceUrl, "/_replicate"));
+    request.setDatabase(CouchUrl::database(sourceUrl));
+    request.setHeader("Accept", "application/json");
+    request.setHeader("Content-Type", "application/json");
+    request.setBody(QJsonDocument(json).toJson());
+    return request;
 }

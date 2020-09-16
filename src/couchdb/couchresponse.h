@@ -2,7 +2,7 @@
 #define COUCHRESPONSE_H
 
 #include <QtCouchDB/couchdbglobal.h>
-#include <QtCouchDB/couchquery.h>
+#include <QtCouchDB/couchrequest.h>
 #include <QtCore/qobjectdefs.h>
 #include <QtCore/qshareddata.h>
 
@@ -18,7 +18,7 @@ class COUCHDB_EXPORT CouchResponse
     Q_PROPERTY(QByteArray data READ data)
 
 public:
-    CouchResponse(const CouchQuery &query = CouchQuery());
+    CouchResponse(const CouchRequest &query = CouchRequest());
     ~CouchResponse();
 
     CouchResponse(const CouchResponse &other);
@@ -27,7 +27,7 @@ public:
     bool operator==(const CouchResponse &other) const;
     bool operator!=(const CouchResponse &other) const;
 
-    CouchQuery query() const;
+    CouchRequest query() const;
 
     enum Status { Success, Error, AuthError, Timeout };
     Q_ENUM(Status)
@@ -42,7 +42,7 @@ public:
     void setData(const QByteArray &data);
 
     QJsonDocument toJson() const;
-    static CouchResponse fromJson(const QJsonDocument &json, const CouchQuery &query = CouchQuery());
+    static CouchResponse fromJson(const QJsonDocument &json, const CouchRequest &query = CouchRequest());
 
 private:
     Q_DECLARE_PRIVATE(CouchResponse)

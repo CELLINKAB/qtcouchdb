@@ -8,7 +8,7 @@
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qurl.h>
 
-class CouchQuery;
+class CouchRequest;
 
 class CouchClientPrivate
 {
@@ -27,7 +27,7 @@ public:
 
     QUrl serverUrl;
     QScopedPointer<QNetworkAccessManager> networkManager;
-    QHash<QNetworkReply *, CouchQuery> currentQueries;
+    QHash<QNetworkReply *, CouchRequest> currentQueries;
 };
 
 #endif // COUCHCLIENT_P_H

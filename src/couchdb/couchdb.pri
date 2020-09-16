@@ -6,14 +6,12 @@ HEADERS += \
     $$PWD/couchclient.h \
     $$PWD/couchclient_p.h \
     $$PWD/couchdbglobal.h \
-    $$PWD/couchdblistener.h \
-    $$PWD/couchquery.h \
-    $$PWD/couchurl_p.h \
-    $$PWD/couchresponse.h
+    $$PWD/couchrequest.h \
+    $$PWD/couchresponse.h \
+    $$PWD/couchurl_p.h
 
 SOURCES += \
     $$PWD/couch.cpp \
     $$PWD/couchclient.cpp \
-    $$PWD/couchdblistener.cpp \
-    $$PWD/couchquery.cpp \
+    $$PWD/couchrequest.cpp \
     $$PWD/couchresponse.cpp

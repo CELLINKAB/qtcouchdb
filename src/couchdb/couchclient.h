@@ -5,7 +5,7 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qscopedpointer.h>
 
-class CouchQuery;
+class CouchRequest;
 class CouchResponse;
 class CouchClientPrivate;
 
@@ -68,7 +68,7 @@ signals:
     void databaseReplicated(const CouchResponse &response);
 
 protected:
-    void executeQuery(const CouchQuery &query);
+    void executeQuery(const CouchRequest &query);
 
 private:
     Q_DECLARE_PRIVATE(CouchClient)

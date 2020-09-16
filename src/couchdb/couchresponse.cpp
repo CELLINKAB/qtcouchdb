@@ -5,13 +5,13 @@
 class CouchResponsePrivate : public QSharedData
 {
 public:
-    CouchQuery query;
+    CouchRequest query;
     CouchResponse::Status status = CouchResponse::Error;
     QString revision;
     QByteArray data;
 };
 
-CouchResponse::CouchResponse(const CouchQuery &query) :
+CouchResponse::CouchResponse(const CouchRequest &query) :
     d_ptr(new CouchResponsePrivate)
 {
     Q_D(CouchResponse);
@@ -47,7 +47,7 @@ bool CouchResponse::operator!=(const CouchResponse &other) const
     return !(*this == other);
 }
 
-CouchQuery CouchResponse::query() const
+CouchRequest CouchResponse::query() const
 {
     Q_D(const CouchResponse);
     return d->query;
@@ -95,7 +95,7 @@ QJsonDocument CouchResponse::toJson() const
     return QJsonDocument::fromJson(d->data);
 }
 
-CouchResponse CouchResponse::fromJson(const QJsonDocument &json, const CouchQuery &query)
+CouchResponse CouchResponse::fromJson(const QJsonDocument &json, const CouchRequest &query)
 {
     CouchResponse response(query);
     response.setData(json.toJson());
