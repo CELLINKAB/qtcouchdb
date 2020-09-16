@@ -5,7 +5,7 @@ int main(int argc, char *argv[])
     QCoreApplication app(argc, argv);
 
     CouchClient client;
-    client.setUrl(QUrl("http://admin:password@localhost:5984"));
+    client.setServerUrl(QUrl("http://admin:password@localhost:5984"));
 
     // \0/
     QObject::connect(&client, &CouchClient::installationChecked, [&](const CouchResponse &response) {

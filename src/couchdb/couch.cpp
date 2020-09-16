@@ -5,34 +5,34 @@ Couch::Couch(QObject *parent) : QObject(parent)
 {
 }
 
-CouchQuery Couch::checkInstallation(const QUrl &url)
+CouchQuery Couch::checkInstallation(const QUrl &serverUrl)
 {
     CouchQuery query(CouchQuery::CheckInstallation);
-    query.setUrl(url);
+    query.setUrl(serverUrl);
     return query;
 }
 
-CouchQuery Couch::startSession(const QUrl &url)
+CouchQuery Couch::startSession(const QUrl &serverUrl)
 {
     CouchQuery query(CouchQuery::StartSession);
-    query.setUrl(CouchUrl::resolve(url, "_session"));
-    query.setBody(QUrlQuery({{"name", url.userName()}, {"password", url.password()}}).toString(QUrl::FullyEncoded).toUtf8());
+    query.setUrl(CouchUrl::resolve(serverUrl, "_session"));
+    query.setBody(QUrlQuery({{"name", serverUrl.userName()}, {"password", serverUrl.password()}}).toString(QUrl::FullyEncoded).toUtf8());
     query.setHeader("Accept", "application/json");
     query.setHeader("Content-Type", "application/x-www-form-urlencoded");
     return query;
 }
 
-CouchQuery Couch::endSession(const QUrl &url)
+CouchQuery Couch::endSession(const QUrl &serverUrl)
 {
     CouchQuery query(CouchQuery::EndSession);
-    query.setUrl(CouchUrl::resolve(url, "_session"));
+    query.setUrl(CouchUrl::resolve(serverUrl, "_session"));
     return query;
 }
 
-CouchQuery Couch::listDatabases(const QUrl &url)
+CouchQuery Couch::listDatabases(const QUrl &serverUrl)
 {
     CouchQuery query(CouchQuery::ListDatabases);
-    query.setUrl(CouchUrl::resolve(url, "_all_dbs"));
+    query.setUrl(CouchUrl::resolve(serverUrl, "_all_dbs"));
     return query;
 }
 

@@ -12,12 +12,12 @@ class COUCHDB_EXPORT Couch : public QObject
 public:
     explicit Couch(QObject *parent = nullptr);
 
-    Q_INVOKABLE static CouchQuery checkInstallation(const QUrl &url);
+    Q_INVOKABLE static CouchQuery checkInstallation(const QUrl &serverUrl);
 
-    Q_INVOKABLE static CouchQuery startSession(const QUrl &url);
-    Q_INVOKABLE static CouchQuery endSession(const QUrl &url);
+    Q_INVOKABLE static CouchQuery startSession(const QUrl &serverUrl);
+    Q_INVOKABLE static CouchQuery endSession(const QUrl &serverUrl);
 
-    Q_INVOKABLE static CouchQuery listDatabases(const QUrl &url);
+    Q_INVOKABLE static CouchQuery listDatabases(const QUrl &serverUrl);
     Q_INVOKABLE static CouchQuery createDatabase(const QUrl &databaseUrl);
     Q_INVOKABLE static CouchQuery deleteDatabase(const QUrl &databaseUrl);
 

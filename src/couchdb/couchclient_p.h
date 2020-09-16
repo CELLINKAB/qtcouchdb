@@ -25,7 +25,7 @@ public:
 
     CouchClient *q_ptr = nullptr;
 
-    QUrl url;
+    QUrl serverUrl;
     QScopedPointer<QNetworkAccessManager> networkManager;
     QHash<QNetworkReply *, CouchQuery> currentQueries;
 };
