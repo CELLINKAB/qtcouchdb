@@ -176,13 +176,10 @@ void CouchClientPrivate::queryFinished()
     case CouchQuery::ListDocuments:
         emit q->documentsListed(response);
         break;
-    case CouchQuery::RetrieveRevision: {
-        QString revision = reply->rawHeader("ETag");
-        revision.remove("\"");
-        response.setRevision(revision);
+    case CouchQuery::RetrieveRevision:
+        response.setRevision(QString::fromUtf8(reply->rawHeader("ETag")).remove("\""));
         emit q->revisionRetrieved(response);
         break;
-    }
     case CouchQuery::RetrieveDocument:
         emit q->documentRetrieved(response);
         break;
