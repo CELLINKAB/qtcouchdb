@@ -16,10 +16,11 @@ class COUCHDB_EXPORT CouchClient : public QObject
 
 public:
     explicit CouchClient(QObject *parent = nullptr);
+    explicit CouchClient(const QUrl &url, QObject *parent = nullptr);
     ~CouchClient();
 
-    QUrl server() const;
-    void setServer(const QUrl &server);
+    QUrl url() const;
+    void setUrl(const QUrl &url);
 
 signals:
     void installationChecked(const CouchResponse &response);

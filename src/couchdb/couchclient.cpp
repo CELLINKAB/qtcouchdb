@@ -10,12 +10,17 @@
 
 Q_LOGGING_CATEGORY(lcCouchDB, "qtcouchdb")
 
-CouchClient::CouchClient(QObject *parent) :
+CouchClient::CouchClient(QObject *parent) : CouchClient(QUrl(), parent)
+{
+}
+
+CouchClient::CouchClient(const QUrl &url, QObject *parent) :
     QObject(parent),
     d_ptr(new CouchClientPrivate)
 {
     Q_D(CouchClient);
     d->q_ptr = this;
+    d->url = url;
     d->networkManager.reset(new QNetworkAccessManager(this));
 }
 
@@ -23,16 +28,16 @@ CouchClient::~CouchClient()
 {
 }
 
-QUrl CouchClient::server() const
+QUrl CouchClient::url() const
 {
     Q_D(const CouchClient);
-    return d->server;
+    return d->url;
 }
 
-void CouchClient::setServer(const QUrl &server)
+void CouchClient::setUrl(const QUrl &url)
 {
     Q_D(CouchClient);
-    d->server = server;
+    d->url = url;
 }
 
 void CouchClient::executeQuery(const CouchQuery &query)
@@ -44,8 +49,8 @@ void CouchClient::executeQuery(const CouchQuery &query)
     for (auto it = headers.cbegin(); it != headers.cend(); ++it)
         request.setRawHeader(it.key(), it.value());
 
-    QString username = d->server.userName();
-    QString password = d->server.password();
+    QString username = d->url.userName();
+    QString password = d->url.password();
     if (!username.isEmpty() && !password.isEmpty())
         request.setRawHeader("Authorization", CouchClientPrivate::basicAuth(username, password));
 
@@ -190,7 +195,7 @@ void CouchClient::checkInstallation()
     Q_D(CouchClient);
 
     CouchQuery query(CouchQuery::CheckInstallation);
-    query.setUrl(d->server);
+    query.setUrl(d->url);
 
     executeQuery(query);
 }
@@ -349,7 +354,7 @@ void CouchClient::replicateDatabaseFrom(const QUrl &sourceServer, const QString 
     QUrl source = sourceServer;
     source.setPath(sourceDatabase);
 
-    QUrl target = d->server;
+    QUrl target = d->url;
     target.setPath(targetDatabase);
 
     d->replicateDatabase(source, target, targetDatabase, createTarget, continuous, cancel);
@@ -360,11 +365,11 @@ void CouchClient::replicateDatabaseTo(const QUrl &targetServer, const QString &s
 {
     Q_D(CouchClient);
 
-    QUrl source = d->server;
-    source.setPath(sourceDatabase);
+    QUrl source = d->url;
+    source.setPath("/" + sourceDatabase);
 
     QUrl target = targetServer;
-    target.setPath(targetDatabase);
+    target.setPath("/" + targetDatabase);
 
     d->replicateDatabase(source, target, targetDatabase, createTarget, continuous, cancel);
 }
@@ -387,11 +392,8 @@ void CouchClientPrivate::replicateDatabase(const QUrl &source, const QUrl &targe
     object.insert("cancel", cancel);
     QJsonDocument document(object);
 
-    QUrl url = server;
-    url.setPath("/_replicate");
-
     CouchQuery query(CouchQuery::ReplicateDatabase);
-    query.setUrl(url);
+    query.setUrl(queryUrl({"_replicate"}));
     query.setDatabase(database);
     query.setHeader("Accept", "application/json");
     query.setHeader("Content-Type", "application/json");
@@ -404,7 +406,7 @@ CouchDBListener *CouchClient::createListener(const QString &database, const QStr
 {
     Q_D(CouchClient);
 
-    CouchDBListener *listener = new CouchDBListener(d->server);
+    CouchDBListener *listener = new CouchDBListener(d->url);
     listener->setCookieJar(d->networkManager->cookieJar());
     d->networkManager->cookieJar()->setParent(nullptr);
     listener->setDatabase(database);

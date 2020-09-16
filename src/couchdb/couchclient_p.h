@@ -22,11 +22,11 @@ public:
 
     QUrl queryUrl(const QStringList& path, const QString &revision = QString()) const
     {
-        QUrl url = server;
-        url.setPath("/" + path.join("/"));
+        QUrl u = url;
+        u.setPath("/" + path.join("/"));
         if (!revision.isNull())
-            url.setQuery(QString("rev=%1").arg(revision));
-        return url;
+            u.setQuery(QString("rev=%1").arg(revision));
+        return u;
     }
 
     void queryFinished();
@@ -34,7 +34,7 @@ public:
 
     CouchClient *q_ptr = nullptr;
 
-    QUrl server;
+    QUrl url;
     QScopedPointer<QNetworkAccessManager> networkManager;
     QHash<QNetworkReply *, CouchQuery> currentQueries;
 };
