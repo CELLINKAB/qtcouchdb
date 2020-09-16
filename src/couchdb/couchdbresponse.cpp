@@ -14,7 +14,8 @@ public:
 CouchDBResponse::CouchDBResponse(CouchDBQuery *query) :
     d_ptr(new CouchDBResponsePrivate)
 {
-    d_ptr->query = query;
+    Q_D(CouchDBResponse);
+    d->query = query;
 }
 
 CouchDBResponse::~CouchDBResponse()
@@ -34,10 +35,11 @@ CouchDBResponse &CouchDBResponse::operator=(const CouchDBResponse &other)
 
 bool CouchDBResponse::operator==(const CouchDBResponse &other) const
 {
-    return d_ptr == other.d_ptr || (d_ptr->query == other.d_ptr->query &&
-                                    d_ptr->status == other.d_ptr->status &&
-                                    d_ptr->revision == other.d_ptr->revision &&
-                                    d_ptr->data == other.d_ptr->data);
+    Q_D(const CouchDBResponse);
+    return d_ptr == other.d_ptr || (d->query == other.query() &&
+                                    d->status == other.status() &&
+                                    d->revision == other.revision() &&
+                                    d->data == other.data());
 }
 
 bool CouchDBResponse::operator!=(const CouchDBResponse &other) const
