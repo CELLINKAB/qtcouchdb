@@ -5,10 +5,9 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qscopedpointer.h>
 
-class CouchClientPrivate;
-class CouchDBListener;
 class CouchQuery;
 class CouchResponse;
+class CouchClientPrivate;
 
 class COUCHDB_EXPORT CouchClient : public QObject
 {
@@ -67,8 +66,6 @@ public slots:
                                            bool createTarget, bool continuous, bool cancel = false);
     Q_INVOKABLE void replicateDatabaseTo(const QUrl &targetServer, const QString &sourceDatabase, const QString &targetDatabase,
                                          bool createTarget, bool continuous, bool cancel = false);
-
-    Q_INVOKABLE CouchDBListener *createListener(const QString &database, const QString &documentId);
 
 protected:
     void executeQuery(const CouchQuery &query);

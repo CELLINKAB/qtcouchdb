@@ -2,7 +2,6 @@
 #include "couchclient_p.h"
 #include "couchquery.h"
 #include "couchresponse.h"
-#include "couchdblistener.h"
 #include "couchurl_p.h"
 
 #include <QtCore/qloggingcategory.h>
@@ -386,20 +385,4 @@ void CouchClientPrivate::replicateDatabase(const QUrl &source, const QUrl &targe
     query.setBody(document.toJson());
 
     q->executeQuery(query);
-}
-
-CouchDBListener *CouchClient::createListener(const QString &database, const QString &documentId)
-{
-    Q_D(CouchClient);
-
-    CouchDBListener *listener = new CouchDBListener(d->url);
-    listener->setCookieJar(d->networkManager->cookieJar());
-    d->networkManager->cookieJar()->setParent(nullptr);
-    listener->setDatabase(database);
-    listener->setDocumentId(documentId);
-    listener->launch();
-
-    qCDebug(lcCouchDB) << "Created listener for database:" << database << ", document:" << documentId;
-
-    return listener;
 }
