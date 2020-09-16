@@ -3,21 +3,13 @@
 #include "couchquery.h"
 #include "couchresponse.h"
 #include "couchdblistener.h"
+#include "couchurl_p.h"
 
 #include <QtCore/qloggingcategory.h>
 #include <QtNetwork/qnetworkaccessmanager.h>
 #include <QtNetwork/qnetworkrequest.h>
 
 Q_LOGGING_CATEGORY(lcCouchDB, "qtcouchdb")
-
-static QUrl resolveUrl(const QUrl &baseUrl, const QString& path, const QString &revision = QString())
-{
-    QUrl url = baseUrl;
-    url.setPath(baseUrl.path() + "/" + path);
-    if (!revision.isNull())
-        url.setQuery(QString("rev=%1").arg(revision));
-    return url;
-}
 
 CouchClient::CouchClient(QObject *parent) : CouchClient(QUrl(), parent)
 {
@@ -52,17 +44,17 @@ void CouchClient::setUrl(const QUrl &url)
 QUrl CouchClient::databaseUrl(const QString &databaseName) const
 {
     Q_D(const CouchClient);
-    return resolveUrl(d->url, databaseName);
+    return CouchUrl::resolve(d->url, databaseName);
 }
 
 QUrl CouchClient::documentUrl(const QString &databaseName, const QString &documentId, const QString &revision) const
 {
-    return resolveUrl(databaseUrl(databaseName), documentId, revision);
+    return CouchUrl::resolve(databaseUrl(databaseName), documentId, revision);
 }
 
 QUrl CouchClient::attachmentUrl(const QString &databaseName, const QString &documentId, const QString &attachmentName, const QString &revision) const
 {
-    return resolveUrl(documentUrl(databaseName, documentId), attachmentName, revision);
+    return CouchUrl::resolve(documentUrl(databaseName, documentId), attachmentName, revision);
 }
 
 void CouchClient::executeQuery(const CouchQuery &query)
@@ -230,7 +222,7 @@ void CouchClient::startSession(const QString &username, const QString &password)
     Q_D(CouchClient);
 
     CouchQuery query(CouchQuery::StartSession);
-    query.setUrl(resolveUrl(d->url, "_session"));
+    query.setUrl(CouchUrl::resolve(d->url, "_session"));
     query.setBody(QUrlQuery({{"name", username}, {"password", password}}).toString(QUrl::FullyEncoded).toUtf8());
     query.setHeader("Accept", "application/json");
     query.setHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -241,7 +233,7 @@ void CouchClient::startSession(const QString &username, const QString &password)
 void CouchClient::endSession()
 {
     CouchQuery query(CouchQuery::EndSession);
-    query.setUrl(resolveUrl(url(), "_session"));
+    query.setUrl(CouchUrl::resolve(url(), "_session"));
 
     executeQuery(query);
 }
@@ -249,7 +241,7 @@ void CouchClient::endSession()
 void CouchClient::listDatabases()
 {
     CouchQuery query(CouchQuery::ListDatabases);
-    query.setUrl(resolveUrl(url(), "_all_dbs"));
+    query.setUrl(CouchUrl::resolve(url(), "_all_dbs"));
 
     executeQuery(query);
 }
@@ -275,7 +267,7 @@ void CouchClient::deleteDatabase(const QString &database)
 void CouchClient::listDocuments(const QString &database)
 {
     CouchQuery query(CouchQuery::ListDocuments);
-    query.setUrl(resolveUrl(databaseUrl(database), "_all_docs"));
+    query.setUrl(CouchUrl::resolve(databaseUrl(database), "_all_docs"));
     query.setDatabase(database);
 
     executeQuery(query);
@@ -354,8 +346,8 @@ void CouchClient::replicateDatabaseFrom(const QUrl &sourceServer, const QString 
 {
     Q_D(CouchClient);
 
-    QUrl source = resolveUrl(sourceServer, sourceDatabase);
-    QUrl target = resolveUrl(url(), targetDatabase);
+    QUrl source = CouchUrl::resolve(sourceServer, sourceDatabase);
+    QUrl target = CouchUrl::resolve(url(), targetDatabase);
 
     d->replicateDatabase(source, target, targetDatabase, createTarget, continuous, cancel);
 }
@@ -365,8 +357,8 @@ void CouchClient::replicateDatabaseTo(const QUrl &targetServer, const QString &s
 {
     Q_D(CouchClient);
 
-    QUrl source = resolveUrl(url(), sourceDatabase);
-    QUrl target = resolveUrl(targetServer, targetDatabase);
+    QUrl source = CouchUrl::resolve(url(), sourceDatabase);
+    QUrl target = CouchUrl::resolve(targetServer, targetDatabase);
 
     d->replicateDatabase(source, target, targetDatabase, createTarget, continuous, cancel);
 }
@@ -390,7 +382,7 @@ void CouchClientPrivate::replicateDatabase(const QUrl &source, const QUrl &targe
     QJsonDocument document(object);
 
     CouchQuery query(CouchQuery::ReplicateDatabase);
-    query.setUrl(resolveUrl(url, "_replicate"));
+    query.setUrl(CouchUrl::resolve(url, "_replicate"));
     query.setDatabase(database);
     query.setHeader("Accept", "application/json");
     query.setHeader("Content-Type", "application/json");
