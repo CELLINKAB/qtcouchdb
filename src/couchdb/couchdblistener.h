@@ -22,12 +22,12 @@ public:
     QUrl server() const;
 
     QString database() const;
-    void setDatabase(const QString& database);
+    void setDatabase(const QString &database);
     
-    QString documentID() const;
-    void setDocumentID(const QString& documentID);
+    QString documentId() const;
+    void setDocumentId(const QString &documentId);
 
-    QString revision(const QString& documentID = "") const;
+    QString revision(const QString &documentId = "") const;
 
     void setCookieJar(QNetworkCookieJar *cookieJar);
 
@@ -36,7 +36,7 @@ public:
     void launch();
 
 signals:
-    void changesMade(const QString& revision);
+    void changesMade(const QString &revision);
 
 private slots:
     void start();

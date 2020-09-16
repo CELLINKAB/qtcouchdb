@@ -10,7 +10,7 @@ public:
     QScopedPointer<QNetworkRequest> request;
     CouchDBOperation operation = COUCHDB_CHECKINSTALLATION;
     QString database;
-    QString documentID;
+    QString documentId;
     QByteArray body;
     QTimer *timer = nullptr;
 };
@@ -76,13 +76,13 @@ void CouchDBQuery::setDatabase(const QString &database)
 QString CouchDBQuery::documentId() const
 {
     Q_D(const CouchDBQuery);
-    return d->documentID;
+    return d->documentId;
 }
 
 void CouchDBQuery::setDocumentId(const QString &documentId)
 {
     Q_D(CouchDBQuery);
-    d->documentID = documentId;
+    d->documentId = documentId;
 }
 
 QByteArray CouchDBQuery::body() const

@@ -17,17 +17,17 @@ public:
     explicit CouchDBResponse(QObject *parent = nullptr);
     ~CouchDBResponse();
 
-    CouchDBQuery* query() const;
+    CouchDBQuery *query() const;
     void setQuery(CouchDBQuery *query);
 
     CouchDBReplyStatus status() const;
     void setStatus(CouchDBReplyStatus status);
 
     QString revisionData() const;
-    void setRevisionData(const QString& revision);
+    void setRevisionData(const QString &revision);
 
     QByteArray data() const;
-    void setData(const QByteArray& data);
+    void setData(const QByteArray &data);
 
     QJsonDocument document() const;
     QJsonObject documentObj() const;

@@ -23,47 +23,47 @@ public:
     void setServer(const QUrl &server);
 
 signals:
-    void installationChecked(const CouchDBResponse& response);
-    void sessionStarted(const CouchDBResponse& response);
-    void sessionEnded(const CouchDBResponse& response);
-    void databasesListed(const CouchDBResponse& response);
-    void databaseCreated(const CouchDBResponse& response);
-    void databaseDeleted(const CouchDBResponse& response);
-    void documentsListed(const CouchDBResponse& response);
-    void revisionRetrieved(const CouchDBResponse& response);
-    void documentRetrieved(const CouchDBResponse& response);
-    void documentUpdated(const CouchDBResponse& response);
-    void documentDeleted(const CouchDBResponse& response);
-    void attachmentUploaded(const CouchDBResponse& response);
-    void attachmentDeleted(const CouchDBResponse& response);
-    void databaseReplicated(const CouchDBResponse& response);
+    void installationChecked(const CouchDBResponse &response);
+    void sessionStarted(const CouchDBResponse &response);
+    void sessionEnded(const CouchDBResponse &response);
+    void databasesListed(const CouchDBResponse &response);
+    void databaseCreated(const CouchDBResponse &response);
+    void databaseDeleted(const CouchDBResponse &response);
+    void documentsListed(const CouchDBResponse &response);
+    void revisionRetrieved(const CouchDBResponse &response);
+    void documentRetrieved(const CouchDBResponse &response);
+    void documentUpdated(const CouchDBResponse &response);
+    void documentDeleted(const CouchDBResponse &response);
+    void attachmentUploaded(const CouchDBResponse &response);
+    void attachmentDeleted(const CouchDBResponse &response);
+    void databaseReplicated(const CouchDBResponse &response);
 
 public slots:
     Q_INVOKABLE void checkInstallation();
 
-    Q_INVOKABLE void startSession(const QString& username, const QString& password);
+    Q_INVOKABLE void startSession(const QString &username, const QString &password);
     Q_INVOKABLE void endSession();
 
     Q_INVOKABLE void listDatabases();
-    Q_INVOKABLE void createDatabase(const QString& database);
-    Q_INVOKABLE void deleteDatabase(const QString& database);
+    Q_INVOKABLE void createDatabase(const QString &database);
+    Q_INVOKABLE void deleteDatabase(const QString &database);
 
-    Q_INVOKABLE void listDocuments(const QString& database);
-    Q_INVOKABLE void retrieveRevision(const QString& database, const QString& documentID);
-    Q_INVOKABLE void retrieveDocument(const QString& database, const QString& documentID);
-    Q_INVOKABLE void updateDocument(const QString& database, const QString& documentID, QByteArray document);
-    Q_INVOKABLE void deleteDocument(const QString& database, const QString& documentID, const QString& revision);
+    Q_INVOKABLE void listDocuments(const QString &database);
+    Q_INVOKABLE void retrieveRevision(const QString &database, const QString &documentId);
+    Q_INVOKABLE void retrieveDocument(const QString &database, const QString &documentId);
+    Q_INVOKABLE void updateDocument(const QString &database, const QString &documentId, QByteArray document);
+    Q_INVOKABLE void deleteDocument(const QString &database, const QString &documentId, const QString &revision);
 
-    Q_INVOKABLE void uploadAttachment(const QString& database, const QString& documentID, const QString &attachmentName, QByteArray attachment,
+    Q_INVOKABLE void uploadAttachment(const QString &database, const QString &documentId, const QString &attachmentName, QByteArray attachment,
                                       QString mimeType, const QString &revision);
-    Q_INVOKABLE void deleteAttachment(const QString& database, const QString& documentID, const QString &attachmentName, const QString &revision);
+    Q_INVOKABLE void deleteAttachment(const QString &database, const QString &documentId, const QString &attachmentName, const QString &revision);
 
-    Q_INVOKABLE void replicateDatabaseFrom(const QUrl &sourceServer, const QString& sourceDatabase, const QString& targetDatabase,
+    Q_INVOKABLE void replicateDatabaseFrom(const QUrl &sourceServer, const QString &sourceDatabase, const QString &targetDatabase,
                                            bool createTarget, bool continuous, bool cancel = false);
-    Q_INVOKABLE void replicateDatabaseTo(const QUrl &targetServer, const QString& sourceDatabase, const QString& targetDatabase,
+    Q_INVOKABLE void replicateDatabaseTo(const QUrl &targetServer, const QString &sourceDatabase, const QString &targetDatabase,
                                          bool createTarget, bool continuous, bool cancel = false);
 
-    Q_INVOKABLE CouchDBListener* createListener(const QString& database, const QString& documentID);
+    Q_INVOKABLE CouchDBListener *createListener(const QString &database, const QString &documentId);
 
 private slots:
     void queryFinished();
@@ -72,7 +72,7 @@ private slots:
 protected:
     void executeQuery(CouchDBQuery *query);
 
-    void replicateDatabase(const QUrl& source, const QUrl& target, const QString &database, bool createTarget, bool continuous, bool cancel = false);
+    void replicateDatabase(const QUrl &source, const QUrl &target, const QString &database, bool createTarget, bool continuous, bool cancel = false);
 
 private:
     Q_DECLARE_PRIVATE(CouchDB)

@@ -71,16 +71,11 @@ void CouchDBResponse::setData(const QByteArray &data)
     d->data = data;
     d->document = QJsonDocument::fromJson(data);
 
-    if(d->document.isNull() || d->document.isEmpty())
-    {
+    if (d->document.isNull() || d->document.isEmpty()) {
         d->document = QJsonDocument();
-    }
-    else
-    {
-        if(d->document.object().contains("revision"))
-        {
+    } else {
+        if (d->document.object().contains("revision"))
             d->revisionData = d->document.object().value("revision").toString();
-        }
     }
 }
 

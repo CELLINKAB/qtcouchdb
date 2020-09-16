@@ -42,8 +42,8 @@ void CouchDB::executeQuery(CouchDBQuery *query)
 
     qDebug() << "Invoked url:" << query->operation() << query->request()->url().toString();
 
-    QNetworkReply * reply;
-    switch(query->operation()) {
+    QNetworkReply *reply;
+    switch (query->operation()) {
     case COUCHDB_CHECKINSTALLATION:
     default:
         reply = d->networkManager->get(*query->request());
@@ -89,8 +89,7 @@ void CouchDB::executeQuery(CouchDBQuery *query)
         break;
     }
 
-    if(query->operation() != COUCHDB_REPLICATEDATABASE)
-    {
+    if (query->operation() != COUCHDB_REPLICATEDATABASE) {
         connect(query, SIGNAL(timeout()), SLOT(queryTimeout()));
         query->startTimeoutTimer();
     }
@@ -103,18 +102,16 @@ void CouchDB::queryFinished()
 {
     Q_D(CouchDB);
 
-    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
-    if(!reply) return;
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    if (!reply)
+        return;
 
     QByteArray data;
     CouchDBQuery *query = d->currentQueries[reply];
     bool hasError = false;
-    if(reply->error() == QNetworkReply::NoError)
-    {
+    if (reply->error() == QNetworkReply::NoError) {
         data = reply->readAll();
-    }
-    else
-    {
+    } else {
         qWarning() << reply->errorString();
         hasError = true;
     }
@@ -125,15 +122,16 @@ void CouchDB::queryFinished()
     response.setStatus(hasError || (query->operation() != COUCHDB_CHECKINSTALLATION && query->operation() != COUCHDB_RETRIEVEDOCUMENT &&
             !response.documentObj().value("ok").toBool()) ? COUCHDB_ERROR : COUCHDB_SUCCESS);
 
-    switch(query->operation())
-    {
+    switch (query->operation()) {
     case COUCHDB_CHECKINSTALLATION:
     default:
-        if(!hasError) response.setStatus(response.documentObj().contains("couchdb") ? COUCHDB_SUCCESS : COUCHDB_ERROR);
+        if (!hasError)
+            response.setStatus(response.documentObj().contains("couchdb") ? COUCHDB_SUCCESS : COUCHDB_ERROR);
         emit installationChecked(response);
         break;
     case COUCHDB_STARTSESSION:
-        if(hasError && reply->error() >= 201 && reply->error() <= 299) response.setStatus(COUCHDB_AUTHERROR);
+        if (hasError && reply->error() >= 201 && reply->error() <= 299)
+            response.setStatus(COUCHDB_AUTHERROR);
         emit sessionStarted(response);
         break;
     case COUCHDB_ENDSESSION:
@@ -151,8 +149,7 @@ void CouchDB::queryFinished()
     case COUCHDB_LISTDOCUMENTS:
         emit documentsListed(response);
         break;
-    case COUCHDB_RETRIEVEREVISION:
-    {
+    case COUCHDB_RETRIEVEREVISION: {
         QString revision = reply->rawHeader("ETag");
         revision.remove("\"");
         response.setRevisionData(revision);
@@ -187,7 +184,8 @@ void CouchDB::queryFinished()
 void CouchDB::queryTimeout()
 {
     CouchDBQuery *query = qobject_cast<CouchDBQuery*>(sender());
-    if(!query) return;
+    if (!query)
+        return;
 
     qWarning() << query->url() << "timed out. Retrying...";
 
@@ -269,7 +267,7 @@ void CouchDB::deleteDatabase(const QString &database)
     executeQuery(query);
 }
 
-void CouchDB::listDocuments(const QString& database)
+void CouchDB::listDocuments(const QString &database)
 {
     Q_D(CouchDB);
 
@@ -339,8 +337,8 @@ void CouchDB::deleteDocument(const QString &database, const QString &id, const Q
     executeQuery(query);
 }
 
-void CouchDB::uploadAttachment(const QString &database, const QString &id, const QString& attachmentName,
-                               QByteArray attachment, QString mimeType, const QString& revision)
+void CouchDB::uploadAttachment(const QString &database, const QString &id, const QString &attachmentName,
+                               QByteArray attachment, QString mimeType, const QString &revision)
 {
     Q_D(CouchDB);
 
@@ -371,7 +369,7 @@ void CouchDB::deleteAttachment(const QString &database, const QString &id, const
     executeQuery(query);
 }
 
-void CouchDB::replicateDatabaseFrom(const QUrl &sourceServer, const QString& sourceDatabase, const QString& targetDatabase,
+void CouchDB::replicateDatabaseFrom(const QUrl &sourceServer, const QString &sourceDatabase, const QString &targetDatabase,
                                     bool createTarget, bool continuous, bool cancel)
 {
     Q_D(CouchDB);
@@ -385,7 +383,7 @@ void CouchDB::replicateDatabaseFrom(const QUrl &sourceServer, const QString& sou
     replicateDatabase(source, target, targetDatabase, createTarget, continuous, cancel);
 }
 
-void CouchDB::replicateDatabaseTo(const QUrl &targetServer, const QString& sourceDatabase, const QString& targetDatabase,
+void CouchDB::replicateDatabaseTo(const QUrl &targetServer, const QString &sourceDatabase, const QString &targetDatabase,
                                     bool createTarget, bool continuous, bool cancel)
 {
     Q_D(CouchDB);
@@ -399,13 +397,15 @@ void CouchDB::replicateDatabaseTo(const QUrl &targetServer, const QString& sourc
     replicateDatabase(source, target, targetDatabase, createTarget, continuous, cancel);
 }
 
-void CouchDB::replicateDatabase(const QUrl &source, const QUrl &target, const QString& database, bool createTarget,
+void CouchDB::replicateDatabase(const QUrl &source, const QUrl &target, const QString &database, bool createTarget,
                                 bool continuous, bool cancel)
 {
     Q_D(CouchDB);
 
-    if(!cancel) qDebug() << "Starting replication from" << source << "to" << target;
-    else qDebug() << "Cancelling replication from" << source << "to" << target;
+    if (!cancel)
+        qDebug() << "Starting replication from" << source << "to" << target;
+    else
+        qDebug() << "Cancelling replication from" << source << "to" << target;
 
     QJsonObject object;
     object.insert("source", source.toString());
@@ -429,7 +429,7 @@ void CouchDB::replicateDatabase(const QUrl &source, const QUrl &target, const QS
     executeQuery(query);
 }
 
-CouchDBListener* CouchDB::createListener(const QString &database, const QString &documentID)
+CouchDBListener *CouchDB::createListener(const QString &database, const QString &documentId)
 {
     Q_D(CouchDB);
 
@@ -437,10 +437,10 @@ CouchDBListener* CouchDB::createListener(const QString &database, const QString 
     listener->setCookieJar(d->networkManager->cookieJar());
     d->networkManager->cookieJar()->setParent(nullptr);
     listener->setDatabase(database);
-    listener->setDocumentID(documentID);
+    listener->setDocumentId(documentId);
     listener->launch();
 
-    qDebug() << "Created listener for database:" << database << ", document:" << documentID;
+    qDebug() << "Created listener for database:" << database << ", document:" << documentId;
 
     return listener;
 }

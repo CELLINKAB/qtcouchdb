@@ -17,21 +17,26 @@ class CouchDBListenerPrivate
 public:
     virtual ~CouchDBListenerPrivate()
     {
-        if(retryTimer) retryTimer->stop();
-        if(reply) reply->abort();
+        if (retryTimer)
+            retryTimer->stop();
+        if (reply)
+            reply->abort();
 
-        if(reply) delete reply;
-        if(retryTimer) delete retryTimer;
+        if (reply)
+            delete reply;
+        if (retryTimer)
+            delete retryTimer;
 
-        if(networkManager) delete networkManager;
+        if (networkManager)
+            delete networkManager;
     }
 
     QUrl server;
     QNetworkAccessManager *networkManager = nullptr;
     QString database;
-    QString documentID;
+    QString documentId;
     QNetworkReply *reply = nullptr;
-    QTimer* retryTimer = nullptr;
+    QTimer *retryTimer = nullptr;
     QMap<QString,QString> parameters;
     QMap<QString,QString> revisionsMap;
 };
@@ -78,27 +83,28 @@ void CouchDBListener::setDatabase(const QString &database)
     d->database = database;
 }
 
-QString CouchDBListener::documentID() const
+QString CouchDBListener::documentId() const
 {
     Q_D(const CouchDBListener);
-    return d->documentID;
+    return d->documentId;
 }
 
-void CouchDBListener::setDocumentID(const QString &documentID)
+void CouchDBListener::setDocumentId(const QString &documentId)
 {
     Q_D(CouchDBListener);
-    d->documentID = documentID;
-    d->parameters.insert("name", d->documentID);
+    d->documentId = documentId;
+    d->parameters.insert("name", d->documentId);
 }
 
-QString CouchDBListener::revision(const QString &documentID) const
+QString CouchDBListener::revision(const QString &documentId) const
 {
     Q_D(const CouchDBListener);
 
-    QString docID = d->documentID;
-    if(!documentID.isEmpty()) docID = documentID;
+    QString id = d->documentId;
+    if (!documentId.isEmpty())
+        id = documentId;
 
-    return d->revisionsMap.value(docID);
+    return d->revisionsMap.value(id);
 }
 
 void CouchDBListener::setCookieJar(QNetworkCookieJar *cookieJar)
@@ -107,7 +113,7 @@ void CouchDBListener::setCookieJar(QNetworkCookieJar *cookieJar)
     d->networkManager->setCookieJar(cookieJar);
 }
 
-void CouchDBListener::setParam(const QString& name, const QString& value)
+void CouchDBListener::setParam(const QString &name, const QString &value)
 {
     Q_D(CouchDBListener);
     d->parameters.insert(name, value);
@@ -125,8 +131,7 @@ void CouchDBListener::start()
 
     QUrlQuery urlQuery;
     QMapIterator<QString, QString> i(d->parameters);
-    while (i.hasNext())
-    {
+    while (i.hasNext()) {
         i.next();
         urlQuery.addQueryItem(i.key(), i.value());
     }
@@ -154,15 +159,17 @@ void CouchDBListener::readChanges()
     const QByteArray replyBA = d->reply->readAll();
     QJsonDocument document = QJsonDocument::fromJson(replyBA);
 
-    if(!document.object().contains("changes")) return;
+    if (!document.object().contains("changes"))
+        return;
 
     QString revision = document.object().value("changes").toArray().first().toObject().value("rev").toString();
-    QString docID = d->documentID.isEmpty() ? document.object().value("id").toString() : d->documentID;
+    QString id = d->documentId.isEmpty() ? document.object().value("id").toString() : d->documentId;
 
     //If the revision is the same as previous changes return
-    if(d->revisionsMap.value(docID) == revision) return;
+    if (d->revisionsMap.value(id) == revision)
+        return;
 
-    d->revisionsMap.insert(docID, revision);
+    d->revisionsMap.insert(id, revision);
     emit changesMade(revision);
 }
 
@@ -172,11 +179,9 @@ void CouchDBListener::listenFinished(QNetworkReply *reply)
 
     // Check the network reply for errors.
     QNetworkReply::NetworkError netError = reply->error();
-    if(netError != QNetworkReply::NoError)
-    {
+    if (netError != QNetworkReply::NoError) {
         qWarning() << "ERROR";
-        switch(netError)
-        {
+        switch (netError) {
         case QNetworkReply::ContentNotFoundError:
             qWarning() << "The content was not found on the server";
             break;
@@ -189,7 +194,6 @@ void CouchDBListener::listenFinished(QNetworkReply *reply)
             qWarning() << reply->errorString();
             break;
         }
-
     }
     reply->deleteLater();
     d->retryTimer->start();

@@ -34,7 +34,7 @@ public:
     void setDocumentId(const QString &documentId);
 
     QByteArray body() const;
-    void setBody(const QByteArray& body);
+    void setBody(const QByteArray &body);
 
 signals:
     void timeout();
