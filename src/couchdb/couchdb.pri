@@ -4,7 +4,6 @@ DEPENDPATH += $$PWD
 HEADERS += \
     $$PWD/couch.h \
     $$PWD/couchclient.h \
-    $$PWD/couchclient_p.h \
     $$PWD/couchdatabase.h \
     $$PWD/couchglobal.h \
     $$PWD/couchrequest.h \

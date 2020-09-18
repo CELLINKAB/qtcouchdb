@@ -1,5 +1,4 @@
 ﻿#include "couchclient.h"
-#include "couchclient_p.h"
 #include "couchrequest.h"
 #include "couchresponse.h"
 
@@ -8,6 +7,18 @@
 #include <QtNetwork/qnetworkrequest.h>
 
 Q_LOGGING_CATEGORY(lcCouchDB, "qtcouchdb")
+
+class CouchClientPrivate
+{
+    Q_DECLARE_PUBLIC(CouchClient)
+
+public:
+    void queryFinished(QNetworkReply *reply);
+
+    QUrl url;
+    CouchClient *q_ptr = nullptr;
+    QNetworkAccessManager *networkManager = nullptr;
+};
 
 CouchClient::CouchClient(QObject *parent) : CouchClient(QUrl(), parent)
 {
