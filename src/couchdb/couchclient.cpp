@@ -2,7 +2,6 @@
 #include "couchclient_p.h"
 #include "couchrequest.h"
 #include "couchresponse.h"
-#include "couchurl_p.h"
 
 #include <QtCore/qloggingcategory.h>
 #include <QtNetwork/qnetworkaccessmanager.h>
@@ -14,13 +13,13 @@ CouchClient::CouchClient(QObject *parent) : CouchClient(QUrl(), parent)
 {
 }
 
-CouchClient::CouchClient(const QUrl &serverUrl, QObject *parent) :
+CouchClient::CouchClient(const QUrl &url, QObject *parent) :
     QObject(parent),
     d_ptr(new CouchClientPrivate)
 {
     Q_D(CouchClient);
     d->q_ptr = this;
-    d->serverUrl = serverUrl;
+    d->url = url;
     d->networkManager = new QNetworkAccessManager(this);
     d->networkManager->setAutoDeleteReplies(true);
     connect(d->networkManager, &QNetworkAccessManager::finished, [=](QNetworkReply *reply) { d->queryFinished(reply); });
@@ -30,35 +29,24 @@ CouchClient::~CouchClient()
 {
 }
 
-QUrl CouchClient::serverUrl() const
+QUrl CouchClient::url() const
 {
     Q_D(const CouchClient);
-    return d->serverUrl;
+    return d->url;
 }
 
-void CouchClient::setServerUrl(const QUrl &serverUrl)
+void CouchClient::setUrl(const QUrl &url)
 {
     Q_D(CouchClient);
-    d->serverUrl = serverUrl;
+    d->url = url;
 }
 
-QUrl CouchClient::databaseUrl(const QString &databaseName) const
+static QByteArray basicAuth(const QString &username, const QString &password)
 {
-    Q_D(const CouchClient);
-    return CouchUrl::resolve(d->serverUrl, databaseName);
+    return "Basic " + QByteArray(username.toUtf8() + ":" + password.toUtf8()).toBase64();
 }
 
-QUrl CouchClient::documentUrl(const QString &databaseName, const QString &documentId, const QString &revision) const
-{
-    return CouchUrl::resolve(databaseUrl(databaseName), documentId, revision);
-}
-
-QUrl CouchClient::attachmentUrl(const QString &databaseName, const QString &documentId, const QString &attachmentName, const QString &revision) const
-{
-    return CouchUrl::resolve(documentUrl(databaseName, documentId), attachmentName, revision);
-}
-
-CouchResponse *CouchClient::sendRequest(const CouchRequest &request)
+CouchResponse *CouchClient::send(const CouchRequest &request)
 {
     Q_D(CouchClient);
     CouchResponse *response = new CouchResponse(request, this);
@@ -70,37 +58,32 @@ CouchResponse *CouchClient::sendRequest(const CouchRequest &request)
     for (auto it = headers.cbegin(); it != headers.cend(); ++it)
         networkRequest.setRawHeader(it.key(), it.value());
 
-    QString username = d->serverUrl.userName();
-    QString password = d->serverUrl.password();
+    QString username = d->url.userName();
+    QString password = d->url.password();
     if (!username.isEmpty() && !password.isEmpty())
-        networkRequest.setRawHeader("Authorization", CouchClientPrivate::basicAuth(username, password));
+        networkRequest.setRawHeader("Authorization", basicAuth(username, password));
 
-    qCDebug(lcCouchDB) << "invoke:" << request.operation() << networkRequest.url().toString();
+    QByteArray body = request.body();
+    if (!body.isEmpty()) {
+        networkRequest.setRawHeader("Accept", "application/json");
+        networkRequest.setRawHeader("Content-Type", "application/json");
+        networkRequest.setRawHeader("Content-Length", QByteArray::number(body.size()));
+    }
+
+    qCDebug(lcCouchDB) << request.operation() << networkRequest.url().toString();
 
     switch (request.operation()) {
-    case CouchRequest::CheckInstallation:
-    case CouchRequest::ListDatabases:
-    case CouchRequest::ListDocuments:
-    case CouchRequest::RetrieveDocument:
+    case CouchRequest::Get:
         d->networkManager->get(networkRequest);
         break;
-    case CouchRequest::StartSession:
-    case CouchRequest::ReplicateDatabase:
-        d->networkManager->post(networkRequest, request.body());
-        break;
-    case CouchRequest::EndSession:
-    case CouchRequest::DeleteDatabase:
-    case CouchRequest::DeleteDocument:
-    case CouchRequest::DeleteAttachment:
-        d->networkManager->deleteResource(networkRequest);
-        break;
-    case CouchRequest::CreateDatabase:
-    case CouchRequest::UpdateDocument:
-    case CouchRequest::UploadAttachment:
+    case CouchRequest::Put:
         d->networkManager->put(networkRequest, request.body());
         break;
-    case CouchRequest::RetrieveRevision:
-        d->networkManager->head(networkRequest);
+    case CouchRequest::Post:
+        d->networkManager->post(networkRequest, request.body());
+        break;
+    case CouchRequest::Delete:
+        d->networkManager->deleteResource(networkRequest);
         break;
     default:
         Q_UNREACHABLE();
@@ -117,40 +100,14 @@ void CouchClientPrivate::queryFinished(QNetworkReply *reply)
     if (!response)
         return;
 
-    QByteArray data;
-    bool hasError = false;
     if (reply->error() == QNetworkReply::NoError) {
-        data = reply->readAll();
+        response->setData(reply->readAll());
+        emit response->received();
+        emit q->received(response);
     } else {
+        // ### TODO: provide error
         qWarning() << reply->errorString();
-        hasError = true;
     }
-    response->setData(data);
-
-    CouchRequest request = response->request();
-    QJsonDocument json = QJsonDocument::fromJson(data);
-    response->setRevision(json.object().value("revision").toString());
-    response->setStatus(hasError || (request.operation() != CouchRequest::CheckInstallation && request.operation() != CouchRequest::RetrieveDocument &&
-            !json["ok"].toBool()) ? CouchResponse::Error : CouchResponse::Success);
-
-    switch (request.operation()) {
-    case CouchRequest::CheckInstallation:
-        if (!hasError)
-            response->setStatus(!json["couchdb"].isUndefined() ? CouchResponse::Success : CouchResponse::Error);
-        break;
-    case CouchRequest::StartSession:
-        if (hasError && reply->error() >= 201 && reply->error() <= 299)
-            response->setStatus(CouchResponse::AuthError);
-        break;
-    case CouchRequest::RetrieveRevision:
-        response->setRevision(QString::fromUtf8(reply->rawHeader("ETag")).remove("\""));
-        break;
-    default:
-        break;
-    }
-
-    emit response->received();
-    emit q->responseReceived(response);
 
     response->deleteLater(); // ### TODO: CouchClient::autoDeleteResponses
 }

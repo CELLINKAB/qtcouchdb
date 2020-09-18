@@ -12,25 +12,21 @@ class CouchClientPrivate;
 class COUCHDB_EXPORT CouchClient : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QUrl serverUrl READ serverUrl WRITE setServerUrl)
+    Q_PROPERTY(QUrl url READ url WRITE setUrl)
 
 public:
     explicit CouchClient(QObject *parent = nullptr);
-    explicit CouchClient(const QUrl &serverUrl, QObject *parent = nullptr);
+    explicit CouchClient(const QUrl &url, QObject *parent = nullptr);
     ~CouchClient();
 
-    QUrl serverUrl() const;
-    void setServerUrl(const QUrl &serverUrl);
-
-    Q_INVOKABLE QUrl databaseUrl(const QString &databaseName) const;
-    Q_INVOKABLE QUrl documentUrl(const QString &databaseName, const QString &documentId, const QString &revision = QString()) const;
-    Q_INVOKABLE QUrl attachmentUrl(const QString &databaseName, const QString &documentId, const QString &attachmentName, const QString &revision = QString()) const;
+    QUrl url() const;
+    void setUrl(const QUrl &url);
 
 public slots:
-    CouchResponse *sendRequest(const CouchRequest &request);
+    CouchResponse *send(const CouchRequest &request);
 
 signals:
-    void responseReceived(CouchResponse *response);
+    void received(CouchResponse *response);
 
 private:
     Q_DECLARE_PRIVATE(CouchClient)

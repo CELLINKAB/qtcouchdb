@@ -6,8 +6,6 @@ class CouchResponsePrivate
 {
 public:
     CouchRequest request;
-    CouchResponse::Status status = CouchResponse::Error;
-    QString revision;
     QByteArray data;
 };
 
@@ -27,30 +25,6 @@ CouchRequest CouchResponse::request() const
 {
     Q_D(const CouchResponse);
     return d->request;
-}
-
-CouchResponse::Status CouchResponse::status() const
-{
-    Q_D(const CouchResponse);
-    return d->status;
-}
-
-void CouchResponse::setStatus(Status status)
-{
-    Q_D(CouchResponse);
-    d->status = status;
-}
-
-QString CouchResponse::revision() const
-{
-    Q_D(const CouchResponse);
-    return d->revision;
-}
-
-void CouchResponse::setRevision(const QString &revision)
-{
-    Q_D(CouchResponse);
-    d->revision = revision;
 }
 
 QByteArray CouchResponse::data() const

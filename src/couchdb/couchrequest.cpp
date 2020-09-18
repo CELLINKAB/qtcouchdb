@@ -4,9 +4,7 @@ class CouchRequestPrivate : public QSharedData
 {
 public:
     QUrl url;
-    CouchRequest::Operation operation = CouchRequest::Unknown;
-    QString database;
-    QString documentId;
+    CouchRequest::Operation operation = CouchRequest::Get;
     QByteArray body;
     QHash<QByteArray, QByteArray> headers;
 };
@@ -37,8 +35,6 @@ bool CouchRequest::operator==(const CouchRequest &other) const
 {
     Q_D(const CouchRequest);
     return d_ptr == other.d_ptr || (d->operation == other.operation() &&
-                                    d->database == other.database() &&
-                                    d->documentId == other.documentId() &&
                                     d->body == other.body() &&
                                     d->headers == other.headers());
 }
@@ -70,30 +66,6 @@ void CouchRequest::setOperation(Operation operation)
 {
     Q_D(CouchRequest);
     d->operation = operation;
-}
-
-QString CouchRequest::database() const
-{
-    Q_D(const CouchRequest);
-    return d->database;
-}
-
-void CouchRequest::setDatabase(const QString &database)
-{
-    Q_D(CouchRequest);
-    d->database = database;
-}
-
-QString CouchRequest::documentId() const
-{
-    Q_D(const CouchRequest);
-    return d->documentId;
-}
-
-void CouchRequest::setDocumentId(const QString &documentId)
-{
-    Q_D(CouchRequest);
-    d->documentId = documentId;
 }
 
 QByteArray CouchRequest::body() const

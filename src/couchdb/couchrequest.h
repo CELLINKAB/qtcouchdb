@@ -15,33 +15,21 @@ QT_FORWARD_DECLARE_CLASS(QUrl)
 class COUCHDB_EXPORT CouchRequest
 {
     Q_GADGET
+    Q_PROPERTY(QUrl url READ url)
     Q_PROPERTY(Operation operation READ operation)
-    Q_PROPERTY(QString database READ database)
-    Q_PROPERTY(QString documentId READ documentId)
     Q_PROPERTY(QByteArray body READ body)
 
 public:
     enum Operation
     {
-        Unknown,
-        CheckInstallation,
-        StartSession,
-        EndSession,
-        ListDatabases,
-        CreateDatabase,
-        DeleteDatabase,
-        ListDocuments,
-        RetrieveRevision,
-        RetrieveDocument,
-        UpdateDocument,
-        DeleteDocument,
-        UploadAttachment,
-        DeleteAttachment,
-        ReplicateDatabase
+        Get,
+        Put,
+        Post,
+        Delete
     };
     Q_ENUM(Operation)
 
-    CouchRequest(Operation operation = Unknown);
+    CouchRequest(Operation operation = Get);
     ~CouchRequest();
 
     CouchRequest(const CouchRequest &other);
@@ -55,12 +43,6 @@ public:
 
     Operation operation() const;
     void setOperation(Operation operation);
-
-    QString database() const;
-    void setDatabase(const QString &database);
-
-    QString documentId() const;
-    void setDocumentId(const QString &documentId);
 
     QByteArray body() const;
     void setBody(const QByteArray &body);
