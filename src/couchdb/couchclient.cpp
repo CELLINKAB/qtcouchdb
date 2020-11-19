@@ -57,13 +57,6 @@ static QByteArray basicAuth(const QString &username, const QString &password)
     return "Basic " + QByteArray(username.toUtf8() + ":" + password.toUtf8()).toBase64();
 }
 
-static QString maskedUrl(QUrl url)
-{
-    if (!url.password().isEmpty())
-        url.setPassword(QStringLiteral("xxxxx"));
-    return url.toString();
-}
-
 CouchResponse *CouchClient::send(const CouchRequest &request)
 {
     Q_D(CouchClient);
@@ -88,7 +81,7 @@ CouchResponse *CouchClient::send(const CouchRequest &request)
         networkRequest.setRawHeader("Content-Length", QByteArray::number(body.size()));
     }
 
-    qCDebug(lcCouchDB) << request.operation() << maskedUrl(request.url());
+    qCDebug(lcCouchDB) << request;
 
     switch (request.operation()) {
     case CouchRequest::Get:

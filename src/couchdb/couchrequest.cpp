@@ -97,3 +97,25 @@ void CouchRequest::setHeader(const QByteArray &header, const QByteArray &value)
     Q_D(CouchRequest);
     d->headers.insert(header, value);
 }
+
+static QString maskedUrl(QUrl url)
+{
+    if (!url.password().isEmpty())
+        url.setPassword(QStringLiteral("xxxxx"));
+    return url.toString();
+}
+
+static const char *toKey(CouchRequest::Operation operation)
+{
+    return QMetaEnum::fromType<CouchRequest::Operation>().key(operation);
+}
+
+QDebug operator<<(QDebug debug, const CouchRequest &request)
+{
+    QDebugStateSaver saver(debug);
+    debug.nospace() << "CouchRequest(" << toKey(request.operation()) << ", " << maskedUrl(request.url());
+    if (request.operation() == CouchRequest::Post)
+        debug.nospace() << ", " << request.body();
+    debug.nospace() << ')';
+    return debug;
+}

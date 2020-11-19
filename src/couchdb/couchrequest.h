@@ -3,6 +3,7 @@
 
 #include <QtCouchDB/couchglobal.h>
 #include <QtCore/qbytearray.h>
+#include <QtCore/qdebug.h>
 #include <QtCore/qhash.h>
 #include <QtCore/qobjectdefs.h>
 #include <QtCore/qshareddata.h>
@@ -55,5 +56,7 @@ private:
     Q_DECLARE_PRIVATE(CouchRequest)
     QExplicitlySharedDataPointer<CouchRequestPrivate> d_ptr;
 };
+
+COUCHDB_EXPORT QDebug operator<<(QDebug debug, const CouchRequest &request);
 
 #endif // COUCHREQUEST_H

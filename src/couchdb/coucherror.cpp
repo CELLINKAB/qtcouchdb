@@ -60,3 +60,10 @@ CouchError CouchError::fromJson(const QJsonObject &json)
     QString reason = json.value(QStringLiteral("reason")).toString();
     return CouchError(error, reason);
 }
+
+QDebug operator<<(QDebug debug, const CouchError &error)
+{
+    QDebugStateSaver saver(debug);
+    debug.nospace() << "CouchError(" << error.error() << ", " << error.reason() << ')';
+    return debug;
+}
