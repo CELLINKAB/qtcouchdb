@@ -11,7 +11,8 @@ HEADERS += \
     $$PWD/couchglobal.h \
     $$PWD/couchrequest.h \
     $$PWD/couchresponse.h \
-    $$PWD/couchurl_p.h
+    $$PWD/couchurl_p.h \
+    $$PWD/couchview.h
 
 SOURCES += \
     $$PWD/couch.cpp \
@@ -21,4 +22,5 @@ SOURCES += \
     $$PWD/couchdocument.cpp \
     $$PWD/coucherror.cpp \
     $$PWD/couchrequest.cpp \
-    $$PWD/couchresponse.cpp
+    $$PWD/couchresponse.cpp \
+    $$PWD/couchview.cpp

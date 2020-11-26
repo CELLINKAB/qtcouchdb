@@ -15,6 +15,11 @@ QUrl Couch::designDocumentUrl(const QUrl &databaseUrl, const QString &name)
     return CouchUrl::resolve(CouchUrl::resolve(databaseUrl, QStringLiteral("_design")), name);
 }
 
+QUrl Couch::viewUrl(const QUrl &designDocumentUrl, const QString &name)
+{
+    return CouchUrl::resolve(CouchUrl::resolve(designDocumentUrl, QStringLiteral("_view")), name);
+}
+
 CouchRequest Couch::listAllDatabases(const QUrl &baseUrl)
 {
     CouchRequest request(CouchRequest::Get);
@@ -57,13 +62,32 @@ CouchRequest Couch::deleteDesignDocument(const QUrl &designDocumentUrl)
     return request;
 }
 
+CouchRequest Couch::listAllViews(const QUrl &designDocumentUrl)
+{
+    CouchRequest request(CouchRequest::Get);
+    request.setUrl(designDocumentUrl);
+    return request;
+}
+
+static QUrl queryUrl(QUrl url, Couch::Query query)
+{
+    if (query == Couch::Query::IncludeDocs)
+        url.setQuery(QStringLiteral("include_docs=true"));
+    return url;
+}
+
+CouchRequest Couch::listRows(const QUrl &viewUrl, Couch::Query query)
+{
+    CouchRequest request(CouchRequest::Get);
+    request.setUrl(queryUrl(viewUrl, query));
+    return request;
+}
+
 CouchRequest Couch::listAllDocuments(const QUrl &databaseUrl, Query query)
 {
     CouchRequest request(CouchRequest::Get);
     QUrl url = CouchUrl::resolve(databaseUrl, QStringLiteral("_all_docs"));
-    if (query == Query::IncludeDocs)
-        url.setQuery(QStringLiteral("include_docs=true"));
-    request.setUrl(url);
+    request.setUrl(queryUrl(url, query));
     return request;
 }
 

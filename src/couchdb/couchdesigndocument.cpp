@@ -123,3 +123,20 @@ CouchResponse *CouchDesignDocument::deleteDesignDocument()
     });
     return d->response(response);
 }
+
+CouchResponse *CouchDesignDocument::listAllViews()
+{
+    Q_D(CouchDesignDocument);
+    CouchClient *client = d->database ? d->database->client() : nullptr;
+    if (!client)
+        return nullptr;
+
+    CouchRequest request = Couch::listAllViews(url());
+    CouchResponse *response = client->sendRequest(request);
+    connect(response, &CouchResponse::received, [=](const QByteArray &data) {
+        QJsonDocument json = QJsonDocument::fromJson(data);
+        QJsonObject views = json.object().value(QStringLiteral("views")).toObject();
+        emit viewsListed(views.keys());
+    });
+    return d->response(response);
+}

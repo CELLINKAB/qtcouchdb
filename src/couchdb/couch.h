@@ -17,6 +17,7 @@ public:
 
     Q_INVOKABLE static QUrl databaseUrl(const QUrl &baseUrl, const QString &name);
     Q_INVOKABLE static QUrl designDocumentUrl(const QUrl &databaseUrl, const QString &name);
+    Q_INVOKABLE static QUrl viewUrl(const QUrl &designDocumentUrl, const QString &name);
 
     Q_INVOKABLE static CouchRequest listAllDatabases(const QUrl &baseUrl);
     Q_INVOKABLE static CouchRequest createDatabase(const QUrl &databaseUrl);
@@ -25,6 +26,9 @@ public:
     Q_INVOKABLE static CouchRequest listAllDesignDocuments(const QUrl &databaseUrl);
     Q_INVOKABLE static CouchRequest createDesignDocument(const QUrl &designDocumentUrl);
     Q_INVOKABLE static CouchRequest deleteDesignDocument(const QUrl &designDocumentUrl);
+
+    Q_INVOKABLE static CouchRequest listAllViews(const QUrl &designDocumentUrl);
+    Q_INVOKABLE static CouchRequest listRows(const QUrl &viewUrl, Query query = Query::Default);
 
     Q_INVOKABLE static CouchRequest listAllDocuments(const QUrl &databaseUrl, Query query = Query::Default);
     Q_INVOKABLE static CouchRequest createDocument(const QUrl &databaseUrl, const QByteArray &content);

@@ -37,6 +37,8 @@ public slots:
     CouchResponse *createDesignDocument();
     CouchResponse *deleteDesignDocument();
 
+    CouchResponse *listAllViews();
+
 signals:
     void urlChanged(const QUrl &url);
     void nameChanged(const QString &name);
@@ -45,6 +47,8 @@ signals:
 
     void designDocumentCreated();
     void designDocumentDeleted();
+
+    void viewsListed(const QStringList &view);
 
 private:
     Q_DECLARE_PRIVATE(CouchDesignDocument)
