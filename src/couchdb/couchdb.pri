@@ -4,6 +4,7 @@ DEPENDPATH += $$PWD
 HEADERS += \
     $$PWD/couch.h \
     $$PWD/couchclient.h \
+    $$PWD/couchcursor.h \
     $$PWD/couchdatabase.h \
     $$PWD/couchdesigndocument.h \
     $$PWD/couchdocument.h \
@@ -17,6 +18,7 @@ HEADERS += \
 SOURCES += \
     $$PWD/couch.cpp \
     $$PWD/couchclient.cpp \
+    $$PWD/couchcursor.cpp \
     $$PWD/couchdatabase.cpp \
     $$PWD/couchdesigndocument.cpp \
     $$PWD/couchdocument.cpp \
