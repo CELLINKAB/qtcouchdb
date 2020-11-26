@@ -5,6 +5,7 @@ HEADERS += \
     $$PWD/couch.h \
     $$PWD/couchclient.h \
     $$PWD/couchdatabase.h \
+    $$PWD/couchdocument.h \
     $$PWD/coucherror.h \
     $$PWD/couchglobal.h \
     $$PWD/couchrequest.h \
@@ -15,6 +16,7 @@ SOURCES += \
     $$PWD/couch.cpp \
     $$PWD/couchclient.cpp \
     $$PWD/couchdatabase.cpp \
+    $$PWD/couchdocument.cpp \
     $$PWD/coucherror.cpp \
     $$PWD/couchrequest.cpp \
     $$PWD/couchresponse.cpp
