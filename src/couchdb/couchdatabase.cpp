@@ -2,7 +2,6 @@
 #include "couchclient.h"
 #include "couchrequest.h"
 #include "couchresponse.h"
-#include "couchurl_p.h"
 
 class CouchDatabasePrivate
 {
