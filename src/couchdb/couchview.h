@@ -11,6 +11,7 @@
 class CouchClient;
 class CouchDatabase;
 class CouchDesignDocument;
+class CouchQuery;
 class CouchResponse;
 class CouchViewPrivate;
 
@@ -37,7 +38,8 @@ public:
     void setDesignDocument(CouchDesignDocument *designDocument);
 
 public slots:
-    CouchResponse *listRows(Couch::Query query = Couch::Query::Default);
+    CouchResponse *listAllRows();
+    CouchResponse *queryRows(const CouchQuery &query);
 
 signals:
     void urlChanged(const QUrl &url);

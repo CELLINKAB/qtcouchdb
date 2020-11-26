@@ -69,21 +69,44 @@ CouchRequest Couch::listAllViews(const QUrl &designDocumentUrl)
     return request;
 }
 
-static QUrl queryUrl(QUrl url, Couch::Query query)
+static QUrl queryUrl(QUrl url, const CouchQuery &query)
 {
-    if (query == Couch::Query::IncludeDocs)
-        url.setQuery(QStringLiteral("include_docs=true"));
+    QUrlQuery q;
+    if (query.limit() > 0)
+        q.addQueryItem(QStringLiteral("limit"), QString::number(query.limit()));
+    if (query.skip() > 0)
+        q.addQueryItem(QStringLiteral("skip"), QString::number(query.skip()));
+    if (query.includeDocs())
+        q.addQueryItem(QStringLiteral("include_docs"), QStringLiteral("true"));
+    if (query.order() == Qt::DescendingOrder)
+        q.addQueryItem(QStringLiteral("descending"), QStringLiteral("true"));
+    url.setQuery(q);
     return url;
 }
 
-CouchRequest Couch::listRows(const QUrl &viewUrl, Couch::Query query)
+CouchRequest Couch::listAllRows(const QUrl &viewUrl)
+{
+    CouchRequest request(CouchRequest::Get);
+    request.setUrl(viewUrl);
+    return request;
+}
+
+CouchRequest Couch::queryRows(const QUrl &viewUrl, const CouchQuery &query)
 {
     CouchRequest request(CouchRequest::Get);
     request.setUrl(queryUrl(viewUrl, query));
     return request;
 }
 
-CouchRequest Couch::listAllDocuments(const QUrl &databaseUrl, Query query)
+CouchRequest Couch::listAllDocuments(const QUrl &databaseUrl)
+{
+    CouchRequest request(CouchRequest::Get);
+    QUrl url = CouchUrl::resolve(databaseUrl, QStringLiteral("_all_docs"));
+    request.setUrl(url);
+    return request;
+}
+
+CouchRequest Couch::queryDocuments(const QUrl &databaseUrl, const CouchQuery &query)
 {
     CouchRequest request(CouchRequest::Get);
     QUrl url = CouchUrl::resolve(databaseUrl, QStringLiteral("_all_docs"));

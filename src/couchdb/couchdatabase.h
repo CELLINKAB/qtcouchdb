@@ -9,6 +9,7 @@
 #include <QtCore/qscopedpointer.h>
 
 class CouchClient;
+class CouchQuery;
 class CouchResponse;
 class CouchDatabasePrivate;
 
@@ -38,7 +39,8 @@ public slots:
 
     CouchResponse *listAllDesignDocuments();
 
-    CouchResponse *listAllDocuments(Couch::Query query = Couch::Query::Default);
+    CouchResponse *listAllDocuments();
+    CouchResponse *queryDocuments(const CouchQuery &query);
     CouchResponse *createDocument(const QByteArray &content);
     CouchResponse *getDocument(const CouchDocument &document);
     CouchResponse *updateDocument(const CouchDocument &document);
