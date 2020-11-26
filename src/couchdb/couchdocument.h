@@ -9,35 +9,40 @@
 #include <QtCore/qshareddata.h>
 #include <QtCore/qurl.h>
 
-class CouchDocumentIdPrivate;
+class CouchDocumentPrivate;
 
-class COUCHDB_EXPORT CouchDocumentId
+class COUCHDB_EXPORT CouchDocument
 {
     Q_GADGET
     Q_PROPERTY(QString id READ id)
     Q_PROPERTY(QString revision READ revision)
+    Q_PROPERTY(QByteArray content READ content WRITE setContent)
 
 public:
-    CouchDocumentId(const QString &id, const QString &revision = QString());
-    ~CouchDocumentId();
+    CouchDocument(const QString &id, const QString &revision = QString());
+    ~CouchDocument();
 
-    CouchDocumentId(const CouchDocumentId &other);
-    CouchDocumentId &operator=(const CouchDocumentId &other);
-    CouchDocumentId &operator=(const QString &id);
+    CouchDocument(const CouchDocument &other);
+    CouchDocument &operator=(const CouchDocument &other);
+    CouchDocument &operator=(const QString &id);
 
-    bool operator==(const CouchDocumentId &other) const;
-    bool operator!=(const CouchDocumentId &other) const;
+    bool operator==(const CouchDocument &other) const;
+    bool operator!=(const CouchDocument &other) const;
 
     QString id() const;
     QString revision() const;
 
-    static CouchDocumentId fromJson(const QJsonObject &json);
+    QByteArray content() const;
+    void setContent(const QByteArray &content);
+
+    QJsonObject toJson() const;
+    static CouchDocument fromJson(const QJsonObject &json);
 
 private:
-    Q_DECLARE_PRIVATE(CouchDocumentId)
-    QExplicitlySharedDataPointer<CouchDocumentIdPrivate> d_ptr;
+    Q_DECLARE_PRIVATE(CouchDocument)
+    QExplicitlySharedDataPointer<CouchDocumentPrivate> d_ptr;
 };
 
-COUCHDB_EXPORT QDebug operator<<(QDebug debug, const CouchDocumentId &document);
+COUCHDB_EXPORT QDebug operator<<(QDebug debug, const CouchDocument &document);
 
 #endif // COUCHDOCUMENT_H

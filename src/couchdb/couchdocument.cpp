@@ -1,37 +1,38 @@
 #include "couchdocument.h"
 
-class CouchDocumentIdPrivate : public QSharedData
+class CouchDocumentPrivate : public QSharedData
 {
 public:
     QString id;
     QString revision;
+    QByteArray content;
 };
 
-CouchDocumentId::CouchDocumentId(const QString &id, const QString &revision) :
-    d_ptr(new CouchDocumentIdPrivate)
+CouchDocument::CouchDocument(const QString &id, const QString &revision) :
+    d_ptr(new CouchDocumentPrivate)
 {
-    Q_D(CouchDocumentId);
+    Q_D(CouchDocument);
     d->id = id;
     d->revision = revision;
 }
 
-CouchDocumentId::~CouchDocumentId()
+CouchDocument::~CouchDocument()
 {
 }
 
-CouchDocumentId::CouchDocumentId(const CouchDocumentId &other)
+CouchDocument::CouchDocument(const CouchDocument &other)
     : d_ptr(other.d_ptr)
 {
 }
 
-CouchDocumentId &CouchDocumentId::operator=(const CouchDocumentId &other)
+CouchDocument &CouchDocument::operator=(const CouchDocument &other)
 {
     d_ptr.detach();
     d_ptr = other.d_ptr;
     return *this;
 }
 
-CouchDocumentId &CouchDocumentId::operator=(const QString &id)
+CouchDocument &CouchDocument::operator=(const QString &id)
 {
     d_ptr.detach();
     d_ptr->id = id;
@@ -39,28 +40,47 @@ CouchDocumentId &CouchDocumentId::operator=(const QString &id)
     return *this;
 }
 
-bool CouchDocumentId::operator==(const CouchDocumentId &other) const
+bool CouchDocument::operator==(const CouchDocument &other) const
 {
-    Q_D(const CouchDocumentId);
+    Q_D(const CouchDocument);
     return d_ptr == other.d_ptr || (d->id == other.id() &&
                                     d->revision == other.revision());
 }
 
-bool CouchDocumentId::operator!=(const CouchDocumentId &other) const
+bool CouchDocument::operator!=(const CouchDocument &other) const
 {
     return !(*this == other);
 }
 
-QString CouchDocumentId::id() const
+QString CouchDocument::id() const
 {
-    Q_D(const CouchDocumentId);
+    Q_D(const CouchDocument);
     return d->id;
 }
 
-QString CouchDocumentId::revision() const
+QString CouchDocument::revision() const
 {
-    Q_D(const CouchDocumentId);
+    Q_D(const CouchDocument);
     return d->revision;
+}
+
+QByteArray CouchDocument::content() const
+{
+    Q_D(const CouchDocument);
+    return d->content;
+}
+
+void CouchDocument::setContent(const QByteArray &content)
+{
+    Q_D(CouchDocument);
+    d_ptr.detach();
+    d->content = content;
+}
+
+QJsonObject CouchDocument::toJson() const
+{
+    Q_D(const CouchDocument);
+    return QJsonDocument::fromJson(d->content).object();
 }
 
 static QString fallbackRevision(const QJsonObject &json)
@@ -68,16 +88,18 @@ static QString fallbackRevision(const QJsonObject &json)
     return json.value(QStringLiteral("value")).toObject().value(QStringLiteral("rev")).toString();
 }
 
-CouchDocumentId CouchDocumentId::fromJson(const QJsonObject &json)
+CouchDocument CouchDocument::fromJson(const QJsonObject &json)
 {
     QString id = json.value(QStringLiteral("id")).toString();
     QString revision = json.value(QStringLiteral("rev")).toString(fallbackRevision(json));
-    return CouchDocumentId(id, revision);
+    CouchDocument doc(id, revision);
+    doc.setContent(QJsonDocument(json.value(QStringLiteral("doc")).toObject()).toJson());
+    return doc;
 }
 
-QDebug operator<<(QDebug debug, const CouchDocumentId &document)
+QDebug operator<<(QDebug debug, const CouchDocument &document)
 {
     QDebugStateSaver saver(debug);
-    debug.nospace().noquote() << "CouchDocumentId(" << document.id() << ", rev=" << document.revision() << ')';
+    debug.nospace().noquote() << "CouchDocument(" << document.id() << ", rev=" << document.revision() << ')';
     return debug;
 }

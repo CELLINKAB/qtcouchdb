@@ -22,29 +22,29 @@ int main(int argc, char *argv[])
             database.createDatabase();
             QObject::connect(&database, &CouchDatabase::databaseCreated, [&database]() {
                 qDebug() << "-> created DB:" << database.name();
-                database.listAllDocuments();
+                database.listAllDocuments(Couch::Query::IncludeDocs);
             });
         } else {
-            database.listAllDocuments();
+            database.listAllDocuments(Couch::Query::IncludeDocs);
         }
     });
 
-    QObject::connect(&database, &CouchDatabase::documentsListed, [&](const QList<CouchDocumentId> &documents) {
+    QObject::connect(&database, &CouchDatabase::documentsListed, [&](const QList<CouchDocument> &documents) {
         qDebug() << "-> listed DOCS:" << documents;
 
         if (documents.isEmpty()) {
             database.createDocument(R"({"foo":"bar"})");
-            QObject::connect(&database, &CouchDatabase::documentCreated, [&](const CouchDocumentId &documentId) {
-                qDebug() << "-> created DOC:" << documentId;
-                database.deleteDocument(documentId);
+            QObject::connect(&database, &CouchDatabase::documentCreated, [&](const CouchDocument &document) {
+                qDebug() << "-> created DOC:" << document << document.toJson();
+                database.listAllDocuments(Couch::Query::IncludeDocs);
             });
         } else {
             database.deleteDocument(documents.first());
         }
     });
 
-    QObject::connect(&database, &CouchDatabase::documentDeleted, [&](const CouchDocumentId &documentId) {
-        qDebug() << "-> deleted DOC:" << documentId;
+    QObject::connect(&database, &CouchDatabase::documentDeleted, [&](const CouchDocument &document) {
+        qDebug() << "-> deleted DOC:" << document << document.toJson();
 
         QObject::connect(&database, &CouchDatabase::databaseDeleted, [&database]() {
             qDebug() << "-> deleted DB:" << database.name();

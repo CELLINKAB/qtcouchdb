@@ -2,6 +2,7 @@
 #define COUCHDATABASE_H
 
 #include <QtCouchDB/couchglobal.h>
+#include <QtCouchDB/couch.h>
 #include <QtCouchDB/couchdocument.h>
 #include <QtCouchDB/coucherror.h>
 #include <QtCore/qobject.h>
@@ -35,11 +36,11 @@ public slots:
     CouchResponse *createDatabase();
     CouchResponse *deleteDatabase();
 
-    CouchResponse *listAllDocuments();
+    CouchResponse *listAllDocuments(Couch::Query query = Couch::Query::Default);
     CouchResponse *createDocument(const QByteArray &content);
-    CouchResponse *getDocument(const CouchDocumentId &document);
-    CouchResponse *updateDocument(const CouchDocumentId &document, const QByteArray &content);
-    CouchResponse *deleteDocument(const CouchDocumentId &document);
+    CouchResponse *getDocument(const CouchDocument &document);
+    CouchResponse *updateDocument(const CouchDocument &document);
+    CouchResponse *deleteDocument(const CouchDocument &document);
 
 signals:
     void urlChanged(const QUrl &url);
@@ -50,11 +51,11 @@ signals:
     void databaseCreated();
     void databaseDeleted();
 
-    void documentsListed(const QList<CouchDocumentId> &documents);
-    void documentCreated(const CouchDocumentId &document);
-    void documentReceived(const CouchDocumentId &document);
-    void documentUpdated(const CouchDocumentId &document);
-    void documentDeleted(const CouchDocumentId &document);
+    void documentsListed(const QList<CouchDocument> &documents);
+    void documentCreated(const CouchDocument &document);
+    void documentReceived(const CouchDocument &document);
+    void documentUpdated(const CouchDocument &document);
+    void documentDeleted(const CouchDocument &document);
 
 private:
     Q_DECLARE_PRIVATE(CouchDatabase)

@@ -31,10 +31,13 @@ CouchRequest Couch::deleteDatabase(const QUrl &databaseUrl)
     return request;
 }
 
-CouchRequest Couch::listAllDocuments(const QUrl &databaseUrl)
+CouchRequest Couch::listAllDocuments(const QUrl &databaseUrl, Query query)
 {
     CouchRequest request(CouchRequest::Get);
-    request.setUrl(CouchUrl::resolve(databaseUrl, QStringLiteral("_all_docs")));
+    QUrl url = CouchUrl::resolve(databaseUrl, QStringLiteral("_all_docs"));
+    if (query == Query::IncludeDocs)
+        url.setQuery(QStringLiteral("include_docs=true"));
+    request.setUrl(url);
     return request;
 }
 

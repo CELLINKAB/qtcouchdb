@@ -1,5 +1,4 @@
 ﻿#include "couchdatabase.h"
-#include "couch.h"
 #include "couchclient.h"
 #include "couchrequest.h"
 #include "couchresponse.h"
@@ -114,21 +113,21 @@ CouchResponse *CouchDatabase::deleteDatabase()
     return d->response(response);
 }
 
-static QList<CouchDocumentId> toDocumentList(const QJsonArray &json)
+static QList<CouchDocument> toDocumentList(const QJsonArray &json)
 {
-    QList<CouchDocumentId> docs;
+    QList<CouchDocument> docs;
     for (const QJsonValue &value : json)
-        docs += CouchDocumentId::fromJson(value.toObject());
+        docs += CouchDocument::fromJson(value.toObject());
     return docs;
 }
 
-CouchResponse *CouchDatabase::listAllDocuments()
+CouchResponse *CouchDatabase::listAllDocuments(Couch::Query query)
 {
     Q_D(CouchDatabase);
     if (!d->client)
         return nullptr;
 
-    CouchRequest request = Couch::listAllDocuments(url());
+    CouchRequest request = Couch::listAllDocuments(url(), query);
     CouchResponse *response = d->client->sendRequest(request);
     connect(response, &CouchResponse::received, [=](const QByteArray &data) {
         QJsonDocument json = QJsonDocument::fromJson(data);
@@ -148,12 +147,12 @@ CouchResponse *CouchDatabase::createDocument(const QByteArray &content)
     CouchResponse *response = d->client->sendRequest(request);
     connect(response, &CouchResponse::received, [=](const QByteArray &data) {
         QJsonDocument json = QJsonDocument::fromJson(data);
-        emit documentCreated(CouchDocumentId::fromJson(json.object()));
+        emit documentCreated(CouchDocument::fromJson(json.object()));
     });
     return d->response(response);
 }
 
-CouchResponse *CouchDatabase::getDocument(const CouchDocumentId &document)
+CouchResponse *CouchDatabase::getDocument(const CouchDocument &document)
 {
     Q_D(CouchDatabase);
     if (!d->client)
@@ -163,37 +162,37 @@ CouchResponse *CouchDatabase::getDocument(const CouchDocumentId &document)
     CouchResponse *response = d->client->sendRequest(request);
     connect(response, &CouchResponse::received, [=](const QByteArray &data) {
         QJsonDocument json = QJsonDocument::fromJson(data);
-        emit documentReceived(CouchDocumentId::fromJson(json.object()));
+        emit documentReceived(CouchDocument::fromJson(json.object()));
     });
     return d->response(response);
 }
 
-CouchResponse *CouchDatabase::updateDocument(const CouchDocumentId &documentId, const QByteArray &content)
+CouchResponse *CouchDatabase::updateDocument(const CouchDocument &document)
 {
     Q_D(CouchDatabase);
     if (!d->client)
         return nullptr;
 
-    CouchRequest request = Couch::updateDocument(url(), documentId.id(), documentId.revision(), content);
+    CouchRequest request = Couch::updateDocument(url(), document.id(), document.revision(), document.content());
     CouchResponse *response = d->client->sendRequest(request);
     connect(response, &CouchResponse::received, [=](const QByteArray &data) {
         QJsonDocument json = QJsonDocument::fromJson(data);
-        emit documentUpdated(CouchDocumentId::fromJson(json.object()));
+        emit documentUpdated(CouchDocument::fromJson(json.object()));
     });
     return d->response(response);
 }
 
-CouchResponse *CouchDatabase::deleteDocument(const CouchDocumentId &documentId)
+CouchResponse *CouchDatabase::deleteDocument(const CouchDocument &document)
 {
     Q_D(CouchDatabase);
     if (!d->client)
         return nullptr;
 
-    CouchRequest request = Couch::deleteDocument(url(), documentId.id(), documentId.revision());
+    CouchRequest request = Couch::deleteDocument(url(), document.id(), document.revision());
     CouchResponse *response = d->client->sendRequest(request);
     connect(response, &CouchResponse::received, [=](const QByteArray &data) {
         QJsonDocument json = QJsonDocument::fromJson(data);
-        emit documentDeleted(CouchDocumentId::fromJson(json.object()));
+        emit documentDeleted(CouchDocument::fromJson(json.object()));
     });
     return d->response(response);
 }
