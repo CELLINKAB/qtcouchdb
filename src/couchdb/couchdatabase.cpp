@@ -113,6 +113,44 @@ CouchResponse *CouchDatabase::deleteDatabase()
     return d->response(response);
 }
 
+static QString trimPrefix(QString str, const QString &prefix)
+{
+    if (!str.startsWith(prefix))
+        return str;
+
+    return str.mid(prefix.length());
+}
+
+static QString toDesignDocumentName(const QJsonObject &json)
+{
+    QString key = json.value(QStringLiteral("key")).toString();
+    return trimPrefix(key, QStringLiteral("_design/"));
+}
+
+static QStringList toDesignDocumentList(const QJsonArray &json)
+{
+    QStringList designs;
+    for (const QJsonValue &value : json)
+        designs += toDesignDocumentName(value.toObject());
+    return designs;
+}
+
+CouchResponse *CouchDatabase::listAllDesignDocuments()
+{
+    Q_D(CouchDatabase);
+    if (!d->client)
+        return nullptr;
+
+    CouchRequest request = Couch::listAllDesignDocuments(url());
+    CouchResponse *response = d->client->sendRequest(request);
+    connect(response, &CouchResponse::received, [=](const QByteArray &data) {
+        QJsonDocument json = QJsonDocument::fromJson(data);
+        QJsonArray rows = json.object().value(QStringLiteral("rows")).toArray();
+        emit designDocumentsListed(toDesignDocumentList(rows));
+    });
+    return d->response(response);
+}
+
 static QList<CouchDocument> toDocumentList(const QJsonArray &json)
 {
     QList<CouchDocument> docs;

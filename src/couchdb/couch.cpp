@@ -10,6 +10,11 @@ QUrl Couch::databaseUrl(const QUrl &baseUrl, const QString &name)
     return CouchUrl::resolve(baseUrl, name);
 }
 
+QUrl Couch::designDocumentUrl(const QUrl &databaseUrl, const QString &name)
+{
+    return CouchUrl::resolve(CouchUrl::resolve(databaseUrl, QStringLiteral("_design")), name);
+}
+
 CouchRequest Couch::listAllDatabases(const QUrl &baseUrl)
 {
     CouchRequest request(CouchRequest::Get);
@@ -28,6 +33,27 @@ CouchRequest Couch::deleteDatabase(const QUrl &databaseUrl)
 {
     CouchRequest request(CouchRequest::Delete);
     request.setUrl(databaseUrl);
+    return request;
+}
+
+CouchRequest Couch::listAllDesignDocuments(const QUrl &databaseUrl)
+{
+    CouchRequest request(CouchRequest::Get);
+    request.setUrl(CouchUrl::resolve(databaseUrl, QStringLiteral("_design_docs")));
+    return request;
+}
+
+CouchRequest Couch::createDesignDocument(const QUrl &designDocumentUrl)
+{
+    CouchRequest request(CouchRequest::Put);
+    request.setUrl(designDocumentUrl);
+    return request;
+}
+
+CouchRequest Couch::deleteDesignDocument(const QUrl &designDocumentUrl)
+{
+    CouchRequest request(CouchRequest::Delete);
+    request.setUrl(designDocumentUrl);
     return request;
 }
 

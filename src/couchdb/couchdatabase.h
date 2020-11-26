@@ -36,6 +36,8 @@ public slots:
     CouchResponse *createDatabase();
     CouchResponse *deleteDatabase();
 
+    CouchResponse *listAllDesignDocuments();
+
     CouchResponse *listAllDocuments(Couch::Query query = Couch::Query::Default);
     CouchResponse *createDocument(const QByteArray &content);
     CouchResponse *getDocument(const CouchDocument &document);
@@ -50,6 +52,8 @@ signals:
 
     void databaseCreated();
     void databaseDeleted();
+
+    void designDocumentsListed(const QStringList &designDocuments);
 
     void documentsListed(const QList<CouchDocument> &documents);
     void documentCreated(const CouchDocument &document);
