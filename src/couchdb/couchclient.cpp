@@ -1,4 +1,5 @@
 ﻿#include "couchclient.h"
+#include "couch.h"
 #include "couchrequest.h"
 #include "couchresponse.h"
 
@@ -15,7 +16,7 @@ class CouchClientPrivate
 public:
     void queryFinished(QNetworkReply *reply);
 
-    QUrl url;
+    QUrl baseUrl;
     CouchClient *q_ptr = nullptr;
     QNetworkAccessManager *networkManager = nullptr;
 };
@@ -30,7 +31,7 @@ CouchClient::CouchClient(const QUrl &url, QObject *parent) :
 {
     Q_D(CouchClient);
     d->q_ptr = this;
-    d->url = url;
+    d->baseUrl = url;
     d->networkManager = new QNetworkAccessManager(this);
     d->networkManager->setAutoDeleteReplies(true);
     connect(d->networkManager, &QNetworkAccessManager::finished, [=](QNetworkReply *reply) { d->queryFinished(reply); });
@@ -40,16 +41,40 @@ CouchClient::~CouchClient()
 {
 }
 
-QUrl CouchClient::url() const
+QUrl CouchClient::baseUrl() const
 {
     Q_D(const CouchClient);
-    return d->url;
+    return d->baseUrl;
 }
 
-void CouchClient::setUrl(const QUrl &url)
+void CouchClient::setBaseUrl(const QUrl &baseUrl)
 {
     Q_D(CouchClient);
-    d->url = url;
+    if (d->baseUrl == baseUrl)
+        return;
+
+    d->baseUrl = baseUrl;
+    emit baseUrlChanged(baseUrl);
+}
+
+static QStringList toDatabaseList(const QJsonArray &array)
+{
+    QStringList databases;
+    for (const QJsonValue &value : array)
+        databases += value.toString();
+    return databases;
+}
+
+CouchResponse *CouchClient::listAllDatabases()
+{
+    Q_D(CouchClient);
+    CouchRequest request = Couch::listAllDatabases(d->baseUrl);
+    CouchResponse *response = sendRequest(request);
+    connect(response, &CouchResponse::received, [=](const QByteArray &data) {
+        QJsonArray json = QJsonDocument::fromJson(data).array();
+        emit databasesListed(toDatabaseList(json));
+    });
+    return response;
 }
 
 static QByteArray basicAuth(const QString &username, const QString &password)
@@ -57,7 +82,7 @@ static QByteArray basicAuth(const QString &username, const QString &password)
     return "Basic " + QByteArray(username.toUtf8() + ":" + password.toUtf8()).toBase64();
 }
 
-CouchResponse *CouchClient::send(const CouchRequest &request)
+CouchResponse *CouchClient::sendRequest(const CouchRequest &request)
 {
     Q_D(CouchClient);
     CouchResponse *response = new CouchResponse(request, this);
@@ -69,8 +94,8 @@ CouchResponse *CouchClient::send(const CouchRequest &request)
     for (auto it = headers.cbegin(); it != headers.cend(); ++it)
         networkRequest.setRawHeader(it.key(), it.value());
 
-    QString username = d->url.userName();
-    QString password = d->url.password();
+    QString username = d->baseUrl.userName();
+    QString password = d->baseUrl.password();
     if (!username.isEmpty() && !password.isEmpty())
         networkRequest.setRawHeader("Authorization", basicAuth(username, password));
 
@@ -111,13 +136,16 @@ void CouchClientPrivate::queryFinished(QNetworkReply *reply)
     if (!response)
         return;
 
+    QByteArray data = reply->readAll();
+    response->setData(data);
+
     if (reply->error() == QNetworkReply::NoError) {
-        response->setData(reply->readAll());
-        emit response->received();
-        emit q->received(response);
+        emit response->received(data);
+        emit q->responseReceived(response);
     } else {
-        // ### TODO: provide error
-        qWarning() << reply->errorString();
+        QJsonDocument json = QJsonDocument::fromJson(data);
+        emit response->errorOccurred(CouchError::fromJson(json.object()));
+        emit q->errorOccurred(response);
     }
 
     response->deleteLater(); // ### TODO: CouchClient::autoDeleteResponses
