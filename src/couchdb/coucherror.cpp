@@ -26,6 +26,7 @@ CouchError::CouchError(const CouchError &other)
 
 CouchError &CouchError::operator=(const CouchError &other)
 {
+    d_ptr.detach();
     d_ptr = other.d_ptr;
     return *this;
 }

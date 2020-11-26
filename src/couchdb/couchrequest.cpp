@@ -27,6 +27,7 @@ CouchRequest::CouchRequest(const CouchRequest &other)
 
 CouchRequest &CouchRequest::operator=(const CouchRequest &other)
 {
+    d_ptr.detach();
     d_ptr = other.d_ptr;
     return *this;
 }
@@ -53,6 +54,7 @@ QUrl CouchRequest::url() const
 void CouchRequest::setUrl(const QUrl &url)
 {
     Q_D(CouchRequest);
+    d_ptr.detach();
     d->url = url;
 }
 
@@ -65,6 +67,7 @@ CouchRequest::Operation CouchRequest::operation() const
 void CouchRequest::setOperation(Operation operation)
 {
     Q_D(CouchRequest);
+    d_ptr.detach();
     d->operation = operation;
 }
 
@@ -77,6 +80,7 @@ QByteArray CouchRequest::body() const
 void CouchRequest::setBody(const QByteArray &body)
 {
     Q_D(CouchRequest);
+    d_ptr.detach();
     d->body = body;
 }
 
@@ -95,6 +99,7 @@ QByteArray CouchRequest::header(const QByteArray &header) const
 void CouchRequest::setHeader(const QByteArray &header, const QByteArray &value)
 {
     Q_D(CouchRequest);
+    d_ptr.detach();
     d->headers.insert(header, value);
 }
 
