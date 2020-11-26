@@ -2,6 +2,7 @@
 #define COUCHRESPONSE_H
 
 #include <QtCouchDB/couchglobal.h>
+#include <QtCouchDB/coucherror.h>
 #include <QtCouchDB/couchrequest.h>
 #include <QtCore/qobject.h>
 #include <QtCore/qscopedpointer.h>
@@ -20,14 +21,16 @@ public:
     ~CouchResponse();
 
     CouchRequest request() const;
+    CouchError error() const;
 
     QByteArray data() const;
     void setData(const QByteArray &data);
 
-    QJsonDocument toJson() const;
+    QJsonObject toJson() const;
 
 signals:
-    void received();
+    void received(const QByteArray &data);
+    void errorOccurred(const CouchError &error);
 
 private:
     Q_DECLARE_PRIVATE(CouchResponse)

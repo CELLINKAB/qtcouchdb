@@ -27,6 +27,11 @@ CouchRequest CouchResponse::request() const
     return d->request;
 }
 
+CouchError CouchResponse::error() const
+{
+    return CouchError::fromJson(toJson());
+}
+
 QByteArray CouchResponse::data() const
 {
     Q_D(const CouchResponse);
@@ -39,8 +44,8 @@ void CouchResponse::setData(const QByteArray &data)
     d->data = data;
 }
 
-QJsonDocument CouchResponse::toJson() const
+QJsonObject CouchResponse::toJson() const
 {
     Q_D(const CouchResponse);
-    return QJsonDocument::fromJson(d->data);
+    return QJsonDocument::fromJson(d->data).object();
 }
