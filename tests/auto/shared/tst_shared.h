@@ -12,6 +12,7 @@ Q_DECLARE_METATYPE(QNetworkAccessManager::Operation)
 static inline void registerTestMetaTypes()
 {
     qRegisterMetaType<CouchClient *>();
+    qRegisterMetaType<CouchDatabase *>();
     qRegisterMetaType<CouchError>();
     qRegisterMetaType<CouchResponse *>();
     qRegisterMetaType<CouchRequest::Operation>();

@@ -42,6 +42,7 @@ public slots:
 signals:
     void urlChanged(const QUrl &url);
     void nameChanged(const QString &name);
+    void clientChanged(CouchClient *client);
     void databaseChanged(CouchDatabase *database);
     void errorOccurred(const CouchError &error);
 

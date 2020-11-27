@@ -35,7 +35,7 @@ CouchDesignDocument::CouchDesignDocument(const QString &name, CouchDatabase *dat
     Q_D(CouchDesignDocument);
     d->q_ptr = this;
     d->name = name;
-    d->database = database;
+    setDatabase(database);
 }
 
 CouchDesignDocument::~CouchDesignDocument()
@@ -88,6 +88,13 @@ void CouchDesignDocument::setDatabase(CouchDatabase *database)
     Q_D(CouchDesignDocument);
     if (d->database == database)
         return;
+
+    if (d->database)
+        d->database->disconnect(this);
+    if (database) {
+        connect(database, &CouchDatabase::urlChanged, this, &CouchDesignDocument::urlChanged);
+        connect(database, &CouchDatabase::clientChanged, this, &CouchDesignDocument::clientChanged);
+    }
 
     d->database = database;
     emit urlChanged(url());

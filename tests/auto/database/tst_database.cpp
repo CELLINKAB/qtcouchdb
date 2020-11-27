@@ -15,6 +15,7 @@ class tst_database : public QObject
 private slots:
     void initTestCase();
     void client();
+    void responses();
     void url();
     void name();
     void database_data();
@@ -49,6 +50,32 @@ void tst_database::client()
     database.setClient(nullptr);
     QVERIFY(!database.client());
     QCOMPARE(clientSpy.count(), 2);
+}
+
+void tst_database::responses()
+{
+    CouchDatabase database("tst_database");
+    QVERIFY(!database.createDatabase());
+    QVERIFY(!database.deleteDatabase());
+    QVERIFY(!database.listAllDesignDocuments());
+    QVERIFY(!database.listAllDocuments());
+    QVERIFY(!database.queryDocuments(CouchQuery()));
+    QVERIFY(!database.createDocument(CouchDocument()));
+    QVERIFY(!database.getDocument(CouchDocument()));
+    QVERIFY(!database.updateDocument(CouchDocument()));
+    QVERIFY(!database.deleteDocument(CouchDocument()));
+
+    CouchClient client(TestUrl);
+    database.setClient(&client);
+    QVERIFY(database.createDatabase());
+    QVERIFY(database.deleteDatabase());
+    QVERIFY(database.listAllDesignDocuments());
+    QVERIFY(database.listAllDocuments());
+    QVERIFY(database.queryDocuments(CouchQuery()));
+    QVERIFY(database.createDocument(CouchDocument()));
+    QVERIFY(database.getDocument(CouchDocument()));
+    QVERIFY(database.updateDocument(CouchDocument()));
+    QVERIFY(database.deleteDocument(CouchDocument()));
 }
 
 void tst_database::url()

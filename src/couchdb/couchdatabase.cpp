@@ -34,7 +34,7 @@ CouchDatabase::CouchDatabase(const QString &name, CouchClient *client, QObject *
     Q_D(CouchDatabase);
     d->q_ptr = this;
     d->name = name;
-    d->client = client;
+    setClient(client);
 }
 
 CouchDatabase::~CouchDatabase()
