@@ -45,4 +45,6 @@ private:
 
 COUCHDB_EXPORT QDebug operator<<(QDebug debug, const CouchQuery &query);
 
+Q_DECLARE_METATYPE(CouchQuery)
+
 #endif // COUCHQUERY_H

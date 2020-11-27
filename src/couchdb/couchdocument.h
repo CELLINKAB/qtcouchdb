@@ -19,7 +19,7 @@ class COUCHDB_EXPORT CouchDocument
     Q_PROPERTY(QByteArray content READ content WRITE setContent)
 
 public:
-    CouchDocument(const QString &id, const QString &revision = QString());
+    CouchDocument(const QString &id = QString(), const QString &revision = QString());
     ~CouchDocument();
 
     CouchDocument(const CouchDocument &other);
@@ -44,5 +44,7 @@ private:
 };
 
 COUCHDB_EXPORT QDebug operator<<(QDebug debug, const CouchDocument &document);
+
+Q_DECLARE_METATYPE(CouchDocument)
 
 #endif // COUCHDOCUMENT_H

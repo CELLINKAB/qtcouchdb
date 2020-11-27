@@ -59,4 +59,7 @@ private:
 
 COUCHDB_EXPORT QDebug operator<<(QDebug debug, const CouchRequest &request);
 
+Q_DECLARE_METATYPE(CouchRequest)
+Q_DECLARE_METATYPE(CouchRequest::Operation)
+
 #endif // COUCHREQUEST_H

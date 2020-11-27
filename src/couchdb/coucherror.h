@@ -20,7 +20,7 @@ class COUCHDB_EXPORT CouchError
     Q_PROPERTY(QString reason READ reason)
 
 public:
-    CouchError(const QString &error, const QString &reason = QString());
+    CouchError(const QString &error = QString(), const QString &reason = QString());
     ~CouchError();
 
     CouchError(const CouchError &other);
@@ -40,5 +40,7 @@ private:
 };
 
 COUCHDB_EXPORT QDebug operator<<(QDebug debug, const CouchError &error);
+
+Q_DECLARE_METATYPE(CouchError)
 
 #endif // COUCHERROR_H
