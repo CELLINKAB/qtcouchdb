@@ -9,6 +9,7 @@ class CouchError;
 class CouchRequest;
 class CouchResponse;
 class CouchClientPrivate;
+QT_FORWARD_DECLARE_CLASS(QNetworkAccessManager)
 
 class COUCHDB_EXPORT CouchClient : public QObject
 {
@@ -22,6 +23,9 @@ public:
 
     QUrl baseUrl() const;
     void setBaseUrl(const QUrl &url);
+
+    QNetworkAccessManager *networkAccessManager() const;
+    void setNetworkAccessManager(QNetworkAccessManager *networkAccessManager);
 
 public slots:
     CouchResponse *listAllDatabases();

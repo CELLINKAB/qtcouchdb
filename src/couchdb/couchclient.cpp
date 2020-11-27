@@ -18,7 +18,7 @@ public:
 
     QUrl baseUrl;
     CouchClient *q_ptr = nullptr;
-    QNetworkAccessManager *networkManager = nullptr;
+    QNetworkAccessManager *networkAccessManager = nullptr;
 };
 
 CouchClient::CouchClient(QObject *parent) : CouchClient(QUrl(), parent)
@@ -32,9 +32,7 @@ CouchClient::CouchClient(const QUrl &url, QObject *parent) :
     Q_D(CouchClient);
     d->q_ptr = this;
     d->baseUrl = url;
-    d->networkManager = new QNetworkAccessManager(this);
-    d->networkManager->setAutoDeleteReplies(true);
-    connect(d->networkManager, &QNetworkAccessManager::finished, [=](QNetworkReply *reply) { d->queryFinished(reply); });
+    setNetworkAccessManager(new QNetworkAccessManager(this));
 }
 
 CouchClient::~CouchClient()
@@ -55,6 +53,30 @@ void CouchClient::setBaseUrl(const QUrl &baseUrl)
 
     d->baseUrl = baseUrl;
     emit baseUrlChanged(baseUrl);
+}
+
+QNetworkAccessManager *CouchClient::networkAccessManager() const
+{
+    Q_D(const CouchClient);
+    return d->networkAccessManager;
+}
+
+void CouchClient::setNetworkAccessManager(QNetworkAccessManager *networkAccessManager)
+{
+    Q_D(CouchClient);
+    if (!networkAccessManager)
+        return;
+
+    if (d->networkAccessManager) {
+        if (d->networkAccessManager->parent() == this)
+            d->networkAccessManager->deleteLater();
+        else
+            d->networkAccessManager->disconnect(this);
+    }
+
+    d->networkAccessManager = networkAccessManager;
+    networkAccessManager->setAutoDeleteReplies(true);
+    connect(networkAccessManager, &QNetworkAccessManager::finished, [=](QNetworkReply *reply) { d->queryFinished(reply); });
 }
 
 static QStringList toDatabaseList(const QJsonArray &array)
@@ -110,16 +132,16 @@ CouchResponse *CouchClient::sendRequest(const CouchRequest &request)
 
     switch (request.operation()) {
     case CouchRequest::Get:
-        d->networkManager->get(networkRequest);
+        d->networkAccessManager->get(networkRequest);
         break;
     case CouchRequest::Put:
-        d->networkManager->put(networkRequest, request.body());
+        d->networkAccessManager->put(networkRequest, request.body());
         break;
     case CouchRequest::Post:
-        d->networkManager->post(networkRequest, request.body());
+        d->networkAccessManager->post(networkRequest, request.body());
         break;
     case CouchRequest::Delete:
-        d->networkManager->deleteResource(networkRequest);
+        d->networkAccessManager->deleteResource(networkRequest);
         break;
     default:
         Q_UNREACHABLE();
