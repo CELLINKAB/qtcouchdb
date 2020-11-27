@@ -74,9 +74,8 @@ QByteArray CouchDocument::content() const
 
 void CouchDocument::setContent(const QByteArray &content)
 {
-    Q_D(CouchDocument);
     d_ptr.detach();
-    d->content = content;
+    d_ptr->content = content;
 }
 
 QJsonObject CouchDocument::toJson() const
