@@ -1,12 +1,7 @@
-#include <QtTest/qtest.h>
-#include <QtTest/qsignalspy.h>
-#include <QtCore/qbuffer.h>
-#include <QtCouchDB/couchclient.h>
-#include <QtCouchDB/couchrequest.h>
-#include <QtCouchDB/couchresponse.h>
+#include <QtTest>
+#include <QtCouchDB>
 
-static const QUrl TestUrl = QUrl("http://admin:password@localhost:5984");
-static const QByteArray TestData = R"(["_replicator","_users","foo","bar"])";
+#include "tst_shared.h"
 
 class tst_client : public QObject
 {
@@ -24,87 +19,9 @@ private slots:
     void error();
 };
 
-class TestNetworkReply : public QNetworkReply
-{
-    Q_OBJECT
-
-public:
-    TestNetworkReply(QObject *parent = nullptr)
-        : QNetworkReply(parent), m_buffer(new QBuffer(this))
-    {
-        m_buffer->setData(TestData);
-    }
-
-public slots:
-    void abort() override { }
-
-protected:
-    bool isSequential() const override { return m_buffer->isSequential(); }
-    bool atEnd() const override { return m_buffer->atEnd(); }
-    qint64 bytesAvailable() const override { return m_buffer->bytesAvailable(); }
-    bool open(OpenMode mode) override { setOpenMode(mode); return m_buffer->open(mode); }
-    void close() { m_buffer->close(); }
-    qint64 pos() const override { return m_buffer->pos(); }
-    bool reset() override { return m_buffer->reset(); }
-    bool seek(qint64 pos) override { return m_buffer->seek(pos); }
-    qint64 size() const override { return m_buffer->size(); }
-
-    qint64 readData(char *data, qint64 maxlen) override { return m_buffer->read(data, maxlen); }
-    qint64 writeData(const char *data, qint64 len) override { return m_buffer->write(data, len); }
-
-private:
-    friend class TestNetworkAccessManager;
-    QBuffer *m_buffer = nullptr;
-};
-
-class TestNetworkAccessManager : public QNetworkAccessManager
-{
-    Q_OBJECT
-
-public:
-    TestNetworkAccessManager(QObject *parent = nullptr) : QNetworkAccessManager(parent) { }
-    TestNetworkAccessManager(QNetworkReply::NetworkError error, QObject *parent = nullptr)
-        : QNetworkAccessManager(parent), m_error(error) { }
-
-    QList<Operation> operations;
-    QList<QUrl> urls;
-    QList<QByteArray> bodies;
-    QHash<QByteArray, QByteArray> headers;
-
-protected:
-    QNetworkReply *createRequest(Operation operation, const QNetworkRequest &request, QIODevice *dev) override
-    {
-        operations += operation;
-        urls += request.url();
-        for (const QByteArray &header : request.rawHeaderList())
-            headers.insert(header, request.rawHeader(header));
-        bodies += dev ? dev->readAll() : QByteArray();
-
-        TestNetworkReply *reply = new TestNetworkReply(this);
-        reply->setOperation(operation);
-        reply->setRequest(request);
-        reply->setError(m_error, "");
-        reply->open(QIODevice::ReadOnly);
-        if (m_error != QNetworkReply::NoError)
-            QMetaObject::invokeMethod(reply, "error", Qt::QueuedConnection, Q_ARG(QNetworkReply::NetworkError, m_error));
-        else
-            QMetaObject::invokeMethod(reply, "readyRead", Qt::QueuedConnection);
-        QMetaObject::invokeMethod(reply, "finished", Qt::QueuedConnection);
-        return reply;
-    }
-
-private:
-    QNetworkReply::NetworkError m_error = QNetworkReply::NoError;
-};
-
-Q_DECLARE_METATYPE(QNetworkAccessManager::Operation)
-
 void tst_client::initTestCase()
 {
-    qRegisterMetaType<CouchError>();
-    qRegisterMetaType<CouchResponse *>();
-    qRegisterMetaType<CouchRequest::Operation>();
-    qRegisterMetaType<QNetworkAccessManager::Operation>();
+    registerTestMetaTypes();
 }
 
 void tst_client::baseUrl()
