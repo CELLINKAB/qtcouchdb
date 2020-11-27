@@ -37,6 +37,7 @@ CouchDocument &CouchDocument::operator=(const QString &id)
     d_ptr.detach();
     d_ptr->id = id;
     d_ptr->revision = QString();
+    d_ptr->content = QByteArray();
     return *this;
 }
 
@@ -44,7 +45,8 @@ bool CouchDocument::operator==(const CouchDocument &other) const
 {
     Q_D(const CouchDocument);
     return d_ptr == other.d_ptr || (d->id == other.id() &&
-                                    d->revision == other.revision());
+                                    d->revision == other.revision() &&
+                                    d->content == other.content());
 }
 
 bool CouchDocument::operator!=(const CouchDocument &other) const

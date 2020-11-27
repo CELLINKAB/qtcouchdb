@@ -3,6 +3,8 @@
 
 #include "tst_shared.h"
 
+static const QByteArray TestDatabases = R"(["_replicator","_users","foo","bar"])";
+
 class tst_client : public QObject
 {
     Q_OBJECT
@@ -64,7 +66,7 @@ void tst_client::networkAccessManager()
     client.setNetworkAccessManager(nullptr);
     QCOMPARE(client.networkAccessManager(), defaultManager);
 
-    QPointer<TestNetworkAccessManager> ownedManager = new TestNetworkAccessManager(&client);
+    QPointer<TestNetworkAccessManager> ownedManager = new TestNetworkAccessManager(QByteArray(), &client);
     client.setNetworkAccessManager(ownedManager);
     QCOMPARE(client.networkAccessManager(), ownedManager);
 
@@ -94,7 +96,7 @@ void tst_client::headers()
 
     CouchRequest request(CouchRequest::Post);
     request.setUrl(TestUrl);
-    request.setBody(TestData);
+    request.setBody(TestDatabases);
     request.setHeader("foo", "bar");
 
     CouchResponse *response = client.sendRequest(request);
@@ -108,7 +110,7 @@ void tst_client::headers()
     QVERIFY(manager.headers.contains("Content-Type"));
     QCOMPARE(manager.headers.value("Content-Type"), QByteArray("application/json"));
     QVERIFY(manager.headers.contains("Content-Length"));
-    QCOMPARE(manager.headers.value("Content-Length"), QByteArray::number(TestData.length()));
+    QCOMPARE(manager.headers.value("Content-Length"), QByteArray::number(TestDatabases.length()));
 }
 
 void tst_client::sendRequest_data()
@@ -118,8 +120,8 @@ void tst_client::sendRequest_data()
     QTest::addColumn<QByteArray>("expectedBody");
 
     QTest::newRow("get") << CouchRequest::Get << QNetworkAccessManager::GetOperation << QByteArray();
-    QTest::newRow("put") << CouchRequest::Put << QNetworkAccessManager::PutOperation << TestData;
-    QTest::newRow("post") << CouchRequest::Post << QNetworkAccessManager::PostOperation << TestData;
+    QTest::newRow("put") << CouchRequest::Put << QNetworkAccessManager::PutOperation << TestDatabases;
+    QTest::newRow("post") << CouchRequest::Post << QNetworkAccessManager::PostOperation << TestDatabases;
     QTest::newRow("delete") << CouchRequest::Delete << QNetworkAccessManager::DeleteOperation << QByteArray();
 }
 
@@ -137,7 +139,7 @@ void tst_client::sendRequest()
 
     CouchRequest request(operation);
     request.setUrl(TestUrl);
-    request.setBody(TestData);
+    request.setBody(TestDatabases);
 
     CouchResponse *response = client.sendRequest(request);
     QVERIFY(response);
@@ -155,7 +157,7 @@ void tst_client::listAllDatabases()
     QSignalSpy databaseSpy(&client, &CouchClient::databasesListed);
     QVERIFY(databaseSpy.isValid());
 
-    TestNetworkAccessManager manager;
+    TestNetworkAccessManager manager(TestDatabases);
     client.setNetworkAccessManager(&manager);
 
     client.listAllDatabases();

@@ -41,7 +41,7 @@ public slots:
 
     CouchResponse *listAllDocuments();
     CouchResponse *queryDocuments(const CouchQuery &query);
-    CouchResponse *createDocument(const QByteArray &content);
+    CouchResponse *createDocument(const CouchDocument &document);
     CouchResponse *getDocument(const CouchDocument &document);
     CouchResponse *updateDocument(const CouchDocument &document);
     CouchResponse *deleteDocument(const CouchDocument &document);

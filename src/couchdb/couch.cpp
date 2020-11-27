@@ -76,10 +76,10 @@ static QUrl queryUrl(QUrl url, const CouchQuery &query)
         q.addQueryItem(QStringLiteral("limit"), QString::number(query.limit()));
     if (query.skip() > 0)
         q.addQueryItem(QStringLiteral("skip"), QString::number(query.skip()));
-    if (query.includeDocs())
-        q.addQueryItem(QStringLiteral("include_docs"), QStringLiteral("true"));
     if (query.order() == Qt::DescendingOrder)
         q.addQueryItem(QStringLiteral("descending"), QStringLiteral("true"));
+    if (query.includeDocs())
+        q.addQueryItem(QStringLiteral("include_docs"), QStringLiteral("true"));
     url.setQuery(q);
     return url;
 }

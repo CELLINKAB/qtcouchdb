@@ -6,12 +6,12 @@
 #include <QtCouchDB>
 
 static const QUrl TestUrl = QUrl("http://admin:password@localhost:5984");
-static const QByteArray TestData = R"(["_replicator","_users","foo","bar"])";
 
 Q_DECLARE_METATYPE(QNetworkAccessManager::Operation)
 
 static inline void registerTestMetaTypes()
 {
+    qRegisterMetaType<CouchClient *>();
     qRegisterMetaType<CouchError>();
     qRegisterMetaType<CouchResponse *>();
     qRegisterMetaType<CouchRequest::Operation>();
@@ -23,10 +23,10 @@ class TestNetworkReply : public QNetworkReply
     Q_OBJECT
 
 public:
-    TestNetworkReply(QObject *parent = nullptr)
+    TestNetworkReply(const QByteArray &data, QObject *parent = nullptr)
         : QNetworkReply(parent), m_buffer(new QBuffer(this))
     {
-        m_buffer->setData(TestData);
+        m_buffer->setData(data);
     }
 
 public slots:
@@ -56,9 +56,11 @@ class TestNetworkAccessManager : public QNetworkAccessManager
     Q_OBJECT
 
 public:
-    TestNetworkAccessManager(QObject *parent = nullptr) : QNetworkAccessManager(parent) { }
-    TestNetworkAccessManager(QNetworkReply::NetworkError error, QObject *parent = nullptr)
-        : QNetworkAccessManager(parent), m_error(error) { }
+    TestNetworkAccessManager(const QByteArray &data = QByteArray(), QObject *parent = nullptr)
+        : QNetworkAccessManager(parent), m_data(data) { }
+
+    TestNetworkAccessManager(QNetworkReply::NetworkError error, const QByteArray &data = QByteArray(), QObject *parent = nullptr)
+        : QNetworkAccessManager(parent), m_data(data), m_error(error) { }
 
     QList<Operation> operations;
     QList<QUrl> urls;
@@ -74,7 +76,7 @@ protected:
             headers.insert(header, request.rawHeader(header));
         bodies += dev ? dev->readAll() : QByteArray();
 
-        TestNetworkReply *reply = new TestNetworkReply(this);
+        TestNetworkReply *reply = new TestNetworkReply(m_data, this);
         reply->setOperation(operation);
         reply->setRequest(request);
         reply->setError(m_error, "");
@@ -88,6 +90,7 @@ protected:
     }
 
 private:
+    QByteArray m_data;
     QNetworkReply::NetworkError m_error = QNetworkReply::NoError;
 };
 
