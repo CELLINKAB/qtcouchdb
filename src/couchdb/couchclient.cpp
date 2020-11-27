@@ -7,7 +7,7 @@
 #include <QtNetwork/qnetworkaccessmanager.h>
 #include <QtNetwork/qnetworkrequest.h>
 
-Q_LOGGING_CATEGORY(lcCouchDB, "qtcouchdb")
+Q_LOGGING_CATEGORY(lcCouchDB, "qtcouchdb", QtWarningMsg)
 
 class CouchClientPrivate
 {
