@@ -51,12 +51,11 @@ int CouchQuery::limit() const
 
 void CouchQuery::setLimit(int limit)
 {
-    Q_D(CouchQuery);
-    if (d->limit == limit)
+    if (d_ptr->limit == limit)
         return;
 
     d_ptr.detach();
-    d->limit = limit;
+    d_ptr->limit = limit;
 }
 
 int CouchQuery::skip() const
@@ -67,12 +66,11 @@ int CouchQuery::skip() const
 
 void CouchQuery::setSkip(int skip)
 {
-    Q_D(CouchQuery);
-    if (d->skip == skip)
+    if (d_ptr->skip == skip)
         return;
 
     d_ptr.detach();
-    d->skip = skip;
+    d_ptr->skip = skip;
 }
 
 Qt::SortOrder CouchQuery::order() const
@@ -83,12 +81,11 @@ Qt::SortOrder CouchQuery::order() const
 
 void CouchQuery::setOrder(Qt::SortOrder order)
 {
-    Q_D(CouchQuery);
-    if (d->order == order)
+    if (d_ptr->order == order)
         return;
 
     d_ptr.detach();
-    d->order = order;
+    d_ptr->order = order;
 }
 
 bool CouchQuery::includeDocs() const
@@ -99,12 +96,11 @@ bool CouchQuery::includeDocs() const
 
 void CouchQuery::setIncludeDocs(bool includeDocs)
 {
-    Q_D(CouchQuery);
-    if (d->includeDocs == includeDocs)
+    if (d_ptr->includeDocs == includeDocs)
         return;
 
     d_ptr.detach();
-    d->includeDocs = includeDocs;
+    d_ptr->includeDocs = includeDocs;
 }
 
 QDebug operator<<(QDebug debug, const CouchQuery &query)
