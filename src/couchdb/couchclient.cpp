@@ -143,9 +143,11 @@ CouchResponse *CouchClient::sendRequest(const CouchRequest &request)
     case CouchRequest::Delete:
         d->networkAccessManager->deleteResource(networkRequest);
         break;
+    // LCOV_EXCL_START
     default:
         Q_UNREACHABLE();
         break;
+    // LCOV_EXCL_STOP
     }
 
     return response;
@@ -155,8 +157,7 @@ void CouchClientPrivate::queryFinished(QNetworkReply *reply)
 {
     Q_Q(CouchClient);
     CouchResponse *response = qobject_cast<CouchResponse *>(reply->request().originatingObject());
-    if (!response)
-        return;
+    Q_ASSERT(response);
 
     QByteArray data = reply->readAll();
     response->setData(data);
