@@ -89,6 +89,9 @@ void CouchDesignDocument::setDatabase(CouchDatabase *database)
     if (d->database == database)
         return;
 
+    QUrl oldUrl = url();
+    CouchClient *oldClient = client();
+
     if (d->database)
         d->database->disconnect(this);
     if (database) {
@@ -97,7 +100,10 @@ void CouchDesignDocument::setDatabase(CouchDatabase *database)
     }
 
     d->database = database;
-    emit urlChanged(url());
+    if (oldUrl != url())
+        emit urlChanged(url());
+    if (oldClient != client())
+        emit clientChanged(client());
     emit databaseChanged(database);
 }
 

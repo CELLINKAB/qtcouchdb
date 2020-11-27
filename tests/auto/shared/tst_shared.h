@@ -13,9 +13,14 @@ static inline void registerTestMetaTypes()
 {
     qRegisterMetaType<CouchClient *>();
     qRegisterMetaType<CouchDatabase *>();
+    qRegisterMetaType<CouchDesignDocument *>();
+    qRegisterMetaType<CouchDocument>();
     qRegisterMetaType<CouchError>();
+    qRegisterMetaType<CouchQuery>();
     qRegisterMetaType<CouchResponse *>();
+    qRegisterMetaType<CouchRequest>();
     qRegisterMetaType<CouchRequest::Operation>();
+    qRegisterMetaType<CouchView *>();
     qRegisterMetaType<QNetworkAccessManager::Operation>();
 }
 

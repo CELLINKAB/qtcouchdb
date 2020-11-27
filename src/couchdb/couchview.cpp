@@ -36,7 +36,7 @@ CouchView::CouchView(const QString &name, CouchDesignDocument *designDocument, Q
     Q_D(CouchView);
     d->q_ptr = this;
     d->name = name;
-    d->designDocument = designDocument;
+    setDesignDocument(designDocument);
 }
 
 CouchView::~CouchView()
@@ -99,8 +99,25 @@ void CouchView::setDesignDocument(CouchDesignDocument *designDocument)
     if (d->designDocument == designDocument)
         return;
 
+    QUrl oldUrl = url();
+    CouchClient *oldClient = client();
+    CouchDatabase *oldDatabase = database();
+
+    if (d->designDocument)
+        d->designDocument->disconnect(this);
+    if (designDocument) {
+        connect(designDocument, &CouchDesignDocument::urlChanged, this, &CouchView::urlChanged);
+        connect(designDocument, &CouchDesignDocument::clientChanged, this, &CouchView::clientChanged);
+        connect(designDocument, &CouchDesignDocument::databaseChanged, this, &CouchView::databaseChanged);
+    }
+
     d->designDocument = designDocument;
-    emit urlChanged(url());
+    if (oldUrl != url())
+        emit urlChanged(url());
+    if (oldClient != client())
+        emit clientChanged(client());
+    if (oldDatabase != database())
+        emit databaseChanged(database());
     emit designDocumentChanged(designDocument);
 }
 
