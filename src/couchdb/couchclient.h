@@ -5,6 +5,7 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qscopedpointer.h>
 
+class CouchError;
 class CouchRequest;
 class CouchResponse;
 class CouchClientPrivate;
@@ -31,7 +32,7 @@ signals:
 
     void databasesListed(const QStringList &databases);
     void responseReceived(CouchResponse *response);
-    void errorOccurred(CouchResponse *response);
+    void errorOccurred(const CouchError &error);
 
 private:
     Q_DECLARE_PRIVATE(CouchClient)

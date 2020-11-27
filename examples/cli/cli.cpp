@@ -51,8 +51,8 @@ int main(int argc, char *argv[])
         QTextStream(stdout) << QJsonDocument(rows).toJson(QJsonDocument::Indented);
     });
 
-    QObject::connect(&client, &CouchClient::errorOccurred, [&](CouchResponse *response) {
-        QTextStream(stderr) << response->error().error() << response->error().reason() << Qt::endl;
+    QObject::connect(&client, &CouchClient::errorOccurred, [&](const CouchError &error) {
+        QTextStream(stderr) << "Error: " << error.reason() << Qt::endl;
         exit(EXIT_FAILURE);
     });
     QObject::connect(&client, &CouchClient::responseReceived, &app, &QCoreApplication::quit, Qt::QueuedConnection);

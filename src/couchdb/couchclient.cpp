@@ -144,8 +144,9 @@ void CouchClientPrivate::queryFinished(QNetworkReply *reply)
         emit q->responseReceived(response);
     } else {
         QJsonDocument json = QJsonDocument::fromJson(data);
-        emit response->errorOccurred(CouchError::fromJson(json.object()));
-        emit q->errorOccurred(response);
+        CouchError error = CouchError::fromJson(json.object());
+        emit response->errorOccurred(error);
+        emit q->errorOccurred(error);
     }
 
     response->deleteLater(); // ### TODO: CouchClient::autoDeleteResponses
