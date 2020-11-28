@@ -21,4 +21,12 @@ TestCase {
         compare(designDocumentUrl, data.designDocumentUrl)
         compare(viewUrl, data.viewUrl)
     }
+
+    function test_query() {
+        var query = Couch.query(1, 2, Qt.DescendingOrder, true)
+        compare(query.limit, 1)
+        compare(query.skip, 2)
+        compare(query.order, Qt.DescendingOrder)
+        compare(query.includeDocs, true)
+    }
 }

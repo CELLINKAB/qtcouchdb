@@ -17,6 +17,8 @@ public:
     Q_INVOKABLE static QUrl designDocumentUrl(const QUrl &databaseUrl, const QString &name);
     Q_INVOKABLE static QUrl viewUrl(const QUrl &designDocumentUrl, const QString &name);
 
+    Q_INVOKABLE static CouchQuery query(int limit, int skip, Qt::SortOrder order, bool includeDocs);
+
     Q_INVOKABLE static CouchRequest listAllDatabases(const QUrl &baseUrl);
     Q_INVOKABLE static CouchRequest createDatabase(const QUrl &databaseUrl);
     Q_INVOKABLE static CouchRequest deleteDatabase(const QUrl &databaseUrl);

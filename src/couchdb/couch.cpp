@@ -20,6 +20,16 @@ QUrl Couch::viewUrl(const QUrl &designDocumentUrl, const QString &name)
     return CouchUrl::resolve(CouchUrl::resolve(designDocumentUrl, QStringLiteral("_view")), name);
 }
 
+CouchQuery Couch::query(int limit, int skip, Qt::SortOrder order, bool includeDocs)
+{
+    CouchQuery query;
+    query.setLimit(limit);
+    query.setSkip(skip);
+    query.setOrder(order);
+    query.setIncludeDocs(includeDocs);
+    return query;
+}
+
 CouchRequest Couch::listAllDatabases(const QUrl &baseUrl)
 {
     CouchRequest request(CouchRequest::Get);
