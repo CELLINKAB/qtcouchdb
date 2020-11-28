@@ -8,4 +8,5 @@ SUBDIRS += \
     error/tst_error.pro \
     query/tst_query.pro \
     request/tst_request.pro \
+    response/tst_response.pro \
     view/tst_view.pro
