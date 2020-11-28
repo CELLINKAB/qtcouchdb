@@ -32,7 +32,7 @@ public:
     Q_INVOKABLE static CouchRequest listAllDocuments(const QUrl &databaseUrl);
     Q_INVOKABLE static CouchRequest queryDocuments(const QUrl &databaseUrl, const CouchQuery &query);
     Q_INVOKABLE static CouchRequest createDocument(const QUrl &databaseUrl, const QByteArray &content);
-    Q_INVOKABLE static CouchRequest getDocument(const QUrl &databaseUrl, const QString &documentId, const QString &revision = QString());
+    Q_INVOKABLE static CouchRequest getDocument(const QUrl &databaseUrl, const QString &documentId, const QString &revision);
     Q_INVOKABLE static CouchRequest updateDocument(const QUrl &databaseUrl, const QString &documentId, const QString &revision, const QByteArray &content);
     Q_INVOKABLE static CouchRequest deleteDocument(const QUrl &databaseUrl, const QString &documentId, const QString &revision);
 };
