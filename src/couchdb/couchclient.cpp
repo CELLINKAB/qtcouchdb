@@ -75,7 +75,6 @@ void CouchClient::setNetworkAccessManager(QNetworkAccessManager *networkAccessMa
     }
 
     d->networkAccessManager = networkAccessManager;
-    networkAccessManager->setAutoDeleteReplies(true);
     connect(networkAccessManager, &QNetworkAccessManager::finished, [=](QNetworkReply *reply) { d->queryFinished(reply); });
 }
 
@@ -172,5 +171,6 @@ void CouchClientPrivate::queryFinished(QNetworkReply *reply)
         emit q->errorOccurred(error);
     }
 
+    reply->deleteLater();
     response->deleteLater(); // ### TODO: CouchClient::autoDeleteResponses
 }

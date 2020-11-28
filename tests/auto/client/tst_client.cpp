@@ -12,7 +12,6 @@ class tst_client : public QObject
 private slots:
     void initTestCase();
     void baseUrl();
-    void autoDeleteReplies();
     void networkAccessManager();
     void headers();
     void sendRequest_data();
@@ -40,20 +39,6 @@ void tst_client::baseUrl()
 
     client.setBaseUrl(TestUrl);
     QCOMPARE(baseUrlChanged.count(), 1);
-}
-
-void tst_client::autoDeleteReplies()
-{
-    CouchClient client;
-
-    QNetworkAccessManager *defaultManager = client.networkAccessManager();
-    QVERIFY(defaultManager);
-    QVERIFY(defaultManager->autoDeleteReplies());
-
-    QNetworkAccessManager customManager;
-    QVERIFY(!customManager.autoDeleteReplies());
-    client.setNetworkAccessManager(&customManager);
-    QVERIFY(customManager.autoDeleteReplies());
 }
 
 void tst_client::networkAccessManager()
