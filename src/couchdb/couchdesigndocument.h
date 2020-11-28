@@ -34,9 +34,6 @@ public:
     void setDatabase(CouchDatabase *database);
 
 public slots:
-    CouchResponse *createDesignDocument();
-    CouchResponse *deleteDesignDocument();
-
     CouchResponse *listAllViews();
 
 signals:
@@ -45,9 +42,6 @@ signals:
     void clientChanged(CouchClient *client);
     void databaseChanged(CouchDatabase *database);
     void errorOccurred(const CouchError &error);
-
-    void designDocumentCreated();
-    void designDocumentDeleted();
 
     void viewsListed(const QStringList &view);
 

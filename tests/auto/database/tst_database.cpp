@@ -19,6 +19,8 @@ private slots:
     void url();
     void name();
     void listAllDesignDocuments();
+    void createDeleteDesignDocument_data();
+    void createDeleteDesignDocument();
     void listAllDocuments();
     void queryDocuments_data();
     void queryDocuments();
@@ -54,6 +56,8 @@ void tst_database::responses()
 {
     CouchDatabase database("tst_database");
     QVERIFY(!database.listAllDesignDocuments());
+    QVERIFY(!database.createDesignDocument(QString()));
+    QVERIFY(!database.deleteDesignDocument(QString()));
     QVERIFY(!database.listAllDocuments());
     QVERIFY(!database.queryDocuments(CouchQuery()));
     QVERIFY(!database.createDocument(CouchDocument()));
@@ -64,6 +68,8 @@ void tst_database::responses()
     CouchClient client(TestUrl);
     database.setClient(&client);
     QVERIFY(database.listAllDesignDocuments());
+    QVERIFY(database.createDesignDocument(QString()));
+    QVERIFY(database.deleteDesignDocument(QString()));
     QVERIFY(database.listAllDocuments());
     QVERIFY(database.queryDocuments(CouchQuery()));
     QVERIFY(database.createDocument(CouchDocument()));
@@ -128,6 +134,40 @@ void tst_database::listAllDesignDocuments()
     QVariantList args = databaseSpy.takeFirst();
     QCOMPARE(args.count(), 1);
     QCOMPARE(args.first().toStringList(), QStringList({"foo", "bar", "baz"}));
+}
+
+void tst_database::createDeleteDesignDocument_data()
+{
+    QTest::addColumn<QString>("method");
+    QTest::addColumn<QNetworkAccessManager::Operation>("expectedOperation");
+    QTest::addColumn<QUrl>("expectedUrl");
+    QTest::addColumn<QString>("expectedSignal");
+
+    QTest::newRow("create") << "createDesignDocument" << QNetworkAccessManager::PutOperation << TestUrl.resolved(QUrl("/tst_database/_design/tst_designdocument")) << "designDocumentCreated(QString)";
+    QTest::newRow("delete") << "deleteDesignDocument" << QNetworkAccessManager::DeleteOperation << TestUrl.resolved(QUrl("/tst_database/_design/tst_designdocument")) << "designDocumentDeleted(QString)";
+}
+
+void tst_database::createDeleteDesignDocument()
+{
+    QFETCH(QString, method);
+    QFETCH(QNetworkAccessManager::Operation, expectedOperation);
+    QFETCH(QUrl, expectedUrl);
+    QFETCH(QString, expectedSignal);
+
+    CouchClient client(TestUrl);
+    CouchDatabase database("tst_database", &client);
+
+    QSignalSpy designDocumentSpy(&database, QByteArray::number(QSIGNAL_CODE) + expectedSignal.toLatin1());
+    QVERIFY(designDocumentSpy.isValid());
+
+    TestNetworkAccessManager manager;
+    client.setNetworkAccessManager(&manager);
+
+    QVERIFY(QMetaObject::invokeMethod(&database, method.toLatin1(), Q_ARG(QString, "tst_designdocument")));
+    QCOMPARE(manager.operations, {expectedOperation});
+    QCOMPARE(manager.urls, {expectedUrl});
+
+    QVERIFY(designDocumentSpy.wait());
 }
 
 void tst_database::listAllDocuments()

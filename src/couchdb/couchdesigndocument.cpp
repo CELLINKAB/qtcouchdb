@@ -107,42 +107,6 @@ void CouchDesignDocument::setDatabase(CouchDatabase *database)
     emit databaseChanged(database);
 }
 
-CouchResponse *CouchDesignDocument::createDesignDocument()
-{
-    Q_D(CouchDesignDocument);
-    CouchClient *client = d->database ? d->database->client() : nullptr;
-    if (!client)
-        return nullptr;
-
-    CouchRequest request = Couch::createDesignDocument(url());
-    CouchResponse *response = client->sendRequest(request);
-    if (!response)
-        return nullptr;
-
-    connect(response, &CouchResponse::received, [=](const QByteArray &) {
-        emit designDocumentCreated();
-    });
-    return d->response(response);
-}
-
-CouchResponse *CouchDesignDocument::deleteDesignDocument()
-{
-    Q_D(CouchDesignDocument);
-    CouchClient *client = d->database ? d->database->client() : nullptr;
-    if (!client)
-        return nullptr;
-
-    CouchRequest request = Couch::deleteDesignDocument(url());
-    CouchResponse *response = client->sendRequest(request);
-    if (!response)
-        return nullptr;
-
-    connect(response, &CouchResponse::received, [=](const QByteArray &) {
-        emit designDocumentDeleted();
-    });
-    return d->response(response);
-}
-
 CouchResponse *CouchDesignDocument::listAllViews()
 {
     Q_D(CouchDesignDocument);

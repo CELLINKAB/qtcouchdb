@@ -35,6 +35,9 @@ public:
 
 public slots:
     CouchResponse *listAllDesignDocuments();
+    CouchResponse *createDesignDocument(const QString &designDocument);
+    CouchResponse *deleteDesignDocument(const QString &designDocument);
+
     CouchResponse *listAllDocuments();
     CouchResponse *queryDocuments(const CouchQuery &query);
     CouchResponse *createDocument(const CouchDocument &document);
@@ -49,6 +52,9 @@ signals:
     void errorOccurred(const CouchError &error);
 
     void designDocumentsListed(const QStringList &designDocuments);
+    void designDocumentCreated(const QString &designDocument);
+    void designDocumentDeleted(const QString &designDocument);
+
     void documentsListed(const QList<CouchDocument> &documents);
     void documentCreated(const CouchDocument &document);
     void documentReceived(const CouchDocument &document);

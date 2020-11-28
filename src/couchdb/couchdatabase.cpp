@@ -130,6 +130,40 @@ CouchResponse *CouchDatabase::listAllDesignDocuments()
     return d->response(response);
 }
 
+CouchResponse *CouchDatabase::createDesignDocument(const QString &designDocument)
+{
+    Q_D(CouchDatabase);
+    if (!d->client)
+        return nullptr;
+
+    CouchRequest request = Couch::createDesignDocument(Couch::designDocumentUrl(url(), designDocument));
+    CouchResponse *response = d->client->sendRequest(request);
+    if (!response)
+        return nullptr;
+
+    connect(response, &CouchResponse::received, [=](const QByteArray &) {
+        emit designDocumentCreated(designDocument);
+    });
+    return d->response(response);
+}
+
+CouchResponse *CouchDatabase::deleteDesignDocument(const QString &designDocument)
+{
+    Q_D(CouchDatabase);
+    if (!d->client)
+        return nullptr;
+
+    CouchRequest request = Couch::deleteDesignDocument(Couch::designDocumentUrl(url(), designDocument));
+    CouchResponse *response = d->client->sendRequest(request);
+    if (!response)
+        return nullptr;
+
+    connect(response, &CouchResponse::received, [=](const QByteArray &) {
+        emit designDocumentDeleted(designDocument);
+    });
+    return d->response(response);
+}
+
 static QList<CouchDocument> toDocumentList(const QJsonArray &json)
 {
     QList<CouchDocument> docs;

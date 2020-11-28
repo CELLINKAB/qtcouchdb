@@ -19,8 +19,6 @@ private slots:
     void responses();
     void url();
     void name();
-    void designDocument_data();
-    void designDocument();
     void listAllViews();
     void error();
 };
@@ -68,20 +66,14 @@ void tst_designdocument::database()
 void tst_designdocument::responses()
 {
     CouchDesignDocument designDocument("tst_designdocument");
-    QVERIFY(!designDocument.createDesignDocument());
-    QVERIFY(!designDocument.deleteDesignDocument());
     QVERIFY(!designDocument.listAllViews());
 
     CouchDatabase database("tst_database");
     designDocument.setDatabase(&database);
-    QVERIFY(!designDocument.createDesignDocument());
-    QVERIFY(!designDocument.deleteDesignDocument());
     QVERIFY(!designDocument.listAllViews());
 
     CouchClient client(TestUrl);
     database.setClient(&client);
-    QVERIFY(designDocument.createDesignDocument());
-    QVERIFY(designDocument.deleteDesignDocument());
     QVERIFY(designDocument.listAllViews());
 }
 
@@ -123,41 +115,6 @@ void tst_designdocument::name()
     designDocument.setName("tst_designdocument");
     QCOMPARE(designDocument.name(), "tst_designdocument");
     QCOMPARE(nameChanged.count(), 1);
-}
-
-void tst_designdocument::designDocument_data()
-{
-    QTest::addColumn<QString>("method");
-    QTest::addColumn<QNetworkAccessManager::Operation>("expectedOperation");
-    QTest::addColumn<QUrl>("expectedUrl");
-    QTest::addColumn<QString>("expectedSignal");
-
-    QTest::newRow("create") << "createDesignDocument" << QNetworkAccessManager::PutOperation << TestUrl.resolved(QUrl("/tst_database/_design/tst_designdocument")) << "designDocumentCreated()";
-    QTest::newRow("delete") << "deleteDesignDocument" << QNetworkAccessManager::DeleteOperation << TestUrl.resolved(QUrl("/tst_database/_design/tst_designdocument")) << "designDocumentDeleted()";
-}
-
-void tst_designdocument::designDocument()
-{
-    QFETCH(QString, method);
-    QFETCH(QNetworkAccessManager::Operation, expectedOperation);
-    QFETCH(QUrl, expectedUrl);
-    QFETCH(QString, expectedSignal);
-
-    CouchClient client(TestUrl);
-    CouchDatabase database("tst_database", &client);
-    CouchDesignDocument designDocument("tst_designdocument", &database);
-
-    QSignalSpy designDocumentSpy(&designDocument, QByteArray::number(QSIGNAL_CODE) + expectedSignal.toLatin1());
-    QVERIFY(designDocumentSpy.isValid());
-
-    TestNetworkAccessManager manager;
-    client.setNetworkAccessManager(&manager);
-
-    QVERIFY(QMetaObject::invokeMethod(&designDocument, method.toLatin1()));
-    QCOMPARE(manager.operations, {expectedOperation});
-    QCOMPARE(manager.urls, {expectedUrl});
-
-    QVERIFY(designDocumentSpy.wait());
 }
 
 void tst_designdocument::listAllViews()
