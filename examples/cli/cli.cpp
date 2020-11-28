@@ -1,5 +1,7 @@
 #include <QtCore>
 #include <QtCouchDB>
+#include <cstdlib>
+#include <iostream>
 
 int main(int argc, char *argv[])
 {
@@ -34,25 +36,25 @@ int main(int argc, char *argv[])
     } else if (command == "list-rows") {
         view.listAllRows();
     } else {
-        QTextStream(stderr) << app.applicationName() << ": Unknown command: '" << command << "'." << Qt::endl;
+        std::cerr << qPrintable(app.applicationName()) << ": Unknown command: '" << qPrintable(command) << "'." << std::endl;
         exit(EXIT_FAILURE);
     }
 
     QObject::connect(&client, &CouchClient::databasesListed, [&](const QStringList &databases) {
-        QTextStream(stdout) << databases.join(" ") << Qt::endl;
+        std::cout << qPrintable(databases.join(" ")) << std::endl;
     });
     QObject::connect(&database, &CouchDatabase::designDocumentsListed, [&](const QStringList &designDocs) {
-        QTextStream(stdout) << designDocs.join(" ") << Qt::endl;
+        std::cout << qPrintable(designDocs.join(" ")) << std::endl;
     });
     QObject::connect(&designDocument, &CouchDesignDocument::viewsListed, [&](const QStringList &views) {
-        QTextStream(stdout) << views.join(" ") << Qt::endl;
+        std::cout << qPrintable(views.join(" ")) << std::endl;
     });
     QObject::connect(&view, &CouchView::rowsListed, [&](const QJsonArray &rows) {
-        QTextStream(stdout) << QJsonDocument(rows).toJson(QJsonDocument::Indented);
+        std::cout << QJsonDocument(rows).toJson(QJsonDocument::Indented).constData();
     });
 
     QObject::connect(&client, &CouchClient::errorOccurred, [&](const CouchError &error) {
-        QTextStream(stderr) << "Error: " << error.reason() << Qt::endl;
+        std::cout << "Error: " << qPrintable(error.reason()) << std::endl;
         exit(EXIT_FAILURE);
     });
     QObject::connect(&client, &CouchClient::responseReceived, &app, &QCoreApplication::quit, Qt::QueuedConnection);
