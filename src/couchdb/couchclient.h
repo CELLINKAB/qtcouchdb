@@ -29,12 +29,18 @@ public:
 
 public slots:
     CouchResponse *listAllDatabases();
+    CouchResponse *createDatabase(const QString &database);
+    CouchResponse *deleteDatabase(const QString &database);
+
     CouchResponse *sendRequest(const CouchRequest &request);
 
 signals:
     void baseUrlChanged(const QUrl &baseUrl);
 
     void databasesListed(const QStringList &databases);
+    void databaseCreated(const QString &database);
+    void databaseDeleted(const QString &database);
+
     void responseReceived(CouchResponse *response);
     void errorOccurred(const CouchError &error);
 

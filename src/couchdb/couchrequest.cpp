@@ -45,6 +45,12 @@ bool CouchRequest::operator!=(const CouchRequest &other) const
     return !(*this == other);
 }
 
+bool CouchRequest::isValid() const
+{
+    Q_D(const CouchRequest);
+    return d->url.isValid();
+}
+
 QUrl CouchRequest::url() const
 {
     Q_D(const CouchRequest);

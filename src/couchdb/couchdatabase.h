@@ -34,11 +34,7 @@ public:
     void setClient(CouchClient *client);
 
 public slots:
-    CouchResponse *createDatabase();
-    CouchResponse *deleteDatabase();
-
     CouchResponse *listAllDesignDocuments();
-
     CouchResponse *listAllDocuments();
     CouchResponse *queryDocuments(const CouchQuery &query);
     CouchResponse *createDocument(const CouchDocument &document);
@@ -52,11 +48,7 @@ signals:
     void clientChanged(CouchClient *client);
     void errorOccurred(const CouchError &error);
 
-    void databaseCreated();
-    void databaseDeleted();
-
     void designDocumentsListed(const QStringList &designDocuments);
-
     void documentsListed(const QList<CouchDocument> &documents);
     void documentCreated(const CouchDocument &document);
     void documentReceived(const CouchDocument &document);

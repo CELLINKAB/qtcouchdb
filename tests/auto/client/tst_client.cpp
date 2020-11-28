@@ -12,11 +12,14 @@ class tst_client : public QObject
 private slots:
     void initTestCase();
     void baseUrl();
+    void responses();
     void networkAccessManager();
     void headers();
     void sendRequest_data();
     void sendRequest();
     void listAllDatabases();
+    void createDeleteDatabase_data();
+    void createDeleteDatabase();
     void error();
 };
 
@@ -39,6 +42,17 @@ void tst_client::baseUrl()
 
     client.setBaseUrl(TestUrl);
     QCOMPARE(baseUrlChanged.count(), 1);
+}
+
+void tst_client::responses()
+{
+    CouchClient client;
+    QVERIFY(!client.createDatabase("tst_database"));
+    QVERIFY(!client.deleteDatabase("tst_database"));
+
+    client.setBaseUrl(TestUrl);
+    QVERIFY(client.createDatabase("tst_database"));
+    QVERIFY(client.deleteDatabase("tst_database"));
 }
 
 void tst_client::networkAccessManager()
@@ -153,6 +167,39 @@ void tst_client::listAllDatabases()
     QVariantList args = databaseSpy.takeFirst();
     QCOMPARE(args.count(), 1);
     QCOMPARE(args.first().toStringList(), QStringList({"_replicator", "_users", "foo", "bar"}));
+}
+
+void tst_client::createDeleteDatabase_data()
+{
+    QTest::addColumn<QString>("method");
+    QTest::addColumn<QNetworkAccessManager::Operation>("expectedOperation");
+    QTest::addColumn<QUrl>("expectedUrl");
+    QTest::addColumn<QString>("expectedSignal");
+
+    QTest::newRow("create") << "createDatabase" << QNetworkAccessManager::PutOperation << TestUrl.resolved(QUrl("/tst_database")) << "databaseCreated(QString)";
+    QTest::newRow("delete") << "deleteDatabase" << QNetworkAccessManager::DeleteOperation << TestUrl.resolved(QUrl("/tst_database")) << "databaseDeleted(QString)";
+}
+
+void tst_client::createDeleteDatabase()
+{
+    QFETCH(QString, method);
+    QFETCH(QNetworkAccessManager::Operation, expectedOperation);
+    QFETCH(QUrl, expectedUrl);
+    QFETCH(QString, expectedSignal);
+
+    CouchClient client(TestUrl);
+
+    QSignalSpy databaseSpy(&client, QByteArray::number(QSIGNAL_CODE) + expectedSignal.toLatin1());
+    QVERIFY(databaseSpy.isValid());
+
+    TestNetworkAccessManager manager;
+    client.setNetworkAccessManager(&manager);
+
+    QVERIFY(QMetaObject::invokeMethod(&client, method.toLatin1(), Q_ARG(QString, "tst_database")));
+    QCOMPARE(manager.operations, {expectedOperation});
+    QCOMPARE(manager.urls, {expectedUrl});
+
+    QVERIFY(databaseSpy.wait());
 }
 
 void tst_client::error()

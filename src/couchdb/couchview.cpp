@@ -130,6 +130,9 @@ CouchResponse *CouchView::listAllRows()
 
     CouchRequest request = Couch::listAllRows(url());
     CouchResponse *response = client->sendRequest(request);
+    if (!response)
+        return nullptr;
+
     connect(response, &CouchResponse::received, [=](const QByteArray &data) {
         QJsonDocument json = QJsonDocument::fromJson(data);
         QJsonArray rows = json.object().value(QStringLiteral("rows")).toArray();
@@ -147,6 +150,9 @@ CouchResponse *CouchView::queryRows(const CouchQuery &query)
 
     CouchRequest request = Couch::queryRows(url(), query);
     CouchResponse *response = client->sendRequest(request);
+    if (!response)
+        return nullptr;
+
     connect(response, &CouchResponse::received, [=](const QByteArray &data) {
         QJsonDocument json = QJsonDocument::fromJson(data);
         QJsonArray rows = json.object().value(QStringLiteral("rows")).toArray();

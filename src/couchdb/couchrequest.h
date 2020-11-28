@@ -39,6 +39,8 @@ public:
     bool operator==(const CouchRequest &other) const;
     bool operator!=(const CouchRequest &other) const;
 
+    bool isValid() const;
+
     QUrl url() const;
     void setUrl(const QUrl &url);
 

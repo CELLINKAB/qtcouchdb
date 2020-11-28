@@ -116,6 +116,9 @@ CouchResponse *CouchDesignDocument::createDesignDocument()
 
     CouchRequest request = Couch::createDesignDocument(url());
     CouchResponse *response = client->sendRequest(request);
+    if (!response)
+        return nullptr;
+
     connect(response, &CouchResponse::received, [=](const QByteArray &) {
         emit designDocumentCreated();
     });
@@ -131,6 +134,9 @@ CouchResponse *CouchDesignDocument::deleteDesignDocument()
 
     CouchRequest request = Couch::deleteDesignDocument(url());
     CouchResponse *response = client->sendRequest(request);
+    if (!response)
+        return nullptr;
+
     connect(response, &CouchResponse::received, [=](const QByteArray &) {
         emit designDocumentDeleted();
     });
@@ -146,6 +152,9 @@ CouchResponse *CouchDesignDocument::listAllViews()
 
     CouchRequest request = Couch::listAllViews(url());
     CouchResponse *response = client->sendRequest(request);
+    if (!response)
+        return nullptr;
+
     connect(response, &CouchResponse::received, [=](const QByteArray &data) {
         QJsonDocument json = QJsonDocument::fromJson(data);
         QJsonObject views = json.object().value(QStringLiteral("views")).toObject();

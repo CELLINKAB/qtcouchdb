@@ -89,34 +89,6 @@ void CouchDatabase::setClient(CouchClient *client)
     emit clientChanged(client);
 }
 
-CouchResponse *CouchDatabase::createDatabase()
-{
-    Q_D(CouchDatabase);
-    if (!d->client)
-        return nullptr;
-
-    CouchRequest request = Couch::createDatabase(url());
-    CouchResponse *response = d->client->sendRequest(request);
-    connect(response, &CouchResponse::received, [=](const QByteArray &) {
-        emit databaseCreated();
-    });
-    return d->response(response);
-}
-
-CouchResponse *CouchDatabase::deleteDatabase()
-{
-    Q_D(CouchDatabase);
-    if (!d->client)
-        return nullptr;
-
-    CouchRequest request = Couch::deleteDatabase(url());
-    CouchResponse *response = d->client->sendRequest(request);
-    connect(response, &CouchResponse::received, [=](const QByteArray &) {
-        emit databaseDeleted();
-    });
-    return d->response(response);
-}
-
 static QString trimPrefix(QString str, const QString &prefix)
 {
     if (!str.startsWith(prefix))
@@ -147,6 +119,9 @@ CouchResponse *CouchDatabase::listAllDesignDocuments()
 
     CouchRequest request = Couch::listAllDesignDocuments(url());
     CouchResponse *response = d->client->sendRequest(request);
+    if (!response)
+        return nullptr;
+
     connect(response, &CouchResponse::received, [=](const QByteArray &data) {
         QJsonDocument json = QJsonDocument::fromJson(data);
         QJsonArray rows = json.object().value(QStringLiteral("rows")).toArray();
@@ -171,6 +146,9 @@ CouchResponse *CouchDatabase::listAllDocuments()
 
     CouchRequest request = Couch::listAllDocuments(url());
     CouchResponse *response = d->client->sendRequest(request);
+    if (!response)
+        return nullptr;
+
     connect(response, &CouchResponse::received, [=](const QByteArray &data) {
         QJsonDocument json = QJsonDocument::fromJson(data);
         QJsonArray rows = json.object().value(QStringLiteral("rows")).toArray();
@@ -187,6 +165,9 @@ CouchResponse *CouchDatabase::queryDocuments(const CouchQuery &query)
 
     CouchRequest request = Couch::queryDocuments(url(), query);
     CouchResponse *response = d->client->sendRequest(request);
+    if (!response)
+        return nullptr;
+
     connect(response, &CouchResponse::received, [=](const QByteArray &data) {
         QJsonDocument json = QJsonDocument::fromJson(data);
         QJsonArray rows = json.object().value(QStringLiteral("rows")).toArray();
@@ -203,6 +184,9 @@ CouchResponse *CouchDatabase::createDocument(const CouchDocument &document)
 
     CouchRequest request = Couch::createDocument(url(), QJsonDocument(document.toJson()).toJson(QJsonDocument::Compact));
     CouchResponse *response = d->client->sendRequest(request);
+    if (!response)
+        return nullptr;
+
     connect(response, &CouchResponse::received, [=](const QByteArray &data) {
         QJsonDocument json = QJsonDocument::fromJson(data);
         emit documentCreated(CouchDocument::fromJson(json.object()));
@@ -218,6 +202,9 @@ CouchResponse *CouchDatabase::getDocument(const CouchDocument &document)
 
     CouchRequest request = Couch::getDocument(url(), document.id(), document.revision());
     CouchResponse *response = d->client->sendRequest(request);
+    if (!response)
+        return nullptr;
+
     connect(response, &CouchResponse::received, [=](const QByteArray &data) {
         QJsonDocument json = QJsonDocument::fromJson(data);
         emit documentReceived(CouchDocument::fromJson(json.object()));
@@ -233,6 +220,9 @@ CouchResponse *CouchDatabase::updateDocument(const CouchDocument &document)
 
     CouchRequest request = Couch::updateDocument(url(), document.id(), document.revision(), document.content());
     CouchResponse *response = d->client->sendRequest(request);
+    if (!response)
+        return nullptr;
+
     connect(response, &CouchResponse::received, [=](const QByteArray &data) {
         QJsonDocument json = QJsonDocument::fromJson(data);
         emit documentUpdated(CouchDocument::fromJson(json.object()));
@@ -248,6 +238,9 @@ CouchResponse *CouchDatabase::deleteDocument(const CouchDocument &document)
 
     CouchRequest request = Couch::deleteDocument(url(), document.id(), document.revision());
     CouchResponse *response = d->client->sendRequest(request);
+    if (!response)
+        return nullptr;
+
     connect(response, &CouchResponse::received, [=](const QByteArray &data) {
         QJsonDocument json = QJsonDocument::fromJson(data);
         emit documentDeleted(CouchDocument::fromJson(json.object()));

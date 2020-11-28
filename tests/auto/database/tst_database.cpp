@@ -18,8 +18,6 @@ private slots:
     void responses();
     void url();
     void name();
-    void database_data();
-    void database();
     void listAllDesignDocuments();
     void listAllDocuments();
     void queryDocuments_data();
@@ -55,8 +53,6 @@ void tst_database::client()
 void tst_database::responses()
 {
     CouchDatabase database("tst_database");
-    QVERIFY(!database.createDatabase());
-    QVERIFY(!database.deleteDatabase());
     QVERIFY(!database.listAllDesignDocuments());
     QVERIFY(!database.listAllDocuments());
     QVERIFY(!database.queryDocuments(CouchQuery()));
@@ -67,8 +63,6 @@ void tst_database::responses()
 
     CouchClient client(TestUrl);
     database.setClient(&client);
-    QVERIFY(database.createDatabase());
-    QVERIFY(database.deleteDatabase());
     QVERIFY(database.listAllDesignDocuments());
     QVERIFY(database.listAllDocuments());
     QVERIFY(database.queryDocuments(CouchQuery()));
@@ -111,42 +105,6 @@ void tst_database::name()
     database.setName("tst_database");
     QCOMPARE(database.name(), "tst_database");
     QCOMPARE(nameChanged.count(), 1);
-}
-
-void tst_database::database_data()
-{
-    QTest::addColumn<QString>("method");
-    QTest::addColumn<QNetworkAccessManager::Operation>("expectedOperation");
-    QTest::addColumn<QUrl>("expectedUrl");
-    QTest::addColumn<QString>("expectedSignal");
-
-    QTest::newRow("create") << "createDatabase" << QNetworkAccessManager::PutOperation << TestUrl.resolved(QUrl("/tst_database")) << "databaseCreated()";
-    QTest::newRow("delete") << "deleteDatabase" << QNetworkAccessManager::DeleteOperation << TestUrl.resolved(QUrl("/tst_database")) << "databaseDeleted()";
-}
-
-void tst_database::database()
-{
-    QFETCH(QString, method);
-    QFETCH(QNetworkAccessManager::Operation, expectedOperation);
-    QFETCH(QUrl, expectedUrl);
-    QFETCH(QString, expectedSignal);
-
-    CouchClient client;
-    client.setBaseUrl(TestUrl);
-
-    CouchDatabase database("tst_database", &client);
-
-    QSignalSpy databaseSpy(&database, QByteArray::number(QSIGNAL_CODE) + expectedSignal.toLatin1());
-    QVERIFY(databaseSpy.isValid());
-
-    TestNetworkAccessManager manager;
-    client.setNetworkAccessManager(&manager);
-
-    QVERIFY(QMetaObject::invokeMethod(&database, method.toLatin1()));
-    QCOMPARE(manager.operations, {expectedOperation});
-    QCOMPARE(manager.urls, {expectedUrl});
-
-    QVERIFY(databaseSpy.wait());
 }
 
 void tst_database::listAllDesignDocuments()
