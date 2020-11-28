@@ -29,4 +29,11 @@ TestCase {
         compare(query.order, Qt.DescendingOrder)
         compare(query.includeDocs, true)
     }
+
+    function test_document() {
+        var document = Couch.document("foo", "bar", "baz")
+        compare(document.id, "foo")
+        compare(document.revision, "bar")
+        compare(document.content, "baz")
+    }
 }

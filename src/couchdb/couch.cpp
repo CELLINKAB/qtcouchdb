@@ -20,6 +20,13 @@ QUrl Couch::viewUrl(const QUrl &designDocumentUrl, const QString &name)
     return CouchUrl::resolve(CouchUrl::resolve(designDocumentUrl, QStringLiteral("_view")), name);
 }
 
+CouchDocument Couch::document(const QString &id, const QString &revision, const QByteArray &content)
+{
+    CouchDocument document(id, revision);
+    document.setContent(content);
+    return document;
+}
+
 CouchQuery Couch::query(int limit, int skip, Qt::SortOrder order, bool includeDocs)
 {
     CouchQuery query;
