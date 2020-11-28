@@ -12,6 +12,8 @@ class CouchUrl
 public:
     static QUrl resolve(const QUrl &baseUrl, const QString& path, const QString &revision = QString())
     {
+        if (baseUrl.isEmpty())
+            return QUrl();
         QUrl url = baseUrl;
         url.setPath(join(baseUrl.path(), path));
         if (!revision.isNull())
