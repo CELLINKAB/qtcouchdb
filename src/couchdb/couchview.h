@@ -38,8 +38,8 @@ public:
     void setDesignDocument(CouchDesignDocument *designDocument);
 
 public slots:
-    CouchResponse *listAllRows();
-    CouchResponse *queryRows(const CouchQuery &query);
+    bool listAllRows();
+    bool queryRows(const CouchQuery &query);
 
 signals:
     void urlChanged(const QUrl &url);

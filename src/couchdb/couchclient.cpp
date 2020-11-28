@@ -86,47 +86,47 @@ static QStringList toDatabaseList(const QJsonArray &array)
     return databases;
 }
 
-CouchResponse *CouchClient::listAllDatabases()
+bool CouchClient::listAllDatabases()
 {
     Q_D(CouchClient);
     CouchRequest request = Couch::listAllDatabases(d->baseUrl);
     CouchResponse *response = sendRequest(request);
     if (!response)
-        return nullptr;
+        return false;
 
     connect(response, &CouchResponse::received, [=](const QByteArray &data) {
         QJsonArray json = QJsonDocument::fromJson(data).array();
         emit databasesListed(toDatabaseList(json));
     });
-    return response;
+    return true;
 }
 
-CouchResponse *CouchClient::createDatabase(const QString &database)
+bool CouchClient::createDatabase(const QString &database)
 {
     Q_D(CouchClient);
     CouchRequest request = Couch::createDatabase(Couch::databaseUrl(d->baseUrl, database));
     CouchResponse *response = sendRequest(request);
     if (!response)
-        return nullptr;
+        return false;
 
     connect(response, &CouchResponse::received, [=](const QByteArray &) {
         emit databaseCreated(database);
     });
-    return response;
+    return true;
 }
 
-CouchResponse *CouchClient::deleteDatabase(const QString &database)
+bool CouchClient::deleteDatabase(const QString &database)
 {
     Q_D(CouchClient);
     CouchRequest request = Couch::deleteDatabase(Couch::databaseUrl(d->baseUrl, database));
     CouchResponse *response = sendRequest(request);
     if (!response)
-        return nullptr;
+        return false;
 
     connect(response, &CouchResponse::received, [=](const QByteArray &) {
         emit databaseDeleted(database);
     });
-    return response;
+    return true;
 }
 
 static QByteArray basicAuth(const QString &username, const QString &password)
@@ -141,7 +141,6 @@ CouchResponse *CouchClient::sendRequest(const CouchRequest &request)
         return nullptr;
 
     CouchResponse *response = new CouchResponse(request, this);
-
     QNetworkRequest networkRequest(request.url());
     networkRequest.setOriginatingObject(response);
 

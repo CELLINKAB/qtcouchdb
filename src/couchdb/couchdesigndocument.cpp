@@ -107,17 +107,17 @@ void CouchDesignDocument::setDatabase(CouchDatabase *database)
     emit databaseChanged(database);
 }
 
-CouchResponse *CouchDesignDocument::listAllViews()
+bool CouchDesignDocument::listAllViews()
 {
     Q_D(CouchDesignDocument);
     CouchClient *client = d->database ? d->database->client() : nullptr;
     if (!client)
-        return nullptr;
+        return false;
 
     CouchRequest request = Couch::listAllViews(url());
     CouchResponse *response = client->sendRequest(request);
     if (!response)
-        return nullptr;
+        return false;
 
     connect(response, &CouchResponse::received, [=](const QByteArray &data) {
         QJsonDocument json = QJsonDocument::fromJson(data);
