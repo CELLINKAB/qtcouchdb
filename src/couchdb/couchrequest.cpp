@@ -118,7 +118,7 @@ static const char *toKey(CouchRequest::Operation operation)
 QDebug operator<<(QDebug debug, const CouchRequest &request)
 {
     QDebugStateSaver saver(debug);
-    debug.nospace() << "CouchRequest(" << toKey(request.operation()) << ", " << maskedUrl(request.url());
+    debug.nospace() << "CouchRequest(" << toKey(request.operation()) << ", " << qPrintable(maskedUrl(request.url()));
     if (request.operation() == CouchRequest::Post)
         debug.nospace() << ", " << request.body();
     debug.nospace() << ')';

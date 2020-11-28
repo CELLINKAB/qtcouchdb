@@ -7,4 +7,5 @@ SUBDIRS += \
     document/tst_document.pro \
     error/tst_error.pro \
     query/tst_query.pro \
+    request/tst_request.pro \
     view/tst_view.pro
