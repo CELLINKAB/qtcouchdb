@@ -21,6 +21,7 @@ private slots:
     void createDeleteDatabase_data();
     void createDeleteDatabase();
     void error();
+    void busy();
 };
 
 void tst_client::initTestCase()
@@ -219,6 +220,27 @@ void tst_client::error()
     client.listAllDatabases();
     QVERIFY(errorSpy.wait());
     QVERIFY(receiveSpy.isEmpty());
+}
+
+void tst_client::busy()
+{
+    CouchClient client(TestUrl);
+    QVERIFY(!client.isBusy());
+
+    TestNetworkAccessManager manager;
+    client.setNetworkAccessManager(&manager);
+
+    QSignalSpy busySpy(&client, &CouchClient::busyChanged);
+    QVERIFY(busySpy.isValid());
+
+    client.listAllDatabases();
+    QVERIFY(client.isBusy());
+    QCOMPARE(busySpy.count(), 1);
+    QCOMPARE(busySpy.takeFirst().value(0), true);
+
+    QVERIFY(busySpy.wait());
+    QCOMPARE(busySpy.count(), 1);
+    QCOMPARE(busySpy.takeFirst().value(0), false);
 }
 
 QTEST_MAIN(tst_client)

@@ -17,6 +17,7 @@ public:
     void queryFinished(QNetworkReply *reply);
 
     QUrl baseUrl;
+    int activeRequests = 0;
     CouchClient *q_ptr = nullptr;
     QNetworkAccessManager *networkAccessManager = nullptr;
 };
@@ -53,6 +54,12 @@ void CouchClient::setBaseUrl(const QUrl &baseUrl)
 
     d->baseUrl = baseUrl;
     emit baseUrlChanged(baseUrl);
+}
+
+bool CouchClient::isBusy() const
+{
+    Q_D(const CouchClient);
+    return d->activeRequests > 0;
 }
 
 QNetworkAccessManager *CouchClient::networkAccessManager() const
@@ -182,6 +189,9 @@ CouchResponse *CouchClient::sendRequest(const CouchRequest &request)
     // LCOV_EXCL_STOP
     }
 
+    if (++d->activeRequests == 1)
+        emit busyChanged(true);
+
     return response;
 }
 
@@ -206,4 +216,7 @@ void CouchClientPrivate::queryFinished(QNetworkReply *reply)
 
     reply->deleteLater();
     response->deleteLater(); // ### TODO: CouchClient::autoDeleteResponses
+
+    if (--activeRequests == 0)
+        emit q->busyChanged(false);
 }
