@@ -1,0 +1,95 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ${{matrix.os}}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+    - name: Cache Qt
+      id: cache-qt
+      uses: actions/cache@v1
+      with:
+        path: ../Qt
+        key: ${{runner.os}}-QtCache
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v2
+      with:
+        cached: ${{steps.cache-qt.outputs.cache-hit}}
+
+    - name: Git Checkout
+      uses: actions/checkout@v1
+
+    - name: Build (Unix)
+      run: |
+        qmake -v
+        qmake "QT_BUILD_PARTS+=tests"
+        make -j2
+      if: matrix.os != 'windows-latest'
+
+    - name: Build (Windows)
+      run: |
+        call "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+        qmake -v
+        qmake
+        set CL=/MP
+        nmake
+      shell: cmd
+      if: matrix.os == 'windows-latest'
+
+    - name: Run Tests
+      run: |
+        QT_QPA_PLATFORM=minimal QML2_IMPORT_PATH="$Qt5_DIR/qml:$GITHUB_WORKSPACE/qml" make check
+      if: matrix.os == 'ubuntu-latest'
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Cache Qt
+      id: cache-qt
+      uses: actions/cache@v1
+      with:
+        path: ../Qt
+        key: ${{runner.os}}-QtCache
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v2
+      with:
+        cached: ${{steps.cache-qt.outputs.cache-hit}}
+
+    - name: Install LCOV
+      run: sudo apt install lcov
+
+    - name: Git Checkout
+      uses: actions/checkout@v1
+
+    - name: Configure
+      run: |
+        qmake -v
+        qmake -config gcov
+
+    - name: Build
+      run: make -j2
+
+    - name: Measure Coverage
+      run: |
+        QT_QPA_PLATFORM=minimal QML2_IMPORT_PATH="$Qt5_DIR/qml:$GITHUB_WORKSPACE/qml" make coverage
+
+    - name: Upload Coverage
+      uses: codecov/codecov-action@v1.0.6
+      with:
+        token: ${{secrets.CODECOV_TOKEN}}
+        file: coverage-gcov.info
