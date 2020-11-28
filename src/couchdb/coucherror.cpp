@@ -65,6 +65,6 @@ CouchError CouchError::fromJson(const QJsonObject &json)
 QDebug operator<<(QDebug debug, const CouchError &error)
 {
     QDebugStateSaver saver(debug);
-    debug.nospace() << "CouchError(" << error.error() << ", " << error.reason() << ')';
+    debug.nospace() << "CouchError(" << qPrintable(error.error()) << ", " << error.reason() << ')';
     return debug;
 }
