@@ -50,6 +50,7 @@ signals:
     void errorOccurred(const CouchError &error);
 
     void rowsListed(const QJsonArray &rows);
+    void rowsQueried(const QJsonArray &rows);
 
 private:
     Q_DECLARE_PRIVATE(CouchView)

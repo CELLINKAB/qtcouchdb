@@ -227,7 +227,7 @@ void tst_view::queryRows()
     CouchDesignDocument designDocument("tst_designdocument", &database);
     CouchView view("tst_view", &designDocument);
 
-    QSignalSpy rowSpy(&view, &CouchView::rowsListed);
+    QSignalSpy rowSpy(&view, &CouchView::rowsQueried);
     QVERIFY(rowSpy.isValid());
 
     TestNetworkAccessManager manager(TestRows);
