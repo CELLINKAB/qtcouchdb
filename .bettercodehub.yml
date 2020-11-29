@@ -1,0 +1,16 @@
+component_depth: 3
+languages:
+- name: cpp
+  production:
+    include:
+      - /src/.*\.(h|cpp)
+  test:
+    include:
+      - /tests/.*\.(h|cpp)
+- name: javascript
+  production:
+    exclude:
+      - .*
+  test:
+    include:
+      - /tests/.*\.qml
