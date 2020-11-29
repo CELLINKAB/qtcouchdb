@@ -204,12 +204,14 @@ void CouchClientPrivate::queryFinished(QNetworkReply *reply)
     QByteArray data = reply->readAll();
     response->setData(data);
 
-    if (reply->error() == QNetworkReply::NoError) {
+    QNetworkReply::NetworkError networkError = reply->error();
+
+    if (networkError == QNetworkReply::NoError) {
         emit response->received(data);
         emit q->responseReceived(response);
     } else {
-        QJsonDocument json = QJsonDocument::fromJson(data);
-        CouchError error = CouchError::fromJson(json.object());
+        QByteArray key = QMetaEnum::fromType<QNetworkReply::NetworkError>().valueToKey(networkError);
+        CouchError error(QString::fromLatin1(key), reply->errorString());
         emit response->errorOccurred(error);
         emit q->errorOccurred(error);
     }
