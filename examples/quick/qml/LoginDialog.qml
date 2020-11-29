@@ -48,12 +48,15 @@ Dialog {
                 id: portField
                 value: 5984
                 to: 65535
+                editable: true
                 leftPadding: 0
                 rightPadding: 0
                 down.indicator.anchors.right: portField.right
                 up.indicator.anchors.right: down.indicator.left
                 Layout.fillWidth: true
                 Component.onCompleted: contentItem.horizontalAlignment = Qt.AlignLeft
+                Keys.onEnterPressed: dialog.accept()
+                Keys.onReturnPressed: dialog.accept()
             }
 
             Label { text: qsTr("Username") }

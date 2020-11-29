@@ -20,7 +20,8 @@ Dialog {
         toolButton.onClicked: dialog.reject()
     }
 
-    RowLayout {
+    contentItem: RowLayout {
+        focus: true
         spacing: 24
         anchors.fill: parent
 
@@ -34,6 +35,11 @@ Dialog {
             id: textLabel
             elide: Label.ElideRight
             Layout.fillWidth: true
+        }
+
+        Keys.onShortcutOverride: {
+            if (event.key === Qt.Key_Enter || event.key === Qt.Key_Return || event.key === Qt.Key_Space)
+                dialog.accept()
         }
     }
 }

@@ -120,6 +120,7 @@ ApplicationWindow {
         id: messageDialog
         MessageDialog {
             modal: true
+            focus: true
             x: (parent.width - width) / 2
             y: (parent.height - height) / 2
             parent: window.overlay
