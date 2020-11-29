@@ -28,6 +28,11 @@ Dialog {
 
     footer.enabled: !!content
 
+    Shortcut {
+        sequence: "Ctrl+Return"
+        onActivated: dialog.accept()
+    }
+
     GridLayout {
         columns: 2
         columnSpacing: 24
