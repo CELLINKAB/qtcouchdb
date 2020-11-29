@@ -28,13 +28,13 @@ int main(int argc, char *argv[])
 
     QString command = cmdLine.positionalArguments().value(0);
     if (command == "list-dbs" || command == "list-databases") {
-        client.listAllDatabases();
+        client.listDatabases();
     } else if (command == "list-designs" || command == "list-design-documents") {
-        database.listAllDesignDocuments();
+        database.listDesignDocuments();
     } else if (command == "list-views") {
-        designDocument.listAllViews();
+        designDocument.listFullViews();
     } else if (command == "list-rows") {
-        view.listAllRows();
+        view.listFullRows();
     } else {
         std::cerr << qPrintable(app.applicationName()) << ": Unknown command: '" << qPrintable(command) << "'." << std::endl;
         exit(EXIT_FAILURE);

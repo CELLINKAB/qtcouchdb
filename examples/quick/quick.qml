@@ -32,8 +32,8 @@ ApplicationWindow {
                                      .arg(settings.password)
                                      .arg(settings.hostname || "localhost")
                                      .arg(settings.port)
-        onDatabaseCreated: listAllDatabases()
-        onDatabaseDeleted: listAllDatabases()
+        onDatabaseCreated: listDatabases()
+        onDatabaseDeleted: listDatabases()
         onDatabasesListed: databaseListPage.model = databases
         onErrorOccurred: messageDialog.createObject(window, {title: error.error, icon: MaterialIcons.error, text: error.reason}).open()
     }
@@ -41,8 +41,8 @@ ApplicationWindow {
     CouchDatabase {
         id: database
         client: client
-        onDocumentCreated: listAllDocuments()
-        onDocumentDeleted: listAllDocuments()
+        onDocumentCreated: listFullDocuments()
+        onDocumentDeleted: listFullDocuments()
         onDocumentsListed: {
             if (stackView.currentItem instanceof DocumentListPage)
                 stackView.currentItem.model = documents
@@ -113,7 +113,7 @@ ApplicationWindow {
         x: (parent.width - width) / 2
         y: (parent.height - height) / 2
         parent: window.overlay
-        onAccepted: client.listAllDatabases()
+        onAccepted: client.listDatabases()
     }
 
     Component {
