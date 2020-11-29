@@ -75,6 +75,4 @@ Dialog {
             }
         }
     }
-
-    onAccepted: client.listAllDatabases()
 }
