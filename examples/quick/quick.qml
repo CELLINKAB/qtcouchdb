@@ -121,6 +121,7 @@ ApplicationWindow {
         MessageDialog {
             modal: true
             focus: true
+            margins: 96
             x: (parent.width - width) / 2
             y: (parent.height - height) / 2
             parent: window.overlay

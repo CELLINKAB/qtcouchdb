@@ -33,7 +33,7 @@ Dialog {
 
         Label {
             id: textLabel
-            elide: Label.ElideRight
+            wrapMode: Label.Wrap
             Layout.fillWidth: true
         }
 
