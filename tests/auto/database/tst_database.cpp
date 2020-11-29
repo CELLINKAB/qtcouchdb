@@ -18,10 +18,11 @@ private slots:
     void responses();
     void url();
     void name();
-    void listAllDesignDocuments();
+    void listDesignDocuments();
     void createDeleteDesignDocument_data();
     void createDeleteDesignDocument();
-    void listAllDocuments();
+    void listDocuments_data();
+    void listDocuments();
     void queryDocuments_data();
     void queryDocuments();
     void document_data();
@@ -55,10 +56,11 @@ void tst_database::client()
 void tst_database::responses()
 {
     CouchDatabase database("tst_database");
-    QVERIFY(!database.listAllDesignDocuments());
+    QVERIFY(!database.listDesignDocuments());
     QVERIFY(!database.createDesignDocument(QString()));
     QVERIFY(!database.deleteDesignDocument(QString()));
-    QVERIFY(!database.listAllDocuments());
+    QVERIFY(!database.listDocumentIds());
+    QVERIFY(!database.listFullDocuments());
     QVERIFY(!database.queryDocuments(CouchQuery()));
     QVERIFY(!database.createDocument(CouchDocument()));
     QVERIFY(!database.getDocument(CouchDocument()));
@@ -67,10 +69,11 @@ void tst_database::responses()
 
     CouchClient client(TestUrl);
     database.setClient(&client);
-    QVERIFY(database.listAllDesignDocuments());
+    QVERIFY(database.listDesignDocuments());
     QVERIFY(database.createDesignDocument(QString()));
     QVERIFY(database.deleteDesignDocument(QString()));
-    QVERIFY(database.listAllDocuments());
+    QVERIFY(database.listDocumentIds());
+    QVERIFY(database.listFullDocuments());
     QVERIFY(database.queryDocuments(CouchQuery()));
     QVERIFY(database.createDocument(CouchDocument()));
     QVERIFY(database.getDocument(CouchDocument()));
@@ -113,7 +116,7 @@ void tst_database::name()
     QCOMPARE(nameChanged.count(), 1);
 }
 
-void tst_database::listAllDesignDocuments()
+void tst_database::listDesignDocuments()
 {
     CouchClient client;
     client.setBaseUrl(TestUrl);
@@ -126,7 +129,7 @@ void tst_database::listAllDesignDocuments()
     TestNetworkAccessManager manager(TestDesignDocuments);
     client.setNetworkAccessManager(&manager);
 
-    database.listAllDesignDocuments();
+    database.listDesignDocuments();
     QCOMPARE(manager.operations, {QNetworkAccessManager::GetOperation});
     QCOMPARE(manager.urls, {TestUrl.resolved(QUrl("/tst_database/_design_docs"))});
 
@@ -170,8 +173,20 @@ void tst_database::createDeleteDesignDocument()
     QVERIFY(designDocumentSpy.wait());
 }
 
-void tst_database::listAllDocuments()
+void tst_database::listDocuments_data()
 {
+    QTest::addColumn<QString>("method");
+    QTest::addColumn<QUrl>("expectedUrl");
+
+    QTest::newRow("ids") << "listDocumentIds" << QUrl("/tst_database/_all_docs");
+    QTest::newRow("full") << "listFullDocuments" << QUrl("/tst_database/_all_docs?include_docs=true");
+}
+
+void tst_database::listDocuments()
+{
+    QFETCH(QString, method);
+    QFETCH(QUrl, expectedUrl);
+
     CouchClient client;
     client.setBaseUrl(TestUrl);
 
@@ -183,9 +198,9 @@ void tst_database::listAllDocuments()
     TestNetworkAccessManager manager(TestDocuments);
     client.setNetworkAccessManager(&manager);
 
-    database.listAllDocuments();
+    QVERIFY(QMetaObject::invokeMethod(&database, method.toLatin1()));
     QCOMPARE(manager.operations, {QNetworkAccessManager::GetOperation});
-    QCOMPARE(manager.urls, {TestUrl.resolved(QUrl("/tst_database/_all_docs"))});
+    QCOMPARE(manager.urls, {TestUrl.resolved(expectedUrl)});
 
     CouchDocument doc1 = CouchDocument::fromJson(QJsonDocument::fromJson(TestDocument1).object());
     CouchDocument doc2 = CouchDocument::fromJson(QJsonDocument::fromJson(TestDocument2).object());
@@ -318,7 +333,7 @@ void tst_database::error()
     QSignalSpy errorSpy(&database, &CouchDatabase::errorOccurred);
     QVERIFY(errorSpy.isValid());
 
-    database.listAllDocuments();
+    database.listFullDocuments();
     QVERIFY(errorSpy.wait());
 }
 

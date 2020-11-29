@@ -21,19 +21,24 @@ public:
     Q_INVOKABLE static CouchDocument document(const QString &id, const QString &revision, const QByteArray &content);
     Q_INVOKABLE static CouchQuery query(int limit, int skip, Qt::SortOrder order, bool includeDocs);
 
-    Q_INVOKABLE static CouchRequest listAllDatabases(const QUrl &baseUrl);
+    Q_INVOKABLE static CouchRequest listDatabases(const QUrl &baseUrl);
     Q_INVOKABLE static CouchRequest createDatabase(const QUrl &databaseUrl);
     Q_INVOKABLE static CouchRequest deleteDatabase(const QUrl &databaseUrl);
 
-    Q_INVOKABLE static CouchRequest listAllDesignDocuments(const QUrl &databaseUrl);
+    Q_INVOKABLE static CouchRequest listDesignDocuments(const QUrl &databaseUrl);
     Q_INVOKABLE static CouchRequest createDesignDocument(const QUrl &designDocumentUrl);
     Q_INVOKABLE static CouchRequest deleteDesignDocument(const QUrl &designDocumentUrl);
 
-    Q_INVOKABLE static CouchRequest listAllViews(const QUrl &designDocumentUrl);
-    Q_INVOKABLE static CouchRequest listAllRows(const QUrl &viewUrl);
+    Q_INVOKABLE static CouchRequest listViewIds(const QUrl &designDocumentUrl);
+    Q_INVOKABLE static CouchRequest listFullViews(const QUrl &designDocumentUrl);
+    Q_INVOKABLE static CouchRequest queryViews(const QUrl &designDocumentUrl, const CouchQuery &query);
+
+    Q_INVOKABLE static CouchRequest listRowIds(const QUrl &viewUrl);
+    Q_INVOKABLE static CouchRequest listFullRows(const QUrl &viewUrl);
     Q_INVOKABLE static CouchRequest queryRows(const QUrl &viewUrl, const CouchQuery &query);
 
-    Q_INVOKABLE static CouchRequest listAllDocuments(const QUrl &databaseUrl);
+    Q_INVOKABLE static CouchRequest listDocumentIds(const QUrl &databaseUrl);
+    Q_INVOKABLE static CouchRequest listFullDocuments(const QUrl &databaseUrl);
     Q_INVOKABLE static CouchRequest queryDocuments(const QUrl &databaseUrl, const CouchQuery &query);
     Q_INVOKABLE static CouchRequest createDocument(const QUrl &databaseUrl, const QByteArray &content);
     Q_INVOKABLE static CouchRequest getDocument(const QUrl &databaseUrl, const QString &documentId, const QString &revision);

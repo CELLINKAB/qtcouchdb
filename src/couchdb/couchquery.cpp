@@ -103,6 +103,13 @@ void CouchQuery::setIncludeDocs(bool includeDocs)
     d_ptr->includeDocs = includeDocs;
 }
 
+CouchQuery CouchQuery::full()
+{
+    CouchQuery query;
+    query.setIncludeDocs(true);
+    return query;
+}
+
 QDebug operator<<(QDebug debug, const CouchQuery &query)
 {
     QDebugStateSaver saver(debug);

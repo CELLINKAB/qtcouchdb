@@ -15,7 +15,8 @@ private slots:
     void responses();
     void url();
     void name();
-    void listAllRows();
+    void listRows_data();
+    void listRows();
     void queryRows_data();
     void queryRows();
     void error();
@@ -85,22 +86,26 @@ void tst_view::designDocument()
 void tst_view::responses()
 {
     CouchView view("tst_view");
-    QVERIFY(!view.listAllRows());
+    QVERIFY(!view.listRowIds());
+    QVERIFY(!view.listFullRows());
     QVERIFY(!view.queryRows(CouchQuery()));
 
     CouchDesignDocument designDocument("tst_designdocument");
     view.setDesignDocument(&designDocument);
-    QVERIFY(!view.listAllRows());
+    QVERIFY(!view.listRowIds());
+    QVERIFY(!view.listFullRows());
     QVERIFY(!view.queryRows(CouchQuery()));
 
     CouchDatabase database("tst_database");
     designDocument.setDatabase(&database);
-    QVERIFY(!view.listAllRows());
+    QVERIFY(!view.listRowIds());
+    QVERIFY(!view.listFullRows());
     QVERIFY(!view.queryRows(CouchQuery()));
 
     CouchClient client(TestUrl);
     database.setClient(&client);
-    QVERIFY(view.listAllRows());
+    QVERIFY(view.listRowIds());
+    QVERIFY(view.listFullRows());
     QVERIFY(view.queryRows(CouchQuery()));
 }
 
@@ -157,8 +162,20 @@ void tst_view::name()
     QCOMPARE(nameChanged.count(), 1);
 }
 
-void tst_view::listAllRows()
+void tst_view::listRows_data()
 {
+    QTest::addColumn<QString>("method");
+    QTest::addColumn<QUrl>("expectedUrl");
+
+    QTest::newRow("ids") << "listRowIds" << QUrl("/tst_database/_design/tst_designdocument/_view/tst_view");
+    QTest::newRow("full") << "listFullRows" << QUrl("/tst_database/_design/tst_designdocument/_view/tst_view?include_docs=true");
+}
+
+void tst_view::listRows()
+{
+    QFETCH(QString, method);
+    QFETCH(QUrl, expectedUrl);
+
     CouchClient client(TestUrl);
     CouchDatabase database("tst_database", &client);
     CouchDesignDocument designDocument("tst_designdocument", &database);
@@ -170,9 +187,9 @@ void tst_view::listAllRows()
     TestNetworkAccessManager manager(TestRows);
     client.setNetworkAccessManager(&manager);
 
-    view.listAllRows();
+    QVERIFY(QMetaObject::invokeMethod(&view, method.toLatin1()));
     QCOMPARE(manager.operations, {QNetworkAccessManager::GetOperation});
-    QCOMPARE(manager.urls, {TestUrl.resolved(QUrl("/tst_database/_design/tst_designdocument/_view/tst_view"))});
+    QCOMPARE(manager.urls, {TestUrl.resolved(expectedUrl)});
 
     QVERIFY(viewSpy.wait());
     QVariantList args = viewSpy.takeFirst();
@@ -227,7 +244,7 @@ void tst_view::queryRows()
     CouchDesignDocument designDocument("tst_designdocument", &database);
     CouchView view("tst_view", &designDocument);
 
-    QSignalSpy rowSpy(&view, &CouchView::rowsQueried);
+    QSignalSpy rowSpy(&view, &CouchView::rowsListed);
     QVERIFY(rowSpy.isValid());
 
     TestNetworkAccessManager manager(TestRows);
@@ -259,7 +276,7 @@ void tst_view::error()
     QSignalSpy errorSpy(&view, &CouchView::errorOccurred);
     QVERIFY(errorSpy.isValid());
 
-    view.listAllRows();
+    view.listFullRows();
     QVERIFY(errorSpy.wait());
 }
 

@@ -38,6 +38,8 @@ public:
     bool includeDocs() const;
     void setIncludeDocs(bool includeDocs);
 
+    static CouchQuery full();
+
 private:
     Q_DECLARE_PRIVATE(CouchQuery)
     QExplicitlySharedDataPointer<CouchQueryPrivate> d_ptr;

@@ -121,24 +121,14 @@ void CouchView::setDesignDocument(CouchDesignDocument *designDocument)
     emit designDocumentChanged(designDocument);
 }
 
-bool CouchView::listAllRows()
+bool CouchView::listRowIds()
 {
-    Q_D(CouchView);
-    CouchClient *client = d->designDocument ? d->designDocument->client() : nullptr;
-    if (!client)
-        return false;
+    return queryRows(CouchQuery());
+}
 
-    CouchRequest request = Couch::listAllRows(url());
-    CouchResponse *response = client->sendRequest(request);
-    if (!response)
-        return false;
-
-    connect(response, &CouchResponse::received, [=](const QByteArray &data) {
-        QJsonDocument json = QJsonDocument::fromJson(data);
-        QJsonArray rows = json.object().value(QStringLiteral("rows")).toArray();
-        emit rowsListed(rows);
-    });
-    return d->response(response);
+bool CouchView::listFullRows()
+{
+    return queryRows(CouchQuery::full());
 }
 
 bool CouchView::queryRows(const CouchQuery &query)
@@ -156,7 +146,7 @@ bool CouchView::queryRows(const CouchQuery &query)
     connect(response, &CouchResponse::received, [=](const QByteArray &data) {
         QJsonDocument json = QJsonDocument::fromJson(data);
         QJsonArray rows = json.object().value(QStringLiteral("rows")).toArray();
-        emit rowsQueried(rows);
+        emit rowsListed(rows);
     });
     return d->response(response);
 }

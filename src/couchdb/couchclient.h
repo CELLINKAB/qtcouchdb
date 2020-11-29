@@ -31,7 +31,7 @@ public:
     void setNetworkAccessManager(QNetworkAccessManager *networkAccessManager);
 
 public slots:
-    bool listAllDatabases();
+    bool listDatabases();
     bool createDatabase(const QString &database);
     bool deleteDatabase(const QString &database);
 

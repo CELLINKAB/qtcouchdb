@@ -34,11 +34,12 @@ public:
     void setClient(CouchClient *client);
 
 public slots:
-    bool listAllDesignDocuments();
+    bool listDesignDocuments();
     bool createDesignDocument(const QString &designDocument);
     bool deleteDesignDocument(const QString &designDocument);
 
-    bool listAllDocuments();
+    bool listDocumentIds();
+    bool listFullDocuments();
     bool queryDocuments(const CouchQuery &query);
     bool createDocument(const CouchDocument &document);
     bool getDocument(const CouchDocument &document);

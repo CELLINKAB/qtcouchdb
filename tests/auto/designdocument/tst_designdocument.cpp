@@ -19,7 +19,8 @@ private slots:
     void responses();
     void url();
     void name();
-    void listAllViews();
+    void listViews_data();
+    void listViews();
     void error();
 };
 
@@ -66,15 +67,18 @@ void tst_designdocument::database()
 void tst_designdocument::responses()
 {
     CouchDesignDocument designDocument("tst_designdocument");
-    QVERIFY(!designDocument.listAllViews());
+    QVERIFY(!designDocument.listViewIds());
+    QVERIFY(!designDocument.listFullViews());
 
     CouchDatabase database("tst_database");
     designDocument.setDatabase(&database);
-    QVERIFY(!designDocument.listAllViews());
+    QVERIFY(!designDocument.listViewIds());
+    QVERIFY(!designDocument.listFullViews());
 
     CouchClient client(TestUrl);
     database.setClient(&client);
-    QVERIFY(designDocument.listAllViews());
+    QVERIFY(designDocument.listViewIds());
+    QVERIFY(designDocument.listFullViews());
 }
 
 void tst_designdocument::url()
@@ -117,8 +121,20 @@ void tst_designdocument::name()
     QCOMPARE(nameChanged.count(), 1);
 }
 
-void tst_designdocument::listAllViews()
+void tst_designdocument::listViews_data()
 {
+    QTest::addColumn<QString>("method");
+    QTest::addColumn<QUrl>("expectedUrl");
+
+    QTest::newRow("ids") << "listViewIds" << QUrl("/tst_database/_design/tst_designdocument");
+    QTest::newRow("full") << "listFullViews" << QUrl("/tst_database/_design/tst_designdocument?include_docs=true");
+}
+
+void tst_designdocument::listViews()
+{
+    QFETCH(QString, method);
+    QFETCH(QUrl, expectedUrl);
+
     CouchClient client(TestUrl);
     CouchDatabase database("tst_database", &client);
     CouchDesignDocument designDocument("tst_designdocument", &database);
@@ -129,9 +145,9 @@ void tst_designdocument::listAllViews()
     TestNetworkAccessManager manager(TestViews);
     client.setNetworkAccessManager(&manager);
 
-    designDocument.listAllViews();
+    QVERIFY(QMetaObject::invokeMethod(&designDocument, method.toLatin1()));
     QCOMPARE(manager.operations, {QNetworkAccessManager::GetOperation});
-    QCOMPARE(manager.urls, {TestUrl.resolved(QUrl("/tst_database/_design/tst_designdocument"))});
+    QCOMPARE(manager.urls, {TestUrl.resolved(expectedUrl)});
 
     QVERIFY(designDocumentSpy.wait());
     QVariantList args = designDocumentSpy.takeFirst();
@@ -151,7 +167,7 @@ void tst_designdocument::error()
     QSignalSpy errorSpy(&designDocument, &CouchDesignDocument::errorOccurred);
     QVERIFY(errorSpy.isValid());
 
-    designDocument.listAllViews();
+    designDocument.listFullViews();
     QVERIFY(errorSpy.wait());
 }
 

@@ -93,10 +93,10 @@ static QStringList toDatabaseList(const QJsonArray &array)
     return databases;
 }
 
-bool CouchClient::listAllDatabases()
+bool CouchClient::listDatabases()
 {
     Q_D(CouchClient);
-    CouchRequest request = Couch::listAllDatabases(d->baseUrl);
+    CouchRequest request = Couch::listDatabases(d->baseUrl);
     CouchResponse *response = sendRequest(request);
     if (!response)
         return false;

@@ -17,7 +17,7 @@ private slots:
     void headers();
     void sendRequest_data();
     void sendRequest();
-    void listAllDatabases();
+    void listDatabases();
     void createDeleteDatabase_data();
     void createDeleteDatabase();
     void error();
@@ -149,7 +149,7 @@ void tst_client::sendRequest()
     QCOMPARE(manager.bodies, QList<QByteArray>({expectedBody}));
 }
 
-void tst_client::listAllDatabases()
+void tst_client::listDatabases()
 {
     CouchClient client;
     client.setBaseUrl(TestUrl);
@@ -160,7 +160,7 @@ void tst_client::listAllDatabases()
     TestNetworkAccessManager manager(TestDatabases);
     client.setNetworkAccessManager(&manager);
 
-    client.listAllDatabases();
+    client.listDatabases();
     QCOMPARE(manager.operations, {QNetworkAccessManager::GetOperation});
     QCOMPARE(manager.urls, {TestUrl.resolved(QUrl("/_all_dbs"))});
 
@@ -217,7 +217,7 @@ void tst_client::error()
     QSignalSpy errorSpy(&client, &CouchClient::errorOccurred);
     QVERIFY(errorSpy.isValid());
 
-    client.listAllDatabases();
+    client.listDatabases();
     QVERIFY(errorSpy.wait());
     QVERIFY(receiveSpy.isEmpty());
 }
@@ -233,7 +233,7 @@ void tst_client::busy()
     QSignalSpy busySpy(&client, &CouchClient::busyChanged);
     QVERIFY(busySpy.isValid());
 
-    client.listAllDatabases();
+    client.listDatabases();
     QVERIFY(client.isBusy());
     QCOMPARE(busySpy.count(), 1);
     QCOMPARE(busySpy.takeFirst().value(0), true);

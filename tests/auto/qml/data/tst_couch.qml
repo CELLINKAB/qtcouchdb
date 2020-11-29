@@ -36,4 +36,24 @@ TestCase {
         compare(document.revision, "bar")
         compare(document.content, "baz")
     }
+
+    function test_request_data() {
+        return [
+            {tag: "databases", method: "listDatabases", url: "couch.db", expectedUrl: "couch.db/_all_dbs"},
+            {tag: "design-documents", method: "listDesignDocuments", url: "couch.db/db", expectedUrl: "couch.db/db/_design_docs"},
+            {tag: "document-ids", method: "listDocumentIds", url: "couch.db/db", expectedUrl: "couch.db/db/_all_docs"},
+            {tag: "full-documents", method: "listFullDocuments", url: "couch.db/db", expectedUrl: "couch.db/db/_all_docs?include_docs=true"},
+            {tag: "view-ids", method: "listViewIds", url: "couch.db/db/_design/dd", expectedUrl: "couch.db/db/_design/dd"},
+            {tag: "full-views", method: "listFullViews", url: "couch.db/db/_design/dd", expectedUrl: "couch.db/db/_design/dd?include_docs=true"},
+            {tag: "row-ids", method: "listRowIds", url: "couch.db/db/_design/dd/_view/v", expectedUrl: "couch.db/db/_design/dd/_view/v"},
+            {tag: "full-rows", method: "listFullRows", url: "couch.db/db/_design/dd/_view/v", expectedUrl: "couch.db/db/_design/dd/_view/v?include_docs=true"},
+        ]
+    }
+
+    function test_request(data) {
+        verify(Couch[data.method] !== undefined)
+        var request = Couch[data.method](data.url)
+        verify(request !== undefined)
+        compare(request.url, data.expectedUrl)
+    }
 }

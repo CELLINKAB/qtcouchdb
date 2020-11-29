@@ -38,7 +38,8 @@ public:
     void setDesignDocument(CouchDesignDocument *designDocument);
 
 public slots:
-    bool listAllRows();
+    bool listRowIds();
+    bool listFullRows();
     bool queryRows(const CouchQuery &query);
 
 signals:
@@ -50,7 +51,6 @@ signals:
     void errorOccurred(const CouchError &error);
 
     void rowsListed(const QJsonArray &rows);
-    void rowsQueried(const QJsonArray &rows);
 
 private:
     Q_DECLARE_PRIVATE(CouchView)

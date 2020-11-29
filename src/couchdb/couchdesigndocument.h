@@ -34,7 +34,9 @@ public:
     void setDatabase(CouchDatabase *database);
 
 public slots:
-    bool listAllViews();
+    bool listViewIds();
+    bool listFullViews();
+    bool queryViews(const CouchQuery &query);
 
 signals:
     void urlChanged(const QUrl &url);

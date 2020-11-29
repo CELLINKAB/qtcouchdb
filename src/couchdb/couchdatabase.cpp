@@ -111,13 +111,13 @@ static QStringList toDesignDocumentList(const QJsonArray &json)
     return designs;
 }
 
-bool CouchDatabase::listAllDesignDocuments()
+bool CouchDatabase::listDesignDocuments()
 {
     Q_D(CouchDatabase);
     if (!d->client)
         return false;
 
-    CouchRequest request = Couch::listAllDesignDocuments(url());
+    CouchRequest request = Couch::listDesignDocuments(url());
     CouchResponse *response = d->client->sendRequest(request);
     if (!response)
         return false;
@@ -172,23 +172,14 @@ static QList<CouchDocument> toDocumentList(const QJsonArray &json)
     return docs;
 }
 
-bool CouchDatabase::listAllDocuments()
+bool CouchDatabase::listDocumentIds()
 {
-    Q_D(CouchDatabase);
-    if (!d->client)
-        return false;
+    return queryDocuments(CouchQuery());
+}
 
-    CouchRequest request = Couch::listAllDocuments(url());
-    CouchResponse *response = d->client->sendRequest(request);
-    if (!response)
-        return false;
-
-    connect(response, &CouchResponse::received, [=](const QByteArray &data) {
-        QJsonDocument json = QJsonDocument::fromJson(data);
-        QJsonArray rows = json.object().value(QStringLiteral("rows")).toArray();
-        emit documentsListed(toDocumentList(rows));
-    });
-    return d->response(response);
+bool CouchDatabase::listFullDocuments()
+{
+    return queryDocuments(CouchQuery::full());
 }
 
 bool CouchDatabase::queryDocuments(const CouchQuery &query)

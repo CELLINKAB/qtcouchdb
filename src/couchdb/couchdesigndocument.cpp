@@ -107,14 +107,24 @@ void CouchDesignDocument::setDatabase(CouchDatabase *database)
     emit databaseChanged(database);
 }
 
-bool CouchDesignDocument::listAllViews()
+bool CouchDesignDocument::listViewIds()
+{
+    return queryViews(CouchQuery());
+}
+
+bool CouchDesignDocument::listFullViews()
+{
+    return queryViews(CouchQuery::full());
+}
+
+bool CouchDesignDocument::queryViews(const CouchQuery &query)
 {
     Q_D(CouchDesignDocument);
     CouchClient *client = d->database ? d->database->client() : nullptr;
     if (!client)
         return false;
 
-    CouchRequest request = Couch::listAllViews(url());
+    CouchRequest request = Couch::queryViews(url(), query);
     CouchResponse *response = client->sendRequest(request);
     if (!response)
         return false;
