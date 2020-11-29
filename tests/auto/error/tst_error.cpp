@@ -20,9 +20,9 @@ void tst_error::test()
     QCOMPARE(err2.error(), "error");
     QCOMPARE(err2.reason(), "reason");
 
-    QVERIFY(err1 == err1);
-    QVERIFY(err2 == err2);
     QVERIFY(err1 != err2);
+    QVERIFY(err1 == CouchError(err1));
+    QVERIFY(err2 == CouchError(err2));
 
     err1 = err2;
     QCOMPARE(err1.error(), "error");

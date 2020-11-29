@@ -28,9 +28,9 @@ void tst_query::test()
     QCOMPARE(q2.order(), Qt::DescendingOrder);
     QCOMPARE(q2.includeDocs(), true);
 
-    QVERIFY(q1 == q1);
-    QVERIFY(q2 == q2);
     QVERIFY(q1 != q2);
+    QVERIFY(q1 == CouchQuery(q1));
+    QVERIFY(q2 == CouchQuery(q2));
 
     q1 = q2;
     QCOMPARE(q1.limit(), 1);

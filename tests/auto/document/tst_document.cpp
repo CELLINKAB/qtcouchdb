@@ -22,9 +22,9 @@ void tst_document::test()
     QCOMPARE(doc2.revision(), "rev");
     QCOMPARE(doc2.content(), QByteArray());
 
-    QVERIFY(doc1 == doc1);
-    QVERIFY(doc2 == doc2);
     QVERIFY(doc1 != doc2);
+    QVERIFY(doc1 == CouchDocument(doc1));
+    QVERIFY(doc2 == CouchDocument(doc2));
 
     doc1 = doc2;
     QCOMPARE(doc1.id(), "id");

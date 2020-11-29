@@ -30,9 +30,9 @@ void tst_request::test()
     QCOMPARE(r2.headers(), QByteArrayHash({{"foo", "bar"}}));
     QCOMPARE(r2.header("foo"), "bar");
 
-    QVERIFY(r1 == r1);
-    QVERIFY(r2 == r2);
     QVERIFY(r1 != r2);
+    QVERIFY(r1 == CouchRequest(r1));
+    QVERIFY(r2 == CouchRequest(r2));
 
     r1 = r2;
     QCOMPARE(r1.url(), QUrl("foo:bar"));
