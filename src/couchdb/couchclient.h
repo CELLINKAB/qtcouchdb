@@ -14,7 +14,7 @@ QT_FORWARD_DECLARE_CLASS(QNetworkAccessManager)
 class COUCHDB_EXPORT CouchClient : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QUrl baseUrl READ baseUrl WRITE setBaseUrl)
+    Q_PROPERTY(QUrl url READ url WRITE setUrl NOTIFY urlChanged)
     Q_PROPERTY(bool busy READ isBusy NOTIFY busyChanged)
 
 public:
@@ -22,8 +22,8 @@ public:
     explicit CouchClient(const QUrl &url, QObject *parent = nullptr);
     ~CouchClient();
 
-    QUrl baseUrl() const;
-    void setBaseUrl(const QUrl &url);
+    QUrl url() const;
+    void setUrl(const QUrl &url);
 
     bool isBusy() const;
 
@@ -38,7 +38,7 @@ public slots:
     CouchResponse *sendRequest(const CouchRequest &request);
 
 signals:
-    void baseUrlChanged(const QUrl &baseUrl);
+    void urlChanged(const QUrl &url);
     void busyChanged(bool busy);
 
     void databasesListed(const QStringList &databases);

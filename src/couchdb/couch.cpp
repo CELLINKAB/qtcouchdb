@@ -20,9 +20,9 @@ Couch::Couch(QObject *parent) : QObject(parent)
 {
 }
 
-QUrl Couch::databaseUrl(const QUrl &baseUrl, const QString &name)
+QUrl Couch::databaseUrl(const QUrl &clientUrl, const QString &name)
 {
-    return CouchUrl::resolve(baseUrl, name);
+    return CouchUrl::resolve(clientUrl, name);
 }
 
 QUrl Couch::designDocumentUrl(const QUrl &databaseUrl, const QString &name)
@@ -52,10 +52,10 @@ CouchQuery Couch::query(int limit, int skip, Qt::SortOrder order, bool includeDo
     return query;
 }
 
-CouchRequest Couch::listDatabases(const QUrl &baseUrl)
+CouchRequest Couch::listDatabases(const QUrl &clientUrl)
 {
     CouchRequest request(CouchRequest::Get);
-    request.setUrl(CouchUrl::resolve(baseUrl, QStringLiteral("_all_dbs")));
+    request.setUrl(CouchUrl::resolve(clientUrl, QStringLiteral("_all_dbs")));
     return request;
 }
 

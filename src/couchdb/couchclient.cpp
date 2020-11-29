@@ -16,7 +16,7 @@ class CouchClientPrivate
 public:
     void queryFinished(QNetworkReply *reply);
 
-    QUrl baseUrl;
+    QUrl url;
     int activeRequests = 0;
     CouchClient *q_ptr = nullptr;
     QNetworkAccessManager *networkAccessManager = nullptr;
@@ -32,7 +32,7 @@ CouchClient::CouchClient(const QUrl &url, QObject *parent) :
 {
     Q_D(CouchClient);
     d->q_ptr = this;
-    d->baseUrl = url;
+    d->url = url;
     setNetworkAccessManager(new QNetworkAccessManager(this));
 }
 
@@ -40,20 +40,20 @@ CouchClient::~CouchClient()
 {
 }
 
-QUrl CouchClient::baseUrl() const
+QUrl CouchClient::url() const
 {
     Q_D(const CouchClient);
-    return d->baseUrl;
+    return d->url;
 }
 
-void CouchClient::setBaseUrl(const QUrl &baseUrl)
+void CouchClient::setUrl(const QUrl &url)
 {
     Q_D(CouchClient);
-    if (d->baseUrl == baseUrl)
+    if (d->url == url)
         return;
 
-    d->baseUrl = baseUrl;
-    emit baseUrlChanged(baseUrl);
+    d->url = url;
+    emit urlChanged(url);
 }
 
 bool CouchClient::isBusy() const
@@ -96,7 +96,7 @@ static QStringList toDatabaseList(const QJsonArray &array)
 bool CouchClient::listDatabases()
 {
     Q_D(CouchClient);
-    CouchRequest request = Couch::listDatabases(d->baseUrl);
+    CouchRequest request = Couch::listDatabases(d->url);
     CouchResponse *response = sendRequest(request);
     if (!response)
         return false;
@@ -111,7 +111,7 @@ bool CouchClient::listDatabases()
 bool CouchClient::createDatabase(const QString &database)
 {
     Q_D(CouchClient);
-    CouchRequest request = Couch::createDatabase(Couch::databaseUrl(d->baseUrl, database));
+    CouchRequest request = Couch::createDatabase(Couch::databaseUrl(d->url, database));
     CouchResponse *response = sendRequest(request);
     if (!response)
         return false;
@@ -125,7 +125,7 @@ bool CouchClient::createDatabase(const QString &database)
 bool CouchClient::deleteDatabase(const QString &database)
 {
     Q_D(CouchClient);
-    CouchRequest request = Couch::deleteDatabase(Couch::databaseUrl(d->baseUrl, database));
+    CouchRequest request = Couch::deleteDatabase(Couch::databaseUrl(d->url, database));
     CouchResponse *response = sendRequest(request);
     if (!response)
         return false;
@@ -155,8 +155,8 @@ CouchResponse *CouchClient::sendRequest(const CouchRequest &request)
     for (auto it = headers.cbegin(); it != headers.cend(); ++it)
         networkRequest.setRawHeader(it.key(), it.value());
 
-    QString username = d->baseUrl.userName();
-    QString password = d->baseUrl.password();
+    QString username = d->url.userName();
+    QString password = d->url.password();
     if (!username.isEmpty() && !password.isEmpty())
         networkRequest.setRawHeader("Authorization", basicAuth(username, password));
 

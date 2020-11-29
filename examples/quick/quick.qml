@@ -28,10 +28,10 @@ ApplicationWindow {
 
     CouchClient {
         id: client
-        baseUrl: "http://%1:%2@%3:%4".arg(settings.username)
-                                     .arg(settings.password)
-                                     .arg(settings.hostname || "localhost")
-                                     .arg(settings.port)
+        url: "http://%1:%2@%3:%4".arg(settings.username)
+                                 .arg(settings.password)
+                                 .arg(settings.hostname || "localhost")
+                                 .arg(settings.port)
         onDatabaseCreated: listDatabases()
         onDatabaseDeleted: listDatabases()
         onDatabasesListed: databaseListPage.model = databases

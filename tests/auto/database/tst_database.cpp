@@ -98,7 +98,7 @@ void tst_database::url()
     database.setName("tst_database");
     QCOMPARE(urlChanged.count(), 1);
 
-    client.setBaseUrl(TestUrl.resolved(QUrl("/client")));
+    client.setUrl(TestUrl.resolved(QUrl("/client")));
     QCOMPARE(database.url(), TestUrl.resolved(QUrl("/client/tst_database")));
     QCOMPARE(urlChanged.count(), 2);
 }
@@ -118,9 +118,7 @@ void tst_database::name()
 
 void tst_database::listDesignDocuments()
 {
-    CouchClient client;
-    client.setBaseUrl(TestUrl);
-
+    CouchClient client(TestUrl);
     CouchDatabase database("tst_database", &client);
 
     QSignalSpy databaseSpy(&database, &CouchDatabase::designDocumentsListed);
@@ -187,9 +185,7 @@ void tst_database::listDocuments()
     QFETCH(QString, method);
     QFETCH(QUrl, expectedUrl);
 
-    CouchClient client;
-    client.setBaseUrl(TestUrl);
-
+    CouchClient client(TestUrl);
     CouchDatabase database("tst_database", &client);
 
     QSignalSpy documentSpy(&database, &CouchDatabase::documentsListed);
@@ -253,9 +249,7 @@ void tst_database::queryDocuments()
     QFETCH(CouchQuery, query);
     QFETCH(QUrl, expectedUrl);
 
-    CouchClient client;
-    client.setBaseUrl(TestUrl);
-
+    CouchClient client(TestUrl);
     CouchDatabase database("tst_database", &client);
 
     QSignalSpy documentSpy(&database, &CouchDatabase::documentsListed);
@@ -297,9 +291,7 @@ void tst_database::document()
     QFETCH(QUrl, expectedUrl);
     QFETCH(QString, expectedSignal);
 
-    CouchClient client;
-    client.setBaseUrl(TestUrl);
-
+    CouchClient client(TestUrl);
     CouchDatabase database("tst_database", &client);
 
     QSignalSpy documentSpy(&database, QByteArray::number(QSIGNAL_CODE) + expectedSignal.toLatin1());
@@ -322,9 +314,7 @@ void tst_database::document()
 
 void tst_database::error()
 {
-    CouchClient client;
-    client.setBaseUrl(TestUrl);
-
+    CouchClient client(TestUrl);
     CouchDatabase database("tst_database", &client);
 
     TestNetworkAccessManager manager(QNetworkReply::UnknownServerError);

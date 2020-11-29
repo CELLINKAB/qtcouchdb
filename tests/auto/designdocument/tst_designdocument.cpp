@@ -103,7 +103,7 @@ void tst_designdocument::url()
     QCOMPARE(designDocument.url(), TestUrl.resolved(QUrl("/tst_database2/_design/tst_designdocument")));
     QCOMPARE(urlChanged.count(), 2);
 
-    client.setBaseUrl(TestUrl.resolved(QUrl("/client")));
+    client.setUrl(TestUrl.resolved(QUrl("/client")));
     QCOMPARE(designDocument.url(), TestUrl.resolved(QUrl("/client/tst_database2/_design/tst_designdocument")));
     QCOMPARE(urlChanged.count(), 3);
 }

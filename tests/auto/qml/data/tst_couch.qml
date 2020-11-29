@@ -7,13 +7,13 @@ TestCase {
 
     function test_url_data() {
         return [
-            {tag: "empty", baseUrl: "", databaseUrl: "", designDocumentUrl: "", viewUrl: ""},
-            {tag: "host", baseUrl: "couch.db/", databaseUrl: "couch.db/tst_db", designDocumentUrl: "couch.db/tst_db/_design/tst_dd", viewUrl: "couch.db/tst_db/_design/tst_dd/_view/tst_view"},
+            {tag: "empty", clientUrl: "", databaseUrl: "", designDocumentUrl: "", viewUrl: ""},
+            {tag: "host", clientUrl: "couch.db/", databaseUrl: "couch.db/tst_db", designDocumentUrl: "couch.db/tst_db/_design/tst_dd", viewUrl: "couch.db/tst_db/_design/tst_dd/_view/tst_view"},
         ]
     }
 
     function test_url(data) {
-        var databaseUrl = Couch.databaseUrl(data.baseUrl, "tst_db")
+        var databaseUrl = Couch.databaseUrl(data.clientUrl, "tst_db")
         var designDocumentUrl = Couch.designDocumentUrl(databaseUrl, "tst_dd")
         var viewUrl = Couch.viewUrl(designDocumentUrl, "tst_view")
 

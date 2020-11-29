@@ -19,9 +19,7 @@ int main(int argc, char *argv[])
     cmdLine.addPositionalArgument("command", "CouchDB command (available: list-dbs, list-designs, list-views, list-rows)", "command");
     cmdLine.process(QCoreApplication::arguments());
 
-    CouchClient client;
-    client.setBaseUrl(QUrl(cmdLine.value("url")));
-
+    CouchClient client(QUrl(cmdLine.value("url")));
     CouchDatabase database(cmdLine.value("database"), &client);
     CouchDesignDocument designDocument(cmdLine.value("design-document"), &database);
     CouchView view(cmdLine.value("view"), &designDocument);

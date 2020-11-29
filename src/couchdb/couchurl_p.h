@@ -27,21 +27,12 @@ public:
         return url;
     }
 
+private:
     static QString join(const QString &basePath, const QString &subPath)
     {
         if (basePath.endsWith(Slash) || subPath.startsWith(Slash))
             return basePath + subPath;
         return basePath + Slash + subPath;
-    }
-
-    static QString database(const QUrl &url)
-    {
-        return url.path().split(Slash, Qt::SkipEmptyParts).value(0);
-    }
-
-    static QString documentId(const QUrl &url)
-    {
-        return url.path().split(Slash, Qt::SkipEmptyParts).value(1);
     }
 };
 

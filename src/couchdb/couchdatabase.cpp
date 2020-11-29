@@ -47,7 +47,7 @@ QUrl CouchDatabase::url() const
     if (!d->client || d->name.isEmpty())
         return QUrl();
 
-    return Couch::databaseUrl(d->client->baseUrl(), d->name);
+    return Couch::databaseUrl(d->client->url(), d->name);
 }
 
 QString CouchDatabase::name() const
@@ -82,7 +82,7 @@ void CouchDatabase::setClient(CouchClient *client)
     if (d->client)
         d->client->disconnect(this);
     if (client)
-        connect(client, &CouchClient::baseUrlChanged, this, &CouchDatabase::urlChanged);
+        connect(client, &CouchClient::urlChanged, this, &CouchDatabase::urlChanged);
 
     d->client = client;
     emit urlChanged(url());

@@ -144,7 +144,7 @@ void tst_view::url()
     QCOMPARE(view.url(), TestUrl.resolved(QUrl("/tst_database2/_design/tst_designdocument2/_view/tst_view")));
     QCOMPARE(urlChanged.count(), 3);
 
-    client.setBaseUrl(TestUrl.resolved(QUrl("/client")));
+    client.setUrl(TestUrl.resolved(QUrl("/client")));
     QCOMPARE(view.url(), TestUrl.resolved(QUrl("/client/tst_database2/_design/tst_designdocument2/_view/tst_view")));
     QCOMPARE(urlChanged.count(), 4);
 }

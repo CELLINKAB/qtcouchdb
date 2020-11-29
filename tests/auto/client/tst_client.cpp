@@ -11,7 +11,7 @@ class tst_client : public QObject
 
 private slots:
     void initTestCase();
-    void baseUrl();
+    void url();
     void responses();
     void networkAccessManager();
     void headers();
@@ -29,20 +29,20 @@ void tst_client::initTestCase()
     registerTestMetaTypes();
 }
 
-void tst_client::baseUrl()
+void tst_client::url()
 {
     CouchClient client;
-    QCOMPARE(client.baseUrl(), QUrl());
+    QCOMPARE(client.url(), QUrl());
 
-    QSignalSpy baseUrlChanged(&client, &CouchClient::baseUrlChanged);
-    QVERIFY(baseUrlChanged.isValid());
+    QSignalSpy urlChanged(&client, &CouchClient::urlChanged);
+    QVERIFY(urlChanged.isValid());
 
-    client.setBaseUrl(TestUrl);
-    QCOMPARE(client.baseUrl(), TestUrl);
-    QCOMPARE(baseUrlChanged.count(), 1);
+    client.setUrl(TestUrl);
+    QCOMPARE(client.url(), TestUrl);
+    QCOMPARE(urlChanged.count(), 1);
 
-    client.setBaseUrl(TestUrl);
-    QCOMPARE(baseUrlChanged.count(), 1);
+    client.setUrl(TestUrl);
+    QCOMPARE(urlChanged.count(), 1);
 }
 
 void tst_client::responses()
@@ -51,7 +51,7 @@ void tst_client::responses()
     QVERIFY(!client.createDatabase("tst_database"));
     QVERIFY(!client.deleteDatabase("tst_database"));
 
-    client.setBaseUrl(TestUrl);
+    client.setUrl(TestUrl);
     QVERIFY(client.createDatabase("tst_database"));
     QVERIFY(client.deleteDatabase("tst_database"));
 }
@@ -88,8 +88,7 @@ void tst_client::networkAccessManager()
 
 void tst_client::headers()
 {
-    CouchClient client;
-    client.setBaseUrl(TestUrl);
+    CouchClient client(TestUrl);
 
     TestNetworkAccessManager manager;
     client.setNetworkAccessManager(&manager);
@@ -131,8 +130,7 @@ void tst_client::sendRequest()
     QFETCH(QNetworkAccessManager::Operation, expectedOperation);
     QFETCH(QByteArray, expectedBody);
 
-    CouchClient client;
-    client.setBaseUrl(TestUrl);
+    CouchClient client(TestUrl);
 
     TestNetworkAccessManager manager;
     client.setNetworkAccessManager(&manager);
@@ -151,8 +149,7 @@ void tst_client::sendRequest()
 
 void tst_client::listDatabases()
 {
-    CouchClient client;
-    client.setBaseUrl(TestUrl);
+    CouchClient client(TestUrl);
 
     QSignalSpy databaseSpy(&client, &CouchClient::databasesListed);
     QVERIFY(databaseSpy.isValid());
@@ -205,8 +202,7 @@ void tst_client::createDeleteDatabase()
 
 void tst_client::error()
 {
-    CouchClient client;
-    client.setBaseUrl(TestUrl);
+    CouchClient client(TestUrl);
 
     TestNetworkAccessManager manager(QNetworkReply::UnknownServerError);
     client.setNetworkAccessManager(&manager);
