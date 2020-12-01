@@ -175,3 +175,78 @@ CouchRequest Couch::deleteDocument(const QUrl &databaseUrl, const QString &docum
     request.setUrl(CouchUrl::resolve(databaseUrl, documentId, revision));
     return request;
 }
+
+QString Couch::toDatabase(const QByteArray &response)
+{
+    return QString::fromUtf8(response);
+}
+
+QStringList Couch::toDatabaseList(const QByteArray &response)
+{
+    QJsonArray json = QJsonDocument::fromJson(response).array();
+
+    QStringList databases;
+    for (const QJsonValue &value : json)
+        databases += value.toString();
+    return databases;
+}
+
+QString Couch::toDesignDocument(const QByteArray &response)
+{
+    return QString::fromUtf8(response);
+}
+
+static QString trimPrefix(QString str, const QString &prefix)
+{
+    if (!str.startsWith(prefix))
+        return str;
+
+    return str.mid(prefix.length());
+}
+
+static QString toDesignDocumentName(const QJsonObject &json)
+{
+    QString key = json.value(QStringLiteral("key")).toString();
+    return trimPrefix(key, QStringLiteral("_design/"));
+}
+
+QStringList Couch::toDesignDocumentList(const QByteArray &response)
+{
+    QJsonDocument json = QJsonDocument::fromJson(response);
+    QJsonArray rows = json.object().value(QStringLiteral("rows")).toArray();
+
+    QStringList designs;
+    for (const QJsonValue &value : rows)
+        designs += toDesignDocumentName(value.toObject());
+    return designs;
+}
+
+CouchDocument Couch::toDocument(const QByteArray &response)
+{
+    QJsonDocument json = QJsonDocument::fromJson(response);
+    return CouchDocument::fromJson(json.object());
+}
+
+QList<CouchDocument> Couch::toDocumentList(const QByteArray &response)
+{
+    QJsonDocument json = QJsonDocument::fromJson(response);
+    QJsonArray rows = json.object().value(QStringLiteral("rows")).toArray();
+
+    QList<CouchDocument> docs;
+    for (const QJsonValue &value : rows)
+        docs += CouchDocument::fromJson(value.toObject());
+    return docs;
+}
+
+QStringList Couch::toViews(const QByteArray &response)
+{
+    QJsonDocument json = QJsonDocument::fromJson(response);
+    QJsonObject views = json.object().value(QStringLiteral("views")).toObject();
+    return views.keys();
+}
+
+QJsonArray Couch::toRows(const QByteArray &response)
+{
+    QJsonDocument json = QJsonDocument::fromJson(response);
+    return json.object().value(QStringLiteral("rows")).toArray();
+}

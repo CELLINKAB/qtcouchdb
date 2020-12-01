@@ -89,28 +89,6 @@ void CouchDatabase::setClient(CouchClient *client)
     emit clientChanged(client);
 }
 
-static QString trimPrefix(QString str, const QString &prefix)
-{
-    if (!str.startsWith(prefix))
-        return str;
-
-    return str.mid(prefix.length());
-}
-
-static QString toDesignDocumentName(const QJsonObject &json)
-{
-    QString key = json.value(QStringLiteral("key")).toString();
-    return trimPrefix(key, QStringLiteral("_design/"));
-}
-
-static QStringList toDesignDocumentList(const QJsonArray &json)
-{
-    QStringList designs;
-    for (const QJsonValue &value : json)
-        designs += toDesignDocumentName(value.toObject());
-    return designs;
-}
-
 CouchResponse *CouchDatabase::listDesignDocuments()
 {
     Q_D(CouchDatabase);
@@ -123,9 +101,7 @@ CouchResponse *CouchDatabase::listDesignDocuments()
         return nullptr;
 
     connect(response, &CouchResponse::received, [=](const QByteArray &data) {
-        QJsonDocument json = QJsonDocument::fromJson(data);
-        QJsonArray rows = json.object().value(QStringLiteral("rows")).toArray();
-        emit designDocumentsListed(toDesignDocumentList(rows));
+        emit designDocumentsListed(Couch::toDesignDocumentList(data));
     });
     return d->response(response);
 }
@@ -141,8 +117,8 @@ CouchResponse *CouchDatabase::createDesignDocument(const QString &designDocument
     if (!response)
         return nullptr;
 
-    connect(response, &CouchResponse::received, [=](const QByteArray &) {
-        emit designDocumentCreated(designDocument);
+    connect(response, &CouchResponse::received, [=](const QByteArray &data) {
+        emit designDocumentCreated(Couch::toDesignDocument(data));
     });
     return d->response(response);
 }
@@ -158,18 +134,10 @@ CouchResponse *CouchDatabase::deleteDesignDocument(const QString &designDocument
     if (!response)
         return nullptr;
 
-    connect(response, &CouchResponse::received, [=](const QByteArray &) {
-        emit designDocumentDeleted(designDocument);
+    connect(response, &CouchResponse::received, [=](const QByteArray &data) {
+        emit designDocumentDeleted(Couch::toDesignDocument(data));
     });
     return d->response(response);
-}
-
-static QList<CouchDocument> toDocumentList(const QJsonArray &json)
-{
-    QList<CouchDocument> docs;
-    for (const QJsonValue &value : json)
-        docs += CouchDocument::fromJson(value.toObject());
-    return docs;
 }
 
 CouchResponse *CouchDatabase::listDocumentIds()
@@ -194,9 +162,7 @@ CouchResponse *CouchDatabase::queryDocuments(const CouchQuery &query)
         return nullptr;
 
     connect(response, &CouchResponse::received, [=](const QByteArray &data) {
-        QJsonDocument json = QJsonDocument::fromJson(data);
-        QJsonArray rows = json.object().value(QStringLiteral("rows")).toArray();
-        emit documentsListed(toDocumentList(rows));
+        emit documentsListed(Couch::toDocumentList(data));
     });
     return d->response(response);
 }
@@ -213,8 +179,7 @@ CouchResponse *CouchDatabase::createDocument(const CouchDocument &document)
         return nullptr;
 
     connect(response, &CouchResponse::received, [=](const QByteArray &data) {
-        QJsonDocument json = QJsonDocument::fromJson(data);
-        emit documentCreated(CouchDocument::fromJson(json.object()));
+        emit documentCreated(Couch::toDocument(data));
     });
     return d->response(response);
 }
@@ -231,8 +196,7 @@ CouchResponse *CouchDatabase::getDocument(const CouchDocument &document)
         return nullptr;
 
     connect(response, &CouchResponse::received, [=](const QByteArray &data) {
-        QJsonDocument json = QJsonDocument::fromJson(data);
-        emit documentReceived(CouchDocument::fromJson(json.object()));
+        emit documentReceived(Couch::toDocument(data));
     });
     return d->response(response);
 }
@@ -249,8 +213,7 @@ CouchResponse *CouchDatabase::updateDocument(const CouchDocument &document)
         return nullptr;
 
     connect(response, &CouchResponse::received, [=](const QByteArray &data) {
-        QJsonDocument json = QJsonDocument::fromJson(data);
-        emit documentUpdated(CouchDocument::fromJson(json.object()));
+        emit documentUpdated(Couch::toDocument(data));
     });
     return d->response(response);
 }
@@ -267,8 +230,7 @@ CouchResponse *CouchDatabase::deleteDocument(const CouchDocument &document)
         return nullptr;
 
     connect(response, &CouchResponse::received, [=](const QByteArray &data) {
-        QJsonDocument json = QJsonDocument::fromJson(data);
-        emit documentDeleted(CouchDocument::fromJson(json.object()));
+        emit documentDeleted(Couch::toDocument(data));
     });
     return d->response(response);
 }

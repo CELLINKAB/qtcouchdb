@@ -130,9 +130,7 @@ CouchResponse *CouchDesignDocument::queryViews(const CouchQuery &query)
         return nullptr;
 
     connect(response, &CouchResponse::received, [=](const QByteArray &data) {
-        QJsonDocument json = QJsonDocument::fromJson(data);
-        QJsonObject views = json.object().value(QStringLiteral("views")).toObject();
-        emit viewsListed(views.keys());
+        emit viewsListed(Couch::toViews(data));
     });
     return d->response(response);
 }

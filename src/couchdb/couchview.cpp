@@ -144,9 +144,7 @@ CouchResponse *CouchView::queryRows(const CouchQuery &query)
         return nullptr;
 
     connect(response, &CouchResponse::received, [=](const QByteArray &data) {
-        QJsonDocument json = QJsonDocument::fromJson(data);
-        QJsonArray rows = json.object().value(QStringLiteral("rows")).toArray();
-        emit rowsListed(rows);
+        emit rowsListed(Couch::toRows(data));
     });
     return d->response(response);
 }

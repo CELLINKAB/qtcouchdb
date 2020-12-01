@@ -85,14 +85,6 @@ void CouchClient::setNetworkAccessManager(QNetworkAccessManager *networkAccessMa
     connect(networkAccessManager, &QNetworkAccessManager::finished, [=](QNetworkReply *reply) { d->queryFinished(reply); });
 }
 
-static QStringList toDatabaseList(const QJsonArray &array)
-{
-    QStringList databases;
-    for (const QJsonValue &value : array)
-        databases += value.toString();
-    return databases;
-}
-
 CouchResponse *CouchClient::listDatabases()
 {
     Q_D(CouchClient);
@@ -102,8 +94,7 @@ CouchResponse *CouchClient::listDatabases()
         return nullptr;
 
     connect(response, &CouchResponse::received, [=](const QByteArray &data) {
-        QJsonArray json = QJsonDocument::fromJson(data).array();
-        emit databasesListed(toDatabaseList(json));
+        emit databasesListed(Couch::toDatabaseList(data));
     });
     return response;
 }
@@ -116,8 +107,8 @@ CouchResponse *CouchClient::createDatabase(const QString &database)
     if (!response)
         return nullptr;
 
-    connect(response, &CouchResponse::received, [=](const QByteArray &) {
-        emit databaseCreated(database);
+    connect(response, &CouchResponse::received, [=](const QByteArray &data) {
+        emit databaseCreated(Couch::toDatabase(data));
     });
     return response;
 }
@@ -130,8 +121,8 @@ CouchResponse *CouchClient::deleteDatabase(const QString &database)
     if (!response)
         return nullptr;
 
-    connect(response, &CouchResponse::received, [=](const QByteArray &) {
-        emit databaseDeleted(database);
+    connect(response, &CouchResponse::received, [=](const QByteArray &data) {
+        emit databaseDeleted(Couch::toDatabase(data));
     });
     return response;
 }

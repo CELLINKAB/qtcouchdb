@@ -44,6 +44,19 @@ public:
     Q_INVOKABLE static CouchRequest getDocument(const QUrl &databaseUrl, const QString &documentId, const QString &revision);
     Q_INVOKABLE static CouchRequest updateDocument(const QUrl &databaseUrl, const QString &documentId, const QString &revision, const QByteArray &content);
     Q_INVOKABLE static CouchRequest deleteDocument(const QUrl &databaseUrl, const QString &documentId, const QString &revision);
+
+    static QString toDatabase(const QByteArray &response);
+    static QStringList toDatabaseList(const QByteArray &response);
+
+    static QString toDesignDocument(const QByteArray &response);
+    static QStringList toDesignDocumentList(const QByteArray &response);
+
+    static CouchDocument toDocument(const QByteArray &response);
+    static QList<CouchDocument> toDocumentList(const QByteArray &response);
+
+    static QStringList toViews(const QByteArray &response);
+
+    static QJsonArray toRows(const QByteArray &response);
 };
 
 #endif // COUCH_H
