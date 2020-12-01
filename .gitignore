@@ -36,9 +36,26 @@ Makefile*
 /mkspecs
 /qml
 target_wrapper.*
+.obj
+.rcc
+.pch
 
 # QtCreator
 *.autosave
 *.qmlproject.user
 *.qmlproject.user.*
 CMakeLists.txt.user*
+
+# Tests & examples
+/tests/auto/**/tst_*
+!/tests/auto/**/tst_*.*
+/tests/auto/**/tst_*.exe
+/examples/**/*
+!/examples/**/*.*
+/examples/**/*.exe
+
+# Coverage
+*.gcda
+*.gcno
+/doc/coverage
+/coverage-gcov.info
