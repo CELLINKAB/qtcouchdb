@@ -93,47 +93,47 @@ static QStringList toDatabaseList(const QJsonArray &array)
     return databases;
 }
 
-bool CouchClient::listDatabases()
+CouchResponse *CouchClient::listDatabases()
 {
     Q_D(CouchClient);
     CouchRequest request = Couch::listDatabases(d->url);
     CouchResponse *response = sendRequest(request);
     if (!response)
-        return false;
+        return nullptr;
 
     connect(response, &CouchResponse::received, [=](const QByteArray &data) {
         QJsonArray json = QJsonDocument::fromJson(data).array();
         emit databasesListed(toDatabaseList(json));
     });
-    return true;
+    return response;
 }
 
-bool CouchClient::createDatabase(const QString &database)
+CouchResponse *CouchClient::createDatabase(const QString &database)
 {
     Q_D(CouchClient);
     CouchRequest request = Couch::createDatabase(Couch::databaseUrl(d->url, database));
     CouchResponse *response = sendRequest(request);
     if (!response)
-        return false;
+        return nullptr;
 
     connect(response, &CouchResponse::received, [=](const QByteArray &) {
         emit databaseCreated(database);
     });
-    return true;
+    return response;
 }
 
-bool CouchClient::deleteDatabase(const QString &database)
+CouchResponse *CouchClient::deleteDatabase(const QString &database)
 {
     Q_D(CouchClient);
     CouchRequest request = Couch::deleteDatabase(Couch::databaseUrl(d->url, database));
     CouchResponse *response = sendRequest(request);
     if (!response)
-        return false;
+        return nullptr;
 
     connect(response, &CouchResponse::received, [=](const QByteArray &) {
         emit databaseDeleted(database);
     });
-    return true;
+    return response;
 }
 
 static QByteArray basicAuth(const QString &username, const QString &password)

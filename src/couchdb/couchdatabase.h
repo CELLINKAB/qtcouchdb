@@ -34,17 +34,17 @@ public:
     void setClient(CouchClient *client);
 
 public slots:
-    bool listDesignDocuments();
-    bool createDesignDocument(const QString &designDocument);
-    bool deleteDesignDocument(const QString &designDocument);
+    CouchResponse *listDesignDocuments();
+    CouchResponse *createDesignDocument(const QString &designDocument);
+    CouchResponse *deleteDesignDocument(const QString &designDocument);
 
-    bool listDocumentIds();
-    bool listFullDocuments();
-    bool queryDocuments(const CouchQuery &query);
-    bool createDocument(const CouchDocument &document);
-    bool getDocument(const CouchDocument &document);
-    bool updateDocument(const CouchDocument &document);
-    bool deleteDocument(const CouchDocument &document);
+    CouchResponse *listDocumentIds();
+    CouchResponse *listFullDocuments();
+    CouchResponse *queryDocuments(const CouchQuery &query);
+    CouchResponse *createDocument(const CouchDocument &document);
+    CouchResponse *getDocument(const CouchDocument &document);
+    CouchResponse *updateDocument(const CouchDocument &document);
+    CouchResponse *deleteDocument(const CouchDocument &document);
 
 signals:
     void urlChanged(const QUrl &url);

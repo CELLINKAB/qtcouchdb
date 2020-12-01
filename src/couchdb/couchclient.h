@@ -31,9 +31,9 @@ public:
     void setNetworkAccessManager(QNetworkAccessManager *networkAccessManager);
 
 public slots:
-    bool listDatabases();
-    bool createDatabase(const QString &database);
-    bool deleteDatabase(const QString &database);
+    CouchResponse *listDatabases();
+    CouchResponse *createDatabase(const QString &database);
+    CouchResponse *deleteDatabase(const QString &database);
 
     CouchResponse *sendRequest(const CouchRequest &request);
 

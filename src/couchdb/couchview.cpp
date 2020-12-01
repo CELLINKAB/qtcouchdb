@@ -121,27 +121,27 @@ void CouchView::setDesignDocument(CouchDesignDocument *designDocument)
     emit designDocumentChanged(designDocument);
 }
 
-bool CouchView::listRowIds()
+CouchResponse *CouchView::listRowIds()
 {
     return queryRows(CouchQuery());
 }
 
-bool CouchView::listFullRows()
+CouchResponse *CouchView::listFullRows()
 {
     return queryRows(CouchQuery::full());
 }
 
-bool CouchView::queryRows(const CouchQuery &query)
+CouchResponse *CouchView::queryRows(const CouchQuery &query)
 {
     Q_D(CouchView);
     CouchClient *client = d->designDocument ? d->designDocument->client() : nullptr;
     if (!client)
-        return false;
+        return nullptr;
 
     CouchRequest request = Couch::queryRows(url(), query);
     CouchResponse *response = client->sendRequest(request);
     if (!response)
-        return false;
+        return nullptr;
 
     connect(response, &CouchResponse::received, [=](const QByteArray &data) {
         QJsonDocument json = QJsonDocument::fromJson(data);
