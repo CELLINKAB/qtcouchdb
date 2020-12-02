@@ -26,6 +26,7 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v2
       with:
+        version: '5.12.9'
         cached: ${{steps.cache-qt.outputs.cache-hit}}
 
     - name: Git Checkout
@@ -68,6 +69,7 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v2
       with:
+        version: '5.12.9'
         cached: ${{steps.cache-qt.outputs.cache-hit}}
 
     - name: Install LCOV
