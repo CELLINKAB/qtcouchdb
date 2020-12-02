@@ -6,7 +6,8 @@
 static const QByteArray TestDesignDocuments = R"({"rows":[{"key":"_design/foo"},{"key":"_design/bar"},{"key":"baz"}]})";
 static const QByteArray TestDocument1 = R"({"id":"doc1","rev":"rev1","doc":{"foo":"bar"}})";
 static const QByteArray TestDocument2 = R"({"id":"doc2","rev":"rev2","doc":{"baz":"qux"}})";
-static const QByteArray TestDocuments = R"({"rows":[)" + TestDocument1 + "," + TestDocument2 + "]}";
+static const QByteArray TestRows = R"({"rows":[)" + TestDocument1 + "," + TestDocument2 + "]}";
+static const QByteArray TestDocuments = R"({"docs":[)" + TestDocument1 + "," + TestDocument2 + "]}";
 
 class tst_database : public QObject
 {
@@ -27,6 +28,8 @@ private slots:
     void queryDocuments();
     void document_data();
     void document();
+    void documents_data();
+    void documents();
     void error();
 };
 
@@ -191,7 +194,7 @@ void tst_database::listDocuments()
     QSignalSpy documentSpy(&database, &CouchDatabase::documentsListed);
     QVERIFY(documentSpy.isValid());
 
-    TestNetworkAccessManager manager(TestDocuments);
+    TestNetworkAccessManager manager(TestRows);
     client.setNetworkAccessManager(&manager);
 
     QVERIFY(QMetaObject::invokeMethod(&database, method.toLatin1()));
@@ -255,7 +258,7 @@ void tst_database::queryDocuments()
     QSignalSpy documentSpy(&database, &CouchDatabase::documentsListed);
     QVERIFY(documentSpy.isValid());
 
-    TestNetworkAccessManager manager(TestDocuments);
+    TestNetworkAccessManager manager(TestRows);
     client.setNetworkAccessManager(&manager);
 
     database.queryDocuments(query);
@@ -310,6 +313,49 @@ void tst_database::document()
     QVariantList args = documentSpy.takeFirst();
     QCOMPARE(args.count(), 1);
     QCOMPARE(args.first().value<CouchDocument>(), doc1);
+}
+
+void tst_database::documents_data()
+{
+    QTest::addColumn<QString>("method");
+    QTest::addColumn<QNetworkAccessManager::Operation>("expectedOperation");
+    QTest::addColumn<QUrl>("expectedUrl");
+    QTest::addColumn<QString>("expectedSignal");
+
+    QTest::newRow("insert") << "insertDocuments" << QNetworkAccessManager::PostOperation << TestUrl.resolved(QUrl("/tst_database")) << "documentsInserted(QList<CouchDocument>)";
+    QTest::newRow("update") << "updateDocuments" << QNetworkAccessManager::PostOperation << TestUrl.resolved(QUrl("/tst_database")) << "documentsUpdated(QList<CouchDocument>)";
+    QTest::newRow("delete") << "deleteDocuments" << QNetworkAccessManager::PostOperation << TestUrl.resolved(QUrl("/tst_database")) << "documentsDeleted(QList<CouchDocument>)";
+}
+
+void tst_database::documents()
+{
+    QFETCH(QString, method);
+    QFETCH(QNetworkAccessManager::Operation, expectedOperation);
+    QFETCH(QUrl, expectedUrl);
+    QFETCH(QString, expectedSignal);
+
+    CouchClient client(TestUrl);
+    CouchDatabase database("tst_database", &client);
+
+    QSignalSpy documentSpy(&database, QByteArray::number(QSIGNAL_CODE) + expectedSignal.toLatin1());
+    QVERIFY(documentSpy.isValid());
+
+    TestNetworkAccessManager manager(TestRows);
+    client.setNetworkAccessManager(&manager);
+
+    QList<CouchDocument> docs = {
+        CouchDocument::fromJson(QJsonDocument::fromJson(TestDocument1).object()),
+        CouchDocument::fromJson(QJsonDocument::fromJson(TestDocument2).object())
+    };
+
+    QVERIFY(QMetaObject::invokeMethod(&database, method.toLatin1(), Q_ARG(QList<CouchDocument>, docs)));
+    QCOMPARE(manager.operations, {expectedOperation});
+    QCOMPARE(manager.urls, {expectedUrl});
+
+    QVERIFY(documentSpy.wait());
+    QVariantList args = documentSpy.takeFirst();
+    QCOMPARE(args.count(), 1);
+    QCOMPARE(args.first().value<QList<CouchDocument>>(), docs);
 }
 
 void tst_database::error()

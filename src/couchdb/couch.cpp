@@ -176,6 +176,45 @@ CouchRequest Couch::deleteDocument(const QUrl &databaseUrl, const CouchDocument 
     return request;
 }
 
+static QByteArray fromDocumentList(const QList<CouchDocument> &documents, bool deleted = false)
+{
+    QJsonArray docs;
+    for (const CouchDocument &document : documents) {
+        QJsonObject doc = document.toJson();
+        if (deleted)
+            doc.insert(QStringLiteral("_deleted"), true);
+        docs += document.toJson();
+    }
+
+    QJsonObject json;
+    json.insert(QStringLiteral("docs"), docs);
+    return QJsonDocument(json).toJson(QJsonDocument::Compact);
+}
+
+CouchRequest Couch::insertDocuments(const QUrl &databaseUrl, const QList<CouchDocument> &documents)
+{
+    CouchRequest request(CouchRequest::Post);
+    request.setUrl(databaseUrl);
+    request.setBody(fromDocumentList(documents));
+    return request;
+}
+
+CouchRequest Couch::updateDocuments(const QUrl &databaseUrl, const QList<CouchDocument> &documents)
+{
+    CouchRequest request(CouchRequest::Post);
+    request.setUrl(databaseUrl);
+    request.setBody(fromDocumentList(documents));
+    return request;
+}
+
+CouchRequest Couch::deleteDocuments(const QUrl &databaseUrl, const QList<CouchDocument> &documents)
+{
+    CouchRequest request(CouchRequest::Post);
+    request.setUrl(databaseUrl);
+    request.setBody(fromDocumentList(documents, true));
+    return request;
+}
+
 QString Couch::toDatabase(const QByteArray &response)
 {
     return QString::fromUtf8(response);

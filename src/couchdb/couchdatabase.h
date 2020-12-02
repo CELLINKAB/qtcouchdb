@@ -46,6 +46,10 @@ public slots:
     CouchResponse *updateDocument(const CouchDocument &document);
     CouchResponse *deleteDocument(const CouchDocument &document);
 
+    CouchResponse *insertDocuments(const QList<CouchDocument> &documents);
+    CouchResponse *updateDocuments(const QList<CouchDocument> &documents);
+    CouchResponse *deleteDocuments(const QList<CouchDocument> &documents);
+
 signals:
     void urlChanged(const QUrl &url);
     void nameChanged(const QString &name);
@@ -61,6 +65,10 @@ signals:
     void documentReceived(const CouchDocument &document);
     void documentUpdated(const CouchDocument &document);
     void documentDeleted(const CouchDocument &document);
+
+    void documentsInserted(const QList<CouchDocument> &documents);
+    void documentsUpdated(const QList<CouchDocument> &documents);
+    void documentsDeleted(const QList<CouchDocument> &documents);
 
 private:
     Q_DECLARE_PRIVATE(CouchDatabase)

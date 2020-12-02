@@ -45,6 +45,10 @@ public:
     Q_INVOKABLE static CouchRequest updateDocument(const QUrl &databaseUrl, const CouchDocument &document);
     Q_INVOKABLE static CouchRequest deleteDocument(const QUrl &databaseUrl, const CouchDocument &document);
 
+    Q_INVOKABLE static CouchRequest insertDocuments(const QUrl &databaseUrl, const QList<CouchDocument> &documents);
+    Q_INVOKABLE static CouchRequest updateDocuments(const QUrl &databaseUrl, const QList<CouchDocument> &documents);
+    Q_INVOKABLE static CouchRequest deleteDocuments(const QUrl &databaseUrl, const QList<CouchDocument> &documents);
+
     static QString toDatabase(const QByteArray &response);
     static QStringList toDatabaseList(const QByteArray &response);
 

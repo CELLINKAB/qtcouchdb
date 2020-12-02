@@ -234,3 +234,54 @@ CouchResponse *CouchDatabase::deleteDocument(const CouchDocument &document)
     });
     return d->response(response);
 }
+
+CouchResponse *CouchDatabase::insertDocuments(const QList<CouchDocument> &documents)
+{
+    Q_D(CouchDatabase);
+    if (!d->client)
+        return nullptr;
+
+    CouchRequest request = Couch::insertDocuments(url(), documents);
+    CouchResponse *response = d->client->sendRequest(request);
+    if (!response)
+        return nullptr;
+
+    connect(response, &CouchResponse::received, [=](const QByteArray &data) {
+        emit documentsInserted(Couch::toDocumentList(data));
+    });
+    return d->response(response);
+}
+
+CouchResponse *CouchDatabase::updateDocuments(const QList<CouchDocument> &documents)
+{
+    Q_D(CouchDatabase);
+    if (!d->client)
+        return nullptr;
+
+    CouchRequest request = Couch::updateDocuments(url(), documents);
+    CouchResponse *response = d->client->sendRequest(request);
+    if (!response)
+        return nullptr;
+
+    connect(response, &CouchResponse::received, [=](const QByteArray &data) {
+        emit documentsUpdated(Couch::toDocumentList(data));
+    });
+    return d->response(response);
+}
+
+CouchResponse *CouchDatabase::deleteDocuments(const QList<CouchDocument> &documents)
+{
+    Q_D(CouchDatabase);
+    if (!d->client)
+        return nullptr;
+
+    CouchRequest request = Couch::deleteDocuments(url(), documents);
+    CouchResponse *response = d->client->sendRequest(request);
+    if (!response)
+        return nullptr;
+
+    connect(response, &CouchResponse::received, [=](const QByteArray &data) {
+        emit documentsDeleted(Couch::toDocumentList(data));
+    });
+    return d->response(response);
+}
