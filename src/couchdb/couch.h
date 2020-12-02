@@ -40,10 +40,10 @@ public:
     Q_INVOKABLE static CouchRequest listDocumentIds(const QUrl &databaseUrl);
     Q_INVOKABLE static CouchRequest listFullDocuments(const QUrl &databaseUrl);
     Q_INVOKABLE static CouchRequest queryDocuments(const QUrl &databaseUrl, const CouchQuery &query);
-    Q_INVOKABLE static CouchRequest createDocument(const QUrl &databaseUrl, const QByteArray &content);
-    Q_INVOKABLE static CouchRequest getDocument(const QUrl &databaseUrl, const QString &documentId, const QString &revision);
-    Q_INVOKABLE static CouchRequest updateDocument(const QUrl &databaseUrl, const QString &documentId, const QString &revision, const QByteArray &content);
-    Q_INVOKABLE static CouchRequest deleteDocument(const QUrl &databaseUrl, const QString &documentId, const QString &revision);
+    Q_INVOKABLE static CouchRequest createDocument(const QUrl &databaseUrl, const CouchDocument &document);
+    Q_INVOKABLE static CouchRequest getDocument(const QUrl &databaseUrl, const CouchDocument &document);
+    Q_INVOKABLE static CouchRequest updateDocument(const QUrl &databaseUrl, const CouchDocument &document);
+    Q_INVOKABLE static CouchRequest deleteDocument(const QUrl &databaseUrl, const CouchDocument &document);
 
     static QString toDatabase(const QByteArray &response);
     static QStringList toDatabaseList(const QByteArray &response);

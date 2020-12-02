@@ -146,33 +146,33 @@ CouchRequest Couch::queryDocuments(const QUrl &databaseUrl, const CouchQuery &qu
     return request;
 }
 
-CouchRequest Couch::createDocument(const QUrl &databaseUrl, const QByteArray &content)
+CouchRequest Couch::createDocument(const QUrl &databaseUrl, const CouchDocument &document)
 {
     CouchRequest request(CouchRequest::Post);
     request.setUrl(databaseUrl);
-    request.setBody(content);
+    request.setBody(document.content());
     return request;
 }
 
-CouchRequest Couch::getDocument(const QUrl &databaseUrl, const QString &documentId, const QString &revision)
+CouchRequest Couch::getDocument(const QUrl &databaseUrl, const CouchDocument &document)
 {
     CouchRequest request(CouchRequest::Get);
-    request.setUrl(CouchUrl::resolve(databaseUrl, documentId, revision));
+    request.setUrl(CouchUrl::resolve(databaseUrl, document.id(), document.revision()));
     return request;
 }
 
-CouchRequest Couch::updateDocument(const QUrl &databaseUrl, const QString &documentId, const QString &revision, const QByteArray &content)
+CouchRequest Couch::updateDocument(const QUrl &databaseUrl, const CouchDocument &document)
 {
     CouchRequest request(CouchRequest::Put);
-    request.setUrl(CouchUrl::resolve(databaseUrl, documentId, revision));
-    request.setBody(content);
+    request.setUrl(CouchUrl::resolve(databaseUrl, document.id(), document.revision()));
+    request.setBody(document.content());
     return request;
 }
 
-CouchRequest Couch::deleteDocument(const QUrl &databaseUrl, const QString &documentId, const QString &revision)
+CouchRequest Couch::deleteDocument(const QUrl &databaseUrl, const CouchDocument &document)
 {
     CouchRequest request(CouchRequest::Delete);
-    request.setUrl(CouchUrl::resolve(databaseUrl, documentId, revision));
+    request.setUrl(CouchUrl::resolve(databaseUrl, document.id(), document.revision()));
     return request;
 }
 

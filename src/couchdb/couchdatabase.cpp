@@ -173,7 +173,7 @@ CouchResponse *CouchDatabase::createDocument(const CouchDocument &document)
     if (!d->client)
         return nullptr;
 
-    CouchRequest request = Couch::createDocument(url(), QJsonDocument(document.toJson()).toJson(QJsonDocument::Compact));
+    CouchRequest request = Couch::createDocument(url(), document);
     CouchResponse *response = d->client->sendRequest(request);
     if (!response)
         return nullptr;
@@ -190,7 +190,7 @@ CouchResponse *CouchDatabase::getDocument(const CouchDocument &document)
     if (!d->client)
         return nullptr;
 
-    CouchRequest request = Couch::getDocument(url(), document.id(), document.revision());
+    CouchRequest request = Couch::getDocument(url(), document);
     CouchResponse *response = d->client->sendRequest(request);
     if (!response)
         return nullptr;
@@ -207,7 +207,7 @@ CouchResponse *CouchDatabase::updateDocument(const CouchDocument &document)
     if (!d->client)
         return nullptr;
 
-    CouchRequest request = Couch::updateDocument(url(), document.id(), document.revision(), document.content());
+    CouchRequest request = Couch::updateDocument(url(), document);
     CouchResponse *response = d->client->sendRequest(request);
     if (!response)
         return nullptr;
@@ -224,7 +224,7 @@ CouchResponse *CouchDatabase::deleteDocument(const CouchDocument &document)
     if (!d->client)
         return nullptr;
 
-    CouchRequest request = Couch::deleteDocument(url(), document.id(), document.revision());
+    CouchRequest request = Couch::deleteDocument(url(), document);
     CouchResponse *response = d->client->sendRequest(request);
     if (!response)
         return nullptr;
