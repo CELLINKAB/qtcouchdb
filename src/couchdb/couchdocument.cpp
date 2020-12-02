@@ -94,7 +94,7 @@ CouchDocument CouchDocument::fromJson(const QJsonObject &json)
     QString id = json.value(QStringLiteral("id")).toString();
     QString revision = json.value(QStringLiteral("rev")).toString(fallbackRevision(json));
     CouchDocument doc(id, revision);
-    doc.setContent(QJsonDocument(json.value(QStringLiteral("doc")).toObject()).toJson());
+    doc.setContent(QJsonDocument(json.value(QStringLiteral("doc")).toObject()).toJson(QJsonDocument::Compact));
     return doc;
 }
 

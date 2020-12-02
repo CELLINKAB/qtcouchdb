@@ -7,6 +7,7 @@ class tst_document : public QObject
 
 private slots:
     void test();
+    void json();
     void debug();
 };
 
@@ -41,6 +42,23 @@ void tst_document::test()
     QCOMPARE(doc1.id(), "id1");
     QCOMPARE(doc1.revision(), QString());
     QCOMPARE(doc1.content(), QByteArray());
+}
+
+void tst_document::json()
+{
+    QJsonObject content;
+    content.insert("foo", "bar");
+
+    QJsonObject json;
+    json.insert("id", "id1");
+    json.insert("rev", "rev1");
+    json.insert("doc", content);
+
+    CouchDocument doc = CouchDocument::fromJson(json);
+    QCOMPARE(doc.id(), "id1");
+    QCOMPARE(doc.revision(), "rev1");
+    QCOMPARE(doc.content(), R"({"foo":"bar"})");
+    QCOMPARE(doc.toJson(), content);
 }
 
 void tst_document::debug()
