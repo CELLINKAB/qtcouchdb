@@ -287,5 +287,12 @@ QStringList Couch::toViews(const QByteArray &response)
 QJsonArray Couch::toRows(const QByteArray &response)
 {
     QJsonDocument json = QJsonDocument::fromJson(response);
-    return json.object().value(QStringLiteral("rows")).toArray();
+    QJsonArray rows = json.object().value(QStringLiteral("rows")).toArray();
+    if (rows.isEmpty() || !rows.first().toObject().contains(QStringLiteral("doc")))
+        return rows;
+
+    QJsonArray fullRows;
+    for (const QJsonValue &row : qAsConst(rows))
+        fullRows += row.toObject().value(QStringLiteral("doc"));
+    return fullRows;
 }

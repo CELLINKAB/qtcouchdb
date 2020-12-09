@@ -3,7 +3,8 @@
 
 #include "tst_shared.h"
 
-static const QByteArray TestRows = R"({"rows":[{"foo":"bar"},{"baz":"qux"}]})";
+static const QByteArray TestRowIds = R"({"rows":[{"foo":"bar"},{"baz":"qux"}]})";
+static const QByteArray TestFullRows = R"({"rows":[{"id":"foo","doc":{"foo":"bar"}},{"id":"bar","doc":{"baz":"qux"}}]})";
 
 class tst_view : public QObject
 {
@@ -165,15 +166,18 @@ void tst_view::name()
 void tst_view::listRows_data()
 {
     QTest::addColumn<QString>("method");
+    QTest::addColumn<QByteArray>("data");
     QTest::addColumn<QUrl>("expectedUrl");
+    QTest::addColumn<QJsonArray>("expectedRows");
 
-    QTest::newRow("ids") << "listRowIds" << QUrl("/tst_database/_design/tst_designdocument/_view/tst_view");
-    QTest::newRow("full") << "listFullRows" << QUrl("/tst_database/_design/tst_designdocument/_view/tst_view?include_docs=true");
+    QTest::newRow("ids") << "listRowIds" << TestRowIds << QUrl("/tst_database/_design/tst_designdocument/_view/tst_view");
+    QTest::newRow("full") << "listFullRows" << TestFullRows << QUrl("/tst_database/_design/tst_designdocument/_view/tst_view?include_docs=true");
 }
 
 void tst_view::listRows()
 {
     QFETCH(QString, method);
+    QFETCH(QByteArray, data);
     QFETCH(QUrl, expectedUrl);
 
     CouchClient client(TestUrl);
@@ -184,7 +188,7 @@ void tst_view::listRows()
     QSignalSpy viewSpy(&view, &CouchView::rowsListed);
     QVERIFY(viewSpy.isValid());
 
-    TestNetworkAccessManager manager(TestRows);
+    TestNetworkAccessManager manager(data);
     client.setNetworkAccessManager(&manager);
 
     QVERIFY(QMetaObject::invokeMethod(&view, method.toLatin1()));
@@ -247,7 +251,7 @@ void tst_view::queryRows()
     QSignalSpy rowSpy(&view, &CouchView::rowsListed);
     QVERIFY(rowSpy.isValid());
 
-    TestNetworkAccessManager manager(TestRows);
+    TestNetworkAccessManager manager(TestRowIds);
     client.setNetworkAccessManager(&manager);
 
     view.queryRows(query);
