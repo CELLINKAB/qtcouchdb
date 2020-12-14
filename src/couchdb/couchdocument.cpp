@@ -84,20 +84,21 @@ QJsonObject CouchDocument::toJson() const
     return QJsonDocument::fromJson(d->content).object();
 }
 
-static QString jsonValue(const QString &key, const QJsonObject &json)
+static QString jsonValue(const QString &key, QJsonObject &json)
 {
     // key -> _key -> value.key
-    QString value = json.value(QStringLiteral("value")).toObject().value(key).toString();
-    QString _key = json.value(QStringLiteral("_") + key).toString(value);
-    return json.value(key).toString(_key);
+    QString value = json.take(QStringLiteral("value")).toObject().value(key).toString();
+    QString _key = json.take(QStringLiteral("_") + key).toString(value);
+    return json.take(key).toString(_key);
 }
 
-CouchDocument CouchDocument::fromJson(const QJsonObject &json)
+CouchDocument CouchDocument::fromJson(const QJsonObject &obj)
 {
-    QString id = jsonValue(QStringLiteral("id"), json);
-    QString revision = jsonValue(QStringLiteral("rev"), json);
+    QJsonObject json = obj;
+    QString id = jsonValue(QStringLiteral("id"), json );
+    QString revision = jsonValue(QStringLiteral("rev"), json );
     CouchDocument doc(id, revision);
-    doc.setContent(QJsonDocument(json.value(QStringLiteral("doc")).toObject()).toJson(QJsonDocument::Compact));
+    doc.setContent(QJsonDocument(json.value(QStringLiteral("doc")).toObject(json )).toJson(QJsonDocument::Compact));
     return doc;
 }
 

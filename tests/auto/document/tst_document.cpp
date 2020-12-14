@@ -55,6 +55,7 @@ void tst_document::json_data()
 
     QTest::newRow("id,rev") << QJsonObject({{"id","id1"},{"rev","rev1"},{"doc",content}}) << content;
     QTest::newRow("_id,_rev") << QJsonObject({{"_id","id1"},{"_rev","rev1"},{"doc",content}}) << content;
+    QTest::newRow("doc") << QJsonObject({{"_id","id1"},{"_rev","rev1"},{"foo","bar"}}) << content;
 }
 
 void tst_document::json()
