@@ -7,6 +7,7 @@ class tst_document : public QObject
 
 private slots:
     void test();
+    void json_data();
     void json();
     void debug();
 };
@@ -44,15 +45,22 @@ void tst_document::test()
     QCOMPARE(doc1.content(), QByteArray());
 }
 
-void tst_document::json()
+void tst_document::json_data()
 {
+    QTest::addColumn<QJsonObject>("json");
+    QTest::addColumn<QJsonObject>("content");
+
     QJsonObject content;
     content.insert("foo", "bar");
 
-    QJsonObject json;
-    json.insert("id", "id1");
-    json.insert("rev", "rev1");
-    json.insert("doc", content);
+    QTest::newRow("id,rev") << QJsonObject({{"id","id1"},{"rev","rev1"},{"doc",content}}) << content;
+    QTest::newRow("_id,_rev") << QJsonObject({{"_id","id1"},{"_rev","rev1"},{"doc",content}}) << content;
+}
+
+void tst_document::json()
+{
+    QFETCH(QJsonObject, json);
+    QFETCH(QJsonObject, content);
 
     CouchDocument doc = CouchDocument::fromJson(json);
     QCOMPARE(doc.id(), "id1");

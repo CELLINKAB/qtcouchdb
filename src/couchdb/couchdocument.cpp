@@ -84,15 +84,18 @@ QJsonObject CouchDocument::toJson() const
     return QJsonDocument::fromJson(d->content).object();
 }
 
-static QString fallbackRevision(const QJsonObject &json)
+static QString jsonValue(const QString &key, const QJsonObject &json)
 {
-    return json.value(QStringLiteral("value")).toObject().value(QStringLiteral("rev")).toString();
+    // key -> _key -> value.key
+    QString value = json.value(QStringLiteral("value")).toObject().value(key).toString();
+    QString _key = json.value(QStringLiteral("_") + key).toString(value);
+    return json.value(key).toString(_key);
 }
 
 CouchDocument CouchDocument::fromJson(const QJsonObject &json)
 {
-    QString id = json.value(QStringLiteral("id")).toString();
-    QString revision = json.value(QStringLiteral("rev")).toString(fallbackRevision(json));
+    QString id = jsonValue(QStringLiteral("id"), json);
+    QString revision = jsonValue(QStringLiteral("rev"), json);
     CouchDocument doc(id, revision);
     doc.setContent(QJsonDocument(json.value(QStringLiteral("doc")).toObject()).toJson(QJsonDocument::Compact));
     return doc;
