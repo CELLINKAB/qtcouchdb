@@ -55,8 +55,11 @@ static CouchDesignDocument *createDesignDocument(const QString &name, CouchDatab
 static CouchView *createView(const QString &name, CouchDesignDocument *designDocument)
 {
     CouchView *view = new CouchView(name, designDocument);
-    QObject::connect(view, &CouchView::rowsListed, [](const QJsonArray &rows) {
-        std::cout << QJsonDocument(rows).toJson(QJsonDocument::Indented).constData();
+    QObject::connect(view, &CouchView::rowsListed, [](const QList<CouchDocument> &documents) {
+        QJsonArray json;
+        for (const CouchDocument &doc : documents)
+            json.append(doc.toJson());
+        std::cout << QJsonDocument(json).toJson(QJsonDocument::Indented).constData();
     });
     return view;
 }
