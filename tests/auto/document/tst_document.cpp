@@ -48,26 +48,28 @@ void tst_document::test()
 void tst_document::json_data()
 {
     QTest::addColumn<QJsonObject>("json");
-    QTest::addColumn<QJsonObject>("content");
+    QTest::addColumn<QJsonObject>("expectedJson");
 
     QJsonObject content;
     content.insert("foo", "bar");
 
-    QTest::newRow("id,rev") << QJsonObject({{"id","id1"},{"rev","rev1"},{"doc",content}}) << content;
-    QTest::newRow("_id,_rev") << QJsonObject({{"_id","id1"},{"_rev","rev1"},{"doc",content}}) << content;
-    QTest::newRow("doc") << QJsonObject({{"_id","id1"},{"_rev","rev1"},{"foo","bar"}}) << content;
+    QJsonObject doc({{"id","id1"},{"rev","rev1"},{"doc",content}});
+
+    QTest::newRow("id,rev") << doc << doc;
+    QTest::newRow("_id,_rev") << QJsonObject({{"_id","id1"},{"_rev","rev1"},{"doc",content}}) << doc;
+    QTest::newRow("doc") << QJsonObject({{"_id","id1"},{"_rev","rev1"},{"foo","bar"}}) << doc;
 }
 
 void tst_document::json()
 {
     QFETCH(QJsonObject, json);
-    QFETCH(QJsonObject, content);
+    QFETCH(QJsonObject, expectedJson);
 
     CouchDocument doc = CouchDocument::fromJson(json);
     QCOMPARE(doc.id(), "id1");
     QCOMPARE(doc.revision(), "rev1");
     QCOMPARE(doc.content(), R"({"foo":"bar"})");
-    QCOMPARE(doc.toJson(), content);
+    QCOMPARE(doc.toJson(), expectedJson);
 }
 
 void tst_document::debug()

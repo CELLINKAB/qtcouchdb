@@ -22,7 +22,7 @@ public:
             return QUrl();
         QUrl url = baseUrl;
         url.setPath(join(baseUrl.path(), path));
-        if (!revision.isNull())
+        if (!revision.isEmpty())
             url.setQuery(QStringLiteral("rev=%1").arg(revision));
         return url;
     }

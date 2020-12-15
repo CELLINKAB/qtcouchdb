@@ -81,7 +81,11 @@ void CouchDocument::setContent(const QByteArray &content)
 QJsonObject CouchDocument::toJson() const
 {
     Q_D(const CouchDocument);
-    return QJsonDocument::fromJson(d->content).object();
+    QJsonObject json;
+    json.insert(QStringLiteral("id"), d->id);
+    json.insert(QStringLiteral("rev"), d->revision);
+    json.insert(QStringLiteral("doc"), QJsonDocument::fromJson(d->content).object());
+    return json;
 }
 
 static QString jsonValue(const QString &key, QJsonObject &json)
@@ -95,10 +99,10 @@ static QString jsonValue(const QString &key, QJsonObject &json)
 CouchDocument CouchDocument::fromJson(const QJsonObject &obj)
 {
     QJsonObject json = obj;
-    QString id = jsonValue(QStringLiteral("id"), json );
-    QString revision = jsonValue(QStringLiteral("rev"), json );
+    QString id = jsonValue(QStringLiteral("id"), json);
+    QString revision = jsonValue(QStringLiteral("rev"), json);
     CouchDocument doc(id, revision);
-    doc.setContent(QJsonDocument(json.value(QStringLiteral("doc")).toObject(json )).toJson(QJsonDocument::Compact));
+    doc.setContent(QJsonDocument(json.value(QStringLiteral("doc")).toObject(json)).toJson(QJsonDocument::Compact));
     return doc;
 }
 

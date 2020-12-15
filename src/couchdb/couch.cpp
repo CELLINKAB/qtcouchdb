@@ -148,8 +148,14 @@ CouchRequest Couch::queryDocuments(const QUrl &databaseUrl, const CouchQuery &qu
 
 CouchRequest Couch::createDocument(const QUrl &databaseUrl, const CouchDocument &document)
 {
-    CouchRequest request(CouchRequest::Post);
-    request.setUrl(databaseUrl);
+    CouchRequest request;
+    if (!document.id().isEmpty()) {
+        request.setOperation(CouchRequest::Put);
+        request.setUrl(CouchUrl::resolve(databaseUrl, document.id(), document.revision()));
+    } else {
+        request.setOperation(CouchRequest::Post);
+        request.setUrl(databaseUrl);
+    }
     request.setBody(document.content());
     return request;
 }
@@ -163,7 +169,7 @@ CouchRequest Couch::getDocument(const QUrl &databaseUrl, const CouchDocument &do
 
 CouchRequest Couch::updateDocument(const QUrl &databaseUrl, const CouchDocument &document)
 {
-    CouchRequest request(CouchRequest::Put);
+    CouchRequest request(CouchRequest::Post);
     request.setUrl(CouchUrl::resolve(databaseUrl, document.id(), document.revision()));
     request.setBody(document.content());
     return request;

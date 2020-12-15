@@ -6,6 +6,7 @@
 static const QByteArray TestDesignDocuments = R"({"rows":[{"key":"_design/foo"},{"key":"_design/bar"},{"key":"baz"}]})";
 static const QByteArray TestDocument1 = R"({"id":"doc1","rev":"rev1","doc":{"foo":"bar"}})";
 static const QByteArray TestDocument2 = R"({"id":"doc2","rev":"rev2","doc":{"baz":"qux"}})";
+static const QByteArray TestDocument3 = R"({"baz":"qux"})";
 static const QByteArray TestRows = R"({"rows":[)" + TestDocument1 + "," + TestDocument2 + "]}";
 static const QByteArray TestDocuments = R"({"docs":[)" + TestDocument1 + "," + TestDocument2 + "]}";
 
@@ -277,19 +278,24 @@ void tst_database::queryDocuments()
 void tst_database::document_data()
 {
     QTest::addColumn<QString>("method");
+    QTest::addColumn<QByteArray>("data");
     QTest::addColumn<QNetworkAccessManager::Operation>("expectedOperation");
     QTest::addColumn<QUrl>("expectedUrl");
     QTest::addColumn<QString>("expectedSignal");
 
-    QTest::newRow("create") << "createDocument" << QNetworkAccessManager::PostOperation << TestUrl.resolved(QUrl("/tst_database")) << "documentCreated(CouchDocument)";
-    QTest::newRow("get") << "getDocument" << QNetworkAccessManager::GetOperation << TestUrl.resolved(QUrl("/tst_database/doc1?rev=rev1")) << "documentReceived(CouchDocument)";
-    QTest::newRow("update") << "updateDocument" << QNetworkAccessManager::PutOperation << TestUrl.resolved(QUrl("/tst_database/doc1?rev=rev1")) << "documentUpdated(CouchDocument)";
-    QTest::newRow("delete") << "deleteDocument" << QNetworkAccessManager::DeleteOperation << TestUrl.resolved(QUrl("/tst_database/doc1?rev=rev1")) << "documentDeleted(CouchDocument)";
+    QJsonDocument::fromJson(TestDocument1).object();
+
+    QTest::newRow("create with id") << "createDocument" << TestDocument1 << QNetworkAccessManager::PutOperation << TestUrl.resolved(QUrl("/tst_database/doc1?rev=rev1")) << "documentCreated(CouchDocument)";
+    QTest::newRow("create without id") << "createDocument" << TestDocument3 << QNetworkAccessManager::PostOperation << TestUrl.resolved(QUrl("/tst_database")) << "documentCreated(CouchDocument)";
+    QTest::newRow("get") << "getDocument" << TestDocument1 << QNetworkAccessManager::GetOperation << TestUrl.resolved(QUrl("/tst_database/doc1?rev=rev1")) << "documentReceived(CouchDocument)";
+    QTest::newRow("update") << "updateDocument" << TestDocument1 << QNetworkAccessManager::PostOperation << TestUrl.resolved(QUrl("/tst_database/doc1?rev=rev1")) << "documentUpdated(CouchDocument)";
+    QTest::newRow("delete") << "deleteDocument" << TestDocument1 << QNetworkAccessManager::DeleteOperation << TestUrl.resolved(QUrl("/tst_database/doc1?rev=rev1")) << "documentDeleted(CouchDocument)";
 }
 
 void tst_database::document()
 {
     QFETCH(QString, method);
+    QFETCH(QByteArray, data);
     QFETCH(QNetworkAccessManager::Operation, expectedOperation);
     QFETCH(QUrl, expectedUrl);
     QFETCH(QString, expectedSignal);
@@ -300,19 +306,20 @@ void tst_database::document()
     QSignalSpy documentSpy(&database, QByteArray::number(QSIGNAL_CODE) + expectedSignal.toLatin1());
     QVERIFY(documentSpy.isValid());
 
-    TestNetworkAccessManager manager(TestDocument1);
+    TestNetworkAccessManager manager(data);
     client.setNetworkAccessManager(&manager);
 
-    CouchDocument doc1 = CouchDocument::fromJson(QJsonDocument::fromJson(TestDocument1).object());
+    QJsonObject json = QJsonDocument::fromJson(data).object();
+    CouchDocument doc = CouchDocument::fromJson(json);
 
-    QVERIFY(QMetaObject::invokeMethod(&database, method.toLatin1(), Q_ARG(CouchDocument, doc1)));
+    QVERIFY(QMetaObject::invokeMethod(&database, method.toLatin1(), Q_ARG(CouchDocument, doc)));
     QCOMPARE(manager.operations, {expectedOperation});
     QCOMPARE(manager.urls, {expectedUrl});
 
     QVERIFY(documentSpy.wait());
     QVariantList args = documentSpy.takeFirst();
     QCOMPARE(args.count(), 1);
-    QCOMPARE(args.first().value<CouchDocument>(), doc1);
+    QCOMPARE(args.first().value<CouchDocument>(), doc);
 }
 
 void tst_database::documents_data()
