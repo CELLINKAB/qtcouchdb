@@ -59,8 +59,6 @@ public:
     static QList<CouchDocument> toDocumentList(const QByteArray &response);
 
     static QStringList toViews(const QByteArray &response);
-
-    static QJsonArray toRows(const QByteArray &response);
 };
 
 #endif // COUCH_H

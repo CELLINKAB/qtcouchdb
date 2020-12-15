@@ -168,10 +168,12 @@ void tst_view::listRows_data()
     QTest::addColumn<QString>("method");
     QTest::addColumn<QByteArray>("data");
     QTest::addColumn<QUrl>("expectedUrl");
-    QTest::addColumn<QJsonArray>("expectedRows");
+    QTest::addColumn<QList<CouchDocument>>("expectedDocs");
 
-    QTest::newRow("ids") << "listRowIds" << TestRowIds << QUrl("/tst_database/_design/tst_designdocument/_view/tst_view");
-    QTest::newRow("full") << "listFullRows" << TestFullRows << QUrl("/tst_database/_design/tst_designdocument/_view/tst_view?include_docs=true");
+    QTest::newRow("ids") << "listRowIds" << TestRowIds << QUrl("/tst_database/_design/tst_designdocument/_view/tst_view")
+                         << QList<CouchDocument>({CouchDocument().withContent(R"({"foo":"bar"})"), CouchDocument().withContent(R"({"baz":"qux"})")});
+    QTest::newRow("full") << "listFullRows" << TestFullRows << QUrl("/tst_database/_design/tst_designdocument/_view/tst_view?include_docs=true")
+                          << QList<CouchDocument>({CouchDocument("foo").withContent(R"({"foo":"bar"})"), CouchDocument("bar").withContent(R"({"baz":"qux"})")});
 }
 
 void tst_view::listRows()
@@ -179,6 +181,7 @@ void tst_view::listRows()
     QFETCH(QString, method);
     QFETCH(QByteArray, data);
     QFETCH(QUrl, expectedUrl);
+    QFETCH(QList<CouchDocument>, expectedDocs);
 
     CouchClient client(TestUrl);
     CouchDatabase database("tst_database", &client);
@@ -198,7 +201,8 @@ void tst_view::listRows()
     QVERIFY(viewSpy.wait());
     QVariantList args = viewSpy.takeFirst();
     QCOMPARE(args.count(), 1);
-    QCOMPARE(args.first().value<QJsonArray>(), QJsonArray({QJsonObject({{"foo", "bar"}}), QJsonObject({{"baz", "qux"}})}));
+    qDebug() << args.first().value<QList<CouchDocument>>().first().content() << "vs." << expectedDocs.first().content();
+    QCOMPARE(args.first().value<QList<CouchDocument>>(), expectedDocs);
 }
 
 void tst_view::queryRows_data()
@@ -260,11 +264,12 @@ void tst_view::queryRows()
 
     QJsonObject row1 = QJsonDocument::fromJson("{\"foo\":\"bar\"}").object();
     QJsonObject row2 = QJsonDocument::fromJson("{\"baz\":\"qux\"}").object();
+    QList<CouchDocument> expectedDocs = {CouchDocument::fromJson(row1), CouchDocument::fromJson(row2)};
 
     QVERIFY(rowSpy.wait());
     QVariantList args = rowSpy.takeFirst();
     QCOMPARE(args.count(), 1);
-    QCOMPARE(args.first().value<QJsonArray>(), QJsonArray({row1, row2}));
+    QCOMPARE(args.first().value<QList<CouchDocument>>(), expectedDocs);
 }
 
 void tst_view::error()

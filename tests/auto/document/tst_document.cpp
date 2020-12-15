@@ -34,10 +34,18 @@ void tst_document::test()
     QCOMPARE(doc2.content(), QByteArray());
     QVERIFY(doc1 == doc2);
 
-    doc2.setContent("content");
+    CouchDocument doc3 = doc2.withRevision("rev3");
+    QCOMPARE(doc1.revision(), "rev");
+    QCOMPARE(doc2.revision(), "rev");
+    QCOMPARE(doc3.revision(), "rev3");
+    QVERIFY(doc2 != doc3);
+
+    CouchDocument doc4 = doc3.withContent("content");
     QCOMPARE(doc1.content(), QByteArray());
-    QCOMPARE(doc2.content(), QByteArray("content"));
-    QVERIFY(doc1 != doc2);
+    QCOMPARE(doc2.content(), QByteArray());
+    QCOMPARE(doc3.content(), QByteArray());
+    QCOMPARE(doc4.content(), QByteArray("content"));
+    QVERIFY(doc3 != doc4);
 
     doc1 = "id1";
     QCOMPARE(doc1.id(), "id1");

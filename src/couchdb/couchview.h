@@ -50,7 +50,7 @@ signals:
     void designDocumentChanged(CouchDesignDocument *designDocument);
     void errorOccurred(const CouchError &error);
 
-    void rowsListed(const QJsonArray &rows);
+    void rowsListed(const QList<CouchDocument> &rows);
 
 private:
     Q_DECLARE_PRIVATE(CouchView)

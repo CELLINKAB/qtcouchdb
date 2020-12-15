@@ -16,7 +16,7 @@ class COUCHDB_EXPORT CouchDocument
     Q_GADGET
     Q_PROPERTY(QString id READ id)
     Q_PROPERTY(QString revision READ revision)
-    Q_PROPERTY(QByteArray content READ content WRITE setContent)
+    Q_PROPERTY(QByteArray content READ content)
 
 public:
     CouchDocument(const QString &id = QString(), const QString &revision = QString());
@@ -31,9 +31,10 @@ public:
 
     QString id() const;
     QString revision() const;
-
     QByteArray content() const;
-    void setContent(const QByteArray &content);
+
+    CouchDocument withRevision(const QString &revision) const;
+    CouchDocument withContent(const QByteArray &content) const;
 
     QJsonObject toJson() const;
     static CouchDocument fromJson(const QJsonObject &json);

@@ -72,10 +72,20 @@ QByteArray CouchDocument::content() const
     return d->content;
 }
 
-void CouchDocument::setContent(const QByteArray &content)
+CouchDocument CouchDocument::withRevision(const QString &revision) const
 {
-    d_ptr.detach();
-    d_ptr->content = content;
+    CouchDocument copy(*this);
+    copy.d_ptr.detach();
+    copy.d_ptr->revision = revision;
+    return copy;
+}
+
+CouchDocument CouchDocument::withContent(const QByteArray &content) const
+{
+    CouchDocument copy(*this);
+    copy.d_ptr.detach();
+    copy.d_ptr->content = content;
+    return copy;
 }
 
 QJsonObject CouchDocument::toJson() const
@@ -88,22 +98,47 @@ QJsonObject CouchDocument::toJson() const
     return json;
 }
 
-static QString jsonValue(const QString &key, QJsonObject &json)
+static QString keyValue(const QString &key, QJsonObject &json)
 {
-    // key -> _key -> value.key
-    QString value = json.take(QStringLiteral("value")).toObject().value(key).toString();
-    QString _key = json.take(QStringLiteral("_") + key).toString(value);
-    return json.take(key).toString(_key);
+    // key -> _key
+    return json.take(QStringLiteral("_") + key).toString(json.take(key).toString());
 }
 
-CouchDocument CouchDocument::fromJson(const QJsonObject &obj)
+static QString childValue(const QString &parentKey, const QString &childKey, QJsonObject &json)
 {
-    QJsonObject json = obj;
-    QString id = jsonValue(QStringLiteral("id"), json);
-    QString revision = jsonValue(QStringLiteral("rev"), json);
-    CouchDocument doc(id, revision);
-    doc.setContent(QJsonDocument(json.value(QStringLiteral("doc")).toObject(json)).toJson(QJsonDocument::Compact));
-    return doc;
+    if (!json.contains(parentKey))
+        return QString();
+
+    QJsonObject doc = json.value(parentKey).toObject();
+    QString value = doc.take(childKey).toString();
+    json[parentKey] = doc;
+    return value;
+}
+
+static QString getValue(const QString &key, QJsonObject &json)
+{
+    QString value = keyValue(key, json); !value.isNull();
+    if (!value.isNull())
+        return value;
+
+    value = childValue(QStringLiteral("doc"), key, json);
+    if (!value.isNull())
+        return value;
+
+    value = childValue(QStringLiteral("value"), key, json);
+    if (!value.isNull())
+        return value;
+
+    return QString();
+}
+
+CouchDocument CouchDocument::fromJson(const QJsonObject &json)
+{
+    QJsonObject copy(json);
+    QString id = getValue(QStringLiteral("id"), copy);
+    QString revision = getValue(QStringLiteral("rev"), copy);
+    QByteArray content = QJsonDocument(copy.value(QStringLiteral("doc")).toObject(copy)).toJson(QJsonDocument::Compact);
+    return CouchDocument(id, revision).withContent(content);
 }
 
 QDebug operator<<(QDebug debug, const CouchDocument &document)

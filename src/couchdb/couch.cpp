@@ -37,9 +37,7 @@ QUrl Couch::viewUrl(const QUrl &designDocumentUrl, const QString &name)
 
 CouchDocument Couch::document(const QString &id, const QString &revision, const QByteArray &content)
 {
-    CouchDocument document(id, revision);
-    document.setContent(content);
-    return document;
+    return CouchDocument(id, revision).withContent(content);
 }
 
 CouchQuery Couch::query(int limit, int skip, Qt::SortOrder order, bool includeDocs)
@@ -231,7 +229,7 @@ QStringList Couch::toDatabaseList(const QByteArray &response)
     QJsonArray json = QJsonDocument::fromJson(response).array();
 
     QStringList databases;
-    for (const QJsonValue &value : json)
+    for (const QJsonValue &value : qAsConst(json))
         databases += value.toString();
     return databases;
 }
@@ -261,7 +259,7 @@ QStringList Couch::toDesignDocumentList(const QByteArray &response)
     QJsonArray rows = json.object().value(QStringLiteral("rows")).toArray();
 
     QStringList designs;
-    for (const QJsonValue &value : rows)
+    for (const QJsonValue &value : qAsConst(rows))
         designs += toDesignDocumentName(value.toObject());
     return designs;
 }
@@ -278,7 +276,7 @@ QList<CouchDocument> Couch::toDocumentList(const QByteArray &response)
     QJsonArray rows = json.object().value(QStringLiteral("rows")).toArray();
 
     QList<CouchDocument> docs;
-    for (const QJsonValue &value : rows)
+    for (const QJsonValue &value : qAsConst(rows))
         docs += CouchDocument::fromJson(value.toObject());
     return docs;
 }
@@ -288,17 +286,4 @@ QStringList Couch::toViews(const QByteArray &response)
     QJsonDocument json = QJsonDocument::fromJson(response);
     QJsonObject views = json.object().value(QStringLiteral("views")).toObject();
     return views.keys();
-}
-
-QJsonArray Couch::toRows(const QByteArray &response)
-{
-    QJsonDocument json = QJsonDocument::fromJson(response);
-    QJsonArray rows = json.object().value(QStringLiteral("rows")).toArray();
-    if (rows.isEmpty() || !rows.first().toObject().contains(QStringLiteral("doc")))
-        return rows;
-
-    QJsonArray fullRows;
-    for (const QJsonValue &row : qAsConst(rows))
-        fullRows += row.toObject().value(QStringLiteral("doc"));
-    return fullRows;
 }
