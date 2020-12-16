@@ -144,7 +144,6 @@ CouchResponse *CouchView::queryRows(const CouchQuery &query)
         return nullptr;
 
     connect(response, &CouchResponse::received, [=](const QByteArray &data) {
-        qDebug() << "###" << data << "->" << Couch::toDocumentList(data);
         emit rowsListed(Couch::toDocumentList(data));
     });
     return d->response(response);

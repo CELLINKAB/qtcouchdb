@@ -201,7 +201,6 @@ void tst_view::listRows()
     QVERIFY(viewSpy.wait());
     QVariantList args = viewSpy.takeFirst();
     QCOMPARE(args.count(), 1);
-    qDebug() << args.first().value<QList<CouchDocument>>().first().content() << "vs." << expectedDocs.first().content();
     QCOMPARE(args.first().value<QList<CouchDocument>>(), expectedDocs);
 }
 
