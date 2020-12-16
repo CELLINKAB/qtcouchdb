@@ -117,7 +117,7 @@ static QString childValue(const QString &parentKey, const QString &childKey, QJs
 
 static QString getValue(const QString &key, QJsonObject &json)
 {
-    QString value = keyValue(key, json); !value.isNull();
+    QString value = keyValue(key, json);
     if (!value.isNull())
         return value;
 
