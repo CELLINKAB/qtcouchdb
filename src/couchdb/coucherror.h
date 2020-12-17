@@ -16,11 +16,13 @@ QT_FORWARD_DECLARE_CLASS(QUrl)
 class COUCHDB_EXPORT CouchError
 {
     Q_GADGET
+    Q_PROPERTY(int code READ code)
     Q_PROPERTY(QString error READ error)
     Q_PROPERTY(QString reason READ reason)
 
 public:
     CouchError(const QString &error = QString(), const QString &reason = QString());
+    CouchError(int code, const QString &error = QString(), const QString &reason = QString());
     ~CouchError();
 
     CouchError(const CouchError &other);
@@ -29,8 +31,11 @@ public:
     bool operator==(const CouchError &other) const;
     bool operator!=(const CouchError &other) const;
 
+    int code() const;
     QString error() const;
     QString reason() const;
+
+    CouchError withCode(int code) const;
 
     static CouchError fromJson(const QJsonObject &json);
 

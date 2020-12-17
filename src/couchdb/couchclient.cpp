@@ -202,7 +202,8 @@ void CouchClientPrivate::queryFinished(QNetworkReply *reply)
         emit q->responseReceived(response);
     } else {
         QByteArray key = QMetaEnum::fromType<QNetworkReply::NetworkError>().valueToKey(networkError);
-        CouchError error(QString::fromLatin1(key), reply->errorString());
+        int code = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        CouchError error(code, QString::fromLatin1(key), reply->errorString());
         emit response->errorOccurred(error);
         emit q->errorOccurred(error);
     }
