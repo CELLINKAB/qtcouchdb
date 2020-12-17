@@ -82,6 +82,11 @@ CouchRequest Couch::createDesignDocument(const QUrl &designDocumentUrl)
 {
     CouchRequest request(CouchRequest::Put);
     request.setUrl(designDocumentUrl);
+    // ### TODO: FIXME!
+    QJsonObject json;
+    json.insert(QStringLiteral("_id"), designDocumentUrl.fileName());
+    json.insert(QStringLiteral("views"), QJsonObject());
+    request.setBody(QJsonDocument(json).toJson());
     return request;
 }
 
