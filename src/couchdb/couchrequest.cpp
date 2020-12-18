@@ -1,5 +1,7 @@
 #include "couchrequest.h"
 
+#include <QtCore/qmetaobject.h>
+
 class CouchRequestPrivate : public QSharedData
 {
 public:

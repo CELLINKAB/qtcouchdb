@@ -4,7 +4,9 @@
 #include "couchresponse.h"
 
 #include <QtCore/qloggingcategory.h>
+#include <QtCore/qmetaobject.h>
 #include <QtNetwork/qnetworkaccessmanager.h>
+#include <QtNetwork/qnetworkreply.h>
 #include <QtNetwork/qnetworkrequest.h>
 
 Q_LOGGING_CATEGORY(lcCouchDB, "qtcouchdb", QtWarningMsg)

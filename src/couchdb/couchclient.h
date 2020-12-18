@@ -4,6 +4,7 @@
 #include <QtCouchDB/couchglobal.h>
 #include <QtCore/qobject.h>
 #include <QtCore/qscopedpointer.h>
+#include <QtCore/qurl.h>
 
 class CouchError;
 class CouchRequest;

@@ -1,6 +1,11 @@
 #include "couch.h"
 #include "couchurl_p.h"
 
+#include <QtCore/qjsonarray.h>
+#include <QtCore/qjsondocument.h>
+#include <QtCore/qjsonobject.h>
+#include <QtCore/qurlquery.h>
+
 static QUrl queryUrl(QUrl url, const CouchQuery &query)
 {
     QUrlQuery q;

@@ -1,5 +1,7 @@
 #include "coucherror.h"
 
+#include <QtCore/qjsonobject.h>
+
 class CouchErrorPrivate : public QSharedData
 {
 public:

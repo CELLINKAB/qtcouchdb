@@ -1,5 +1,8 @@
 #include "couchdocument.h"
 
+#include <QtCore/qjsondocument.h>
+#include <QtCore/qjsonobject.h>
+
 class CouchDocumentPrivate : public QSharedData
 {
 public:

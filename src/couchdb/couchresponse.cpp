@@ -1,5 +1,6 @@
 #include "couchresponse.h"
 
+#include <QtCore/qjsonobject.h>
 #include <QtCore/qjsondocument.h>
 
 class CouchResponsePrivate
