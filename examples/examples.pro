@@ -1,5 +1,7 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
-    cli \
+    cli
+
+qtHaveModule(quickcontrols2): SUBDIRS += \
     quick

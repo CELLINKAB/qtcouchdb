@@ -1,8 +1,12 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
-    couchdb \
-    imports
-
-imports.depends += \
     couchdb
+
+qtHaveModule(qml) {
+    SUBDIRS += \
+        imports
+
+    imports.depends += \
+        couchdb
+}
